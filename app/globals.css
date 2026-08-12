@@ -2188,10 +2188,20 @@ main {
   margin-bottom: 28px;
 }
 
-.admin-login-head .brand-mark {
-  margin: 0 auto 14px;
-  width: 44px;
-  height: 44px;
+.login-bull-icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.4));
+}
+
+.login-card-bull-icon {
+  width: 48px;
+  height: 48px;
+  object-fit: contain;
+  margin: 0 auto 16px;
+  display: block;
+  filter: drop-shadow(0 0 12px rgba(255, 255, 255, 0.5)) drop-shadow(0 0 18px rgba(38, 217, 138, 0.35));
 }
 
 .admin-login-head h2 {

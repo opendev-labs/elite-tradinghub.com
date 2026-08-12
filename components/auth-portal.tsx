@@ -115,7 +115,7 @@ export function AuthPortal() {
     <div className="admin-login-wrapper">
       <div className="admin-login-card">
         <div className="admin-login-head">
-          <div className="brand-mark"><Lock size={22} /></div>
+          <img src="/only-bull-head-icon.png" alt="Elite Trading Hub Bull Logo" className="login-card-bull-icon" />
           <h2>Elite Trading Hub Login</h2>
           <p>Single sign-in portal for both Client Traders & Administrators.</p>
         </div>

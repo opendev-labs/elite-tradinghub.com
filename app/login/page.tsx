@@ -12,7 +12,7 @@ export default function LoginPage() {
         </Link>
         
         <div className="login-brand-tag">
-          <span className="brand-mark"><Crosshair size={15} /></span>
+          <img src="/only-bull-head-icon.png" alt="Elite Trading Hub Logo" className="login-bull-icon" />
           <span>ELITE<b>TRADING</b><em>HUB</em></span>
         </div>
       </header>
