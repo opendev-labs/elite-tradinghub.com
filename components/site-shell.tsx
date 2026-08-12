@@ -22,11 +22,11 @@ export function SiteHeader() {
 
       <header className="site-header">
         <div className="site-header-inner">
-          {/* Top Brand Icon: ONLY Green Bull Head Icon (Transparent Background) */}
+          {/* Top Brand Icon: White Bull Head Icon (Transparent Background) */}
           <Link href="/" className="premium-brand-icon-only" onClick={() => setOpen(false)}>
             <img 
               src="/only-bull-head-icon.png" 
-              alt="Elite Trading Hub Bull Logo Icon" 
+              alt="Elite Trading Hub White Bull Logo Icon" 
               className="header-green-bull-icon" 
             />
           </Link>
@@ -112,7 +112,7 @@ export function SiteFooter() {
     <footer className="site-footer">
       <div className="footer-top">
         <div>
-          <Link href="/" className="premium-brand-icon-only">
+          <Link href="/" className="footer-brand-link">
             <img src="/only-bull-head-icon.png" alt="Elite Trading Hub Bull Icon" className="footer-green-bull-icon" />
             <span className="footer-brand-title">ELITE TRADING HUB</span>
           </Link>

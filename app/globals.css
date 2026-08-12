@@ -1318,19 +1318,28 @@ main {
   transform: scale(1.02);
 }
 
-/* Header Brand: Pure Green Bull Logo Icon with No Name */
+/* Header Brand: White Bull Logo Icon with Transparent Background */
 .header-green-bull-icon {
   width: auto;
   height: 42px;
   max-width: 48px;
   object-fit: contain;
   background: transparent !important;
-  filter: drop-shadow(0 0 12px rgba(38, 217, 138, 0.45));
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.4)) drop-shadow(0 0 16px rgba(38, 217, 138, 0.3));
   transition: transform 0.2s ease;
 }
 
 .header-green-bull-icon:hover {
   transform: scale(1.08);
+  filter: drop-shadow(0 0 14px rgba(255, 255, 255, 0.6)) drop-shadow(0 0 20px rgba(38, 217, 138, 0.5));
+}
+
+.footer-brand-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  margin-bottom: 14px;
 }
 
 .footer-green-bull-icon {
@@ -1338,13 +1347,17 @@ main {
   height: 32px;
   object-fit: contain;
   background: transparent !important;
+  filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.4));
+  flex-shrink: 0;
 }
 
 .footer-brand-title {
   color: var(--foreground);
-  font: 700 15px var(--font-mono);
+  font: 700 16px var(--font-mono);
   letter-spacing: 0.05em;
-  margin-left: 10px;
+  margin-left: 0;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .eyebrow-logo-icon, .about-logo-icon {
