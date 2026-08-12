@@ -18,10 +18,10 @@ export function PremiumHome() {
         {/* Full-Bleed Market Ticker Strip */}
         <MarketStrip />
 
-        {/* Clean Pure Black Hero Section showcasing User's Original Logo Image with Transparent Background */}
+        {/* Clean Pure Black Hero Section showcasing Clean Centered Logo Image (No Gemini Watermark) */}
         <section className="pure-black-hero-section">
           <div className="pure-black-hero-content">
-            {/* User's Exact Original Logo Image with Transparent Background */}
+            {/* Clean Centered Logo Image with 100% Transparent Background & No Gemini Watermark */}
             <div className="hero-logo-transparent-wrapper">
               <img 
                 src="/user-logo-transparent.png" 
@@ -89,7 +89,7 @@ export function PremiumHome() {
         <section className="dark-band">
           <div>
             <div className="eyebrow-line">
-              <img src="/user-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+              <img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
               WHY ELITE
             </div>
             <h2>Clarity compounds.</h2>
@@ -114,7 +114,7 @@ export function PremiumHome() {
           <div className="cta-panel">
             <div>
               <div className="eyebrow-line">
-                <img src="/user-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+                <img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
                 READY WHEN YOU ARE
               </div>
               <h2>
@@ -173,7 +173,7 @@ export function PremiumFeatures() {
         <section className="premium-section platform-cta">
           <div className="cta-panel">
             <div>
-              <div className="eyebrow-line"><img src="/user-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
+              <div className="eyebrow-line"><img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
               <h2>Ready to upgrade your trading process?</h2>
             </div>
             <Link href="/login" className="luxury-button">
@@ -214,7 +214,7 @@ export function PremiumMethodology() {
 
           <div className="methodology-note dark-band">
             <div>
-              <div className="eyebrow-line"><img src="/user-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
+              <div className="eyebrow-line"><img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
               <h2>Why rules beat intuition.</h2>
               <p>Discipline isn&apos;t about never taking losses—it&apos;s about ensuring every loss is controlled, deliberate, and within your risk model parameters.</p>
             </div>
@@ -239,7 +239,7 @@ export function PremiumAbout() {
           <div className="about-grid">
             <div className="about-statements">
               <div>
-                <img src="/user-icon-transparent.png" alt="Bull Icon" className="about-logo-icon" />
+                <img src="/only-bull-head-icon.png" alt="Bull Icon" className="about-logo-icon" />
                 <b>No noise. No hype.</b>
                 <p>We do not publish get-rich-quick tips or speculative calls. Every setup is grounded in verifiable price action and derivatives data.</p>
               </div>
