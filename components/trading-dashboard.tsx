@@ -8,8 +8,6 @@ const market = [
   { name: 'NIFTY 50', value: '24,718.60', change: '+0.84%', up: true },
   { name: 'BANK NIFTY', value: '52,405.25', change: '+1.12%', up: true },
   { name: 'SENSEX', value: '81,332.60', change: '+0.76%', up: true },
-  { name: 'USD / INR', value: '83.92', change: '-0.18%', up: false },
-  { name: 'INDIA VIX', value: '13.42', change: '-4.32%', up: false },
 ]
 const setups = [
   { symbol: 'NIFTY', bias: 'BULLISH', level: '24,650', target: '24,850', stop: '24,570', score: 92, tone: 'bull' },

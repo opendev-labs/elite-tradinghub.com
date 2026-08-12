@@ -6,7 +6,7 @@ import { PageFrame, PageHero, SectionHeading } from './site-shell'
 import { MarketStrip } from './trading-dashboard'
 
 const capabilities = [
-  ['Market coverage', 'NIFTY 50, BANK NIFTY, NSE and BSE equities, indices and selected options setups.', BarChart3],
+  ['Market coverage', 'NIFTY 50, BANK NIFTY, and SENSEX indices setups.', BarChart3],
   ['Signal discipline', 'A transparent framework combining price action, volume, volatility and derivatives context.', BarChart3],
   ['Risk first', 'Position sizing and stop-loss logic designed to put the downside before the trade idea.', ShieldCheck],
 ]
@@ -18,14 +18,14 @@ export function PremiumHome() {
         {/* Full-Bleed Market Ticker Strip */}
         <MarketStrip />
 
-        {/* Clean Pure Black Hero Section with Transparent Official Logo Showcase */}
+        {/* Clean Pure Black Hero Section with Revamped Transparent SVG Logo Showcase */}
         <section className="pure-black-hero-section">
           <div className="pure-black-hero-content">
-            {/* The Logo with 100% Transparent Background */}
+            {/* Revamped Vector SVG Logo with 100% Transparent Background & No Watermark */}
             <div className="hero-logo-transparent-wrapper">
               <img 
-                src="/logo-transparent.png" 
-                alt="Elite Trading Hub Official Logo" 
+                src="/logo-revamped.svg" 
+                alt="Elite Trading Hub Official Revamped Vector Logo" 
                 className="hero-logo-transparent-img"
               />
             </div>
@@ -55,14 +55,12 @@ export function PremiumHome() {
           </div>
         </section>
 
-        {/* Proof Bar */}
+        {/* Proof Bar - Only NIFTY 50, BANK NIFTY, SENSEX */}
         <section className="proof-bar">
-          <span>Built for the Indian market</span>
+          <span>Supported Indices</span>
           <b>NIFTY 50</b>
           <b>BANK NIFTY</b>
-          <b>NSE</b>
-          <b>BSE</b>
-          <b>OPTIONS</b>
+          <b>SENSEX</b>
         </section>
 
         {/* Capability Overview Grid */}
@@ -91,7 +89,7 @@ export function PremiumHome() {
         <section className="dark-band">
           <div>
             <div className="eyebrow-line">
-              <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+              <img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />
               WHY ELITE
             </div>
             <h2>Clarity compounds.</h2>
@@ -116,7 +114,7 @@ export function PremiumHome() {
           <div className="cta-panel">
             <div>
               <div className="eyebrow-line">
-                <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+                <img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />
                 READY WHEN YOU ARE
               </div>
               <h2>
@@ -148,8 +146,8 @@ export function PremiumFeatures() {
           <div className="trust-strip">
             <ShieldCheck size={20} />
             <div>
-              <b>Designed for Indian markets</b>
-              <span>Optimized for NIFTY, BANK NIFTY, stock futures, and key index options setups.</span>
+              <b>Designed for NIFTY 50, BANK NIFTY & SENSEX</b>
+              <span>Optimized for NIFTY 50, BANK NIFTY, and SENSEX setups.</span>
             </div>
           </div>
 
@@ -175,7 +173,7 @@ export function PremiumFeatures() {
         <section className="premium-section platform-cta">
           <div className="cta-panel">
             <div>
-              <div className="eyebrow-line"><img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
+              <div className="eyebrow-line"><img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
               <h2>Ready to upgrade your trading process?</h2>
             </div>
             <Link href="/login" className="luxury-button">
@@ -216,7 +214,7 @@ export function PremiumMethodology() {
 
           <div className="methodology-note dark-band">
             <div>
-              <div className="eyebrow-line"><img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
+              <div className="eyebrow-line"><img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
               <h2>Why rules beat intuition.</h2>
               <p>Discipline isn&apos;t about never taking losses—it&apos;s about ensuring every loss is controlled, deliberate, and within your risk model parameters.</p>
             </div>
@@ -234,14 +232,14 @@ export function PremiumAbout() {
         <PageHero
           eyebrow="ABOUT ELITE TRADING HUB"
           title={<>Built for traders who value <em>discipline.</em></>}
-          description="We created Elite Trading Hub to provide Indian traders with clean, structured, research-driven market intelligence without the noise."
+          description="We created Elite Trading Hub to provide NIFTY 50, BANK NIFTY and SENSEX traders with clean, structured, research-driven market intelligence without the noise."
         />
 
         <section className="premium-section">
           <div className="about-grid">
             <div className="about-statements">
               <div>
-                <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="about-logo-icon" />
+                <img src="/bull-icon-only.svg" alt="Bull Icon" className="about-logo-icon" />
                 <b>No noise. No hype.</b>
                 <p>We do not publish get-rich-quick tips or speculative calls. Every setup is grounded in verifiable price action and derivatives data.</p>
               </div>

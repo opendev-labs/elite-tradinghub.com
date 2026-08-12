@@ -24,11 +24,11 @@ export function SiteHeader() {
 
       <header className="site-header">
         <div className="site-header-inner">
-          {/* Top Header Brand: Just Green Bull Logo Icon with No Name & Transparent Background */}
+          {/* Top Corner Brand: ONLY Green Bull Icon with No Name & Transparent Background */}
           <Link href="/" className="premium-brand-icon-only" onClick={() => setOpen(false)}>
             <img 
-              src="/green-bull-icon-transparent.png" 
-              alt="Elite Trading Hub Green Bull Icon" 
+              src="/bull-icon-only.svg" 
+              alt="Elite Trading Hub Bull Icon" 
               className="header-green-bull-icon" 
             />
           </Link>
@@ -44,7 +44,7 @@ export function SiteHeader() {
 
           {/* Desktop Right Actions */}
           <div className="site-actions desktop-actions">
-            <span className="header-status"><i /> NSE / BSE DATA</span>
+            <span className="header-status"><i /> NIFTY / BANKNIFTY / SENSEX</span>
             <a 
               href="https://t.me/+la1ShIiNHJ5mYzk1" 
               target="_blank" 
@@ -58,7 +58,7 @@ export function SiteHeader() {
             </Link>
           </div>
 
-          {/* Clean Hamburger Icon Toggle (Pinned Far Top-Right) */}
+          {/* Clean Hamburger Icon Toggle (Pinned Far Top-Right on Mobile) */}
           <button 
             className="mobile-hamburger-btn"
             aria-label={open ? 'Close navigation menu' : 'Open navigation menu'} 
@@ -87,7 +87,7 @@ export function SiteHeader() {
 
             <div className="dropdown-bottom-actions">
               <div className="dropdown-status">
-                <span className="live-dot"><i /> LIVE NSE/BSE FEED</span>
+                <span className="live-dot"><i /> LIVE INDEX FEED</span>
                 <span className="meta-info">Educational Platform</span>
               </div>
               <a 
@@ -116,10 +116,10 @@ export function SiteFooter() {
       <div className="footer-top">
         <div>
           <Link href="/" className="premium-brand-icon-only">
-            <img src="/green-bull-icon-transparent.png" alt="Elite Trading Hub Green Bull Icon" className="footer-green-bull-icon" />
+            <img src="/bull-icon-only.svg" alt="Elite Trading Hub Bull Icon" className="footer-green-bull-icon" />
             <span className="footer-brand-title">ELITE TRADING HUB</span>
           </Link>
-          <p>Decision-grade market intelligence for the serious Indian trader.</p>
+          <p>Decision-grade market intelligence for NIFTY 50, BANK NIFTY, and SENSEX traders.</p>
         </div>
         <div className="footer-links">
           <div>
@@ -169,7 +169,7 @@ export function PageHero({ eyebrow, title, description }: { eyebrow: string; tit
   return (
     <section className="page-hero">
       <div className="eyebrow-line">
-        <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+        <img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h1>{title}</h1>
@@ -182,7 +182,7 @@ export function SectionHeading({ eyebrow, title, text }: { eyebrow: string; titl
   return (
     <div className="premium-section-heading">
       <div className="eyebrow-line">
-        <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+        <img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h2>{title}</h2>

@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bullGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399" />
+      <stop offset="100%" stop-color="#059669" />
+    </linearGradient>
+  </defs>
+  <g transform="translate(10, 10)">
+    <path d="M120,130 C100,70 60,30 20,40 C10,42 0,55 15,65 C45,85 75,115 90,145 Z" fill="url(#bullGrad)" />
+    <path d="M170,120 C185,60 215,25 250,20 C260,18 270,30 258,42 C230,70 205,105 195,138 Z" fill="url(#bullGrad)" />
+    <path d="M90,145 C70,165 65,195 80,225 C95,255 125,275 145,280 C165,275 195,255 210,225 C225,195 220,165 200,145 C180,165 110,165 90,145 Z" fill="none" stroke="url(#bullGrad)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M125,235 C135,248 155,248 165,235" fill="none" stroke="#26d98a" stroke-width="7" stroke-linecap="round" />
+    <path d="M105,195 L135,208 L118,220" fill="none" stroke="#26d98a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+    <path d="M185,195 L155,208 L172,220" fill="none" stroke="#26d98a" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+</svg>
