@@ -46,10 +46,8 @@ export function Header() {
       <div className="header-actions">
         <span className="live"><i /> MARKET OPEN</span>
         <button className="icon-btn" aria-label="Notifications"><Bell size={17} /></button>
-        <button className={`mobile-toggle-pill ${menu ? 'active' : ''}`} aria-label="Toggle Menu" onClick={() => setMenu(!menu)}>
-          <span className="pulse-dot" />
-          <span className="pill-text">{menu ? 'CLOSE' : 'MENU'}</span>
-          {menu ? <X size={15} /> : <SlidersHorizontal size={15} />}
+        <button className="mobile-hamburger-btn" aria-label="Toggle Menu" onClick={() => setMenu(!menu)}>
+          {menu ? <X size={22} /> : <Menu size={22} />}
         </button>
       </div>
     </header>
