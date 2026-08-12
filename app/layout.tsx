@@ -38,6 +38,11 @@ const interFont = localFont({
 export const metadata: Metadata = {
   title: 'Elite Trading Hub — Decision-grade market intelligence',
   description: 'A premium market intelligence platform for Indian traders seeking structured analysis, quantified risk and better decisions.',
+  icons: {
+    icon: '/only-bull-head-icon.png',
+    shortcut: '/only-bull-head-icon.png',
+    apple: '/only-bull-head-icon.png',
+  },
   generator: 'v0.app',
 }
 
