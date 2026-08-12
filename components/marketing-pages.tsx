@@ -5,6 +5,8 @@ import { ArrowRight, BarChart3, Check, Database, Send, ShieldCheck, Sparkles, Ta
 import { PageFrame, PageHero, SectionHeading } from './site-shell'
 import { MarketStrip } from './trading-dashboard'
 
+import { InteractiveGridBackground } from './interactive-grid-background'
+
 const capabilities = [
   ['Market coverage', 'NIFTY 50, BANK NIFTY, and SENSEX indices setups.', BarChart3],
   ['Signal discipline', 'A transparent framework combining price action, volume, volatility and derivatives context.', BarChart3],
@@ -17,6 +19,9 @@ export function PremiumHome() {
       <main>
         {/* Clean Pure Black Hero Section showcasing Clean Centered Logo Image (No Gemini Watermark) */}
         <section className="pure-black-hero-section">
+          {/* Interactive Animated Green Faded Grid Background Layer */}
+          <InteractiveGridBackground />
+
           <div className="pure-black-hero-content">
             {/* Clean Centered Logo Image with 100% Transparent Background & No Gemini Watermark */}
             <div className="hero-logo-transparent-wrapper">

@@ -1285,6 +1285,52 @@ main {
   overflow: hidden;
 }
 
+/* Interactive Green Faded Grid Background */
+.interactive-green-grid-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+  --mouse-x: 50%;
+  --mouse-y: 40%;
+}
+
+.grid-lines-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(to right, rgba(38, 217, 138, 0.16) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(38, 217, 138, 0.16) 1px, transparent 1px);
+  background-size: 44px 44px;
+  mask-image: radial-gradient(circle 480px at var(--mouse-x, 50%) var(--mouse-y, 40%), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 55%, rgba(0, 0, 0, 0) 85%);
+  -webkit-mask-image: radial-gradient(circle 480px at var(--mouse-x, 50%) var(--mouse-y, 40%), rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0.4) 55%, rgba(0, 0, 0, 0) 85%);
+  animation: gridGlowPulse 4s ease-in-out infinite alternate;
+}
+
+.grid-spotlight-layer {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle 380px at var(--mouse-x, 50%) var(--mouse-y, 40%), rgba(38, 217, 138, 0.22) 0%, rgba(38, 217, 138, 0.06) 50%, transparent 80%);
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+
+@keyframes gridGlowPulse {
+  0% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
 .pure-black-hero-content {
   display: flex;
   flex-direction: column;
