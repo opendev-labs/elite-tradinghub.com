@@ -2,7 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'InterCustom';
+  src: url('/fonts/Inter-VariableFont_opsz,wght.ttf') format('truetype');
+  font-weight: 100 900;
+  font-display: swap;
+}
+
 :root {
+  --font-inter: 'InterCustom', var(--font-inter), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: var(--font-inter);
+  --font-body: var(--font-inter);
+  --font-mono: var(--font-inter);
   --background: #090e13;
   --foreground: #e8edf0;
   --surface: #0e151c;
@@ -24,7 +35,8 @@ html {
   scroll-behavior: smooth;
   background: var(--background);
   width: 100%;
-  font-size: 112%; /* Scaled +12% overall for maximum clarity & high contrast legibility */
+  font-size: 112%;
+  font-family: var(--font-inter) !important;
 }
 
 body {
@@ -33,7 +45,7 @@ body {
   min-height: 100vh;
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-body), Arial, sans-serif;
+  font-family: var(--font-inter) !important;
   -webkit-font-smoothing: antialiased;
   overflow-x: hidden;
   --x: calc(var(--posX, 0) * 1px);
