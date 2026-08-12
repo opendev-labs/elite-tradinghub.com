@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowUpRight, Crosshair, Menu, X, Lock, ShieldCheck, ChevronRight } from 'lucide-react'
+import { ArrowUpRight, Crosshair, Menu, X, Lock, ShieldCheck, ChevronRight, Send } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Overview' },
@@ -42,6 +42,14 @@ export function SiteHeader() {
           {/* Desktop Right Actions */}
           <div className="site-actions desktop-actions">
             <span className="header-status"><i /> NSE / BSE DATA</span>
+            <a 
+              href="https://t.me/+la1ShIiNHJ5mYzk1" 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="telegram-header-btn"
+            >
+              <Send size={13} /> Telegram
+            </a>
             <Link className="header-cta" href="/login">
               Login <ArrowUpRight size={14} />
             </Link>
@@ -79,6 +87,15 @@ export function SiteHeader() {
                 <span className="live-dot"><i /> LIVE NSE/BSE FEED</span>
                 <span className="meta-info">Educational Platform</span>
               </div>
+              <a 
+                href="https://t.me/+la1ShIiNHJ5mYzk1" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="dropdown-telegram-btn"
+                onClick={() => setOpen(false)}
+              >
+                <Send size={14} /> Join Official Telegram
+              </a>
               <Link href="/login" className="dropdown-login-btn" onClick={() => setOpen(false)}>
                 Login to Platform <ArrowUpRight size={15} />
               </Link>
@@ -115,7 +132,10 @@ export function SiteFooter() {
             <Link href="/privacy">Privacy Policy</Link>
           </div>
           <div>
-            <b>Account & Portal</b>
+            <b>Community & Portal</b>
+            <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer">
+              Telegram Group <Send size={11} style={{ display: 'inline', marginLeft: '3px' }} />
+            </a>
             <Link href="/login">
               Login Portal <Lock size={11} style={{ display: 'inline', marginLeft: '3px' }} />
             </Link>

@@ -1,5 +1,7 @@
+'use client'
+
 import Link from 'next/link'
-import { ArrowRight, BarChart3, Check, Crosshair, Database, LockKeyhole, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
+import { ArrowRight, BarChart3, Check, Crosshair, Database, LockKeyhole, Send, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { PageFrame, PageHero, SectionHeading } from './site-shell'
 import { LiveOrbitBackground } from './live-orbit-background'
 import TradingDashboard, { MarketStrip, Setups, RiskCalculator, Methodology } from './trading-dashboard'
@@ -35,6 +37,14 @@ export function PremiumHome() {
               <Link href="/features" className="luxury-button">
                 Explore the platform <ArrowRight size={16} />
               </Link>
+              <a 
+                href="https://t.me/+la1ShIiNHJ5mYzk1" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="telegram-hero-button"
+              >
+                <Send size={15} /> Join Telegram
+              </a>
               <Link href="/methodology" className="quiet-link">
                 Our methodology <ArrowRight size={15} />
               </Link>
@@ -58,19 +68,19 @@ export function PremiumHome() {
         </section>
 
         {/* Capability Overview Grid */}
-        <section className="premium-section">
+        <section className="premium-section compact-top">
           <SectionHeading
-            eyebrow="THE PLATFORM"
-            title="A sharper operating layer for market decisions."
-            text="Everything is designed to help you see the market, define the risk and act with intention."
+            eyebrow="SYSTEM ARCHITECTURE"
+            title="Institutional tools, built for independent traders."
+            text="A clean breakdown of what Elite Trading Hub delivers every session."
           />
           <div className="capability-grid">
-            {capabilities.map(([title, text, Icon], index) => (
-              <article className="capability-card" key={title as string}>
+            {capabilities.map(([title, desc, Icon], i) => (
+              <article key={title} className="capability-card">
                 <Icon size={20} />
-                <span>0{index + 1}</span>
-                <h3>{title as string}</h3>
-                <p>{text as string}</p>
+                <span>0{i + 1}</span>
+                <h3>{title}</h3>
+                <p>{desc}</p>
                 <Link href="/features">
                   Open platform <ArrowRight size={14} />
                 </Link>
@@ -79,7 +89,7 @@ export function PremiumHome() {
           </div>
         </section>
 
-        {/* Dark Band Philosophy Quote */}
+        {/* Dark Band Philosophy Statement */}
         <section className="dark-band">
           <div>
             <div className="eyebrow-line">
@@ -102,7 +112,7 @@ export function PremiumHome() {
           </div>
         </section>
 
-        {/* CTA Banner */}
+        {/* Platform CTA */}
         <section className="premium-section platform-cta">
           <div className="cta-panel">
             <div>
@@ -124,173 +134,194 @@ export function PremiumHome() {
   )
 }
 
-export function FeaturesPage() {
-  return (
-    <PageFrame>
-      <main className="platform-page-container">
-        <PageHero
-          eyebrow="THE PLATFORM / 01"
-          title={<>The tools behind<br /><em>better decisions.</em></>}
-          description="A focused, institutional-grade market intelligence terminal for traders who want structure, context and accountability."
-        />
-
-        {/* Dedicated Full Platform Terminal Experience */}
-        <div className="dedicated-platform-wrapper" id="terminal">
-          <TradingDashboard />
-        </div>
-
-        <section className="trust-strip" style={{ marginTop: '60px' }}>
-          <LockKeyhole size={21} />
-          <div>
-            <b>Your data. Your decisions.</b>
-            <span>We provide research and tools. You remain in control of every trade.</span>
-          </div>
-        </section>
-      </main>
-    </PageFrame>
-  )
-}
-
-export function MethodologyPage() {
+export function PremiumFeatures() {
   return (
     <PageFrame>
       <main>
         <PageHero
-          eyebrow="THE FRAMEWORK / 02"
-          title={<>Process over<br /><em>prediction.</em></>}
-          description="Our approach is intentionally unglamorous: observe the evidence, define the risk, then decide whether the opportunity deserves your attention."
+          eyebrow="PLATFORM CAPABILITIES"
+          title={<>Built to bring <em>order</em> to the market day.</>}
+          description="Explore the tools, analytics, and level engines designed to help you plan, execute, and evaluate trades with rigor."
         />
-        
-        {/* Model Performance & Edge Methodology */}
-        <section className="premium-section compact-top">
-          <Methodology />
-        </section>
 
-        <section className="premium-section compact-top">
-          <div className="method-steps">
+        <section className="premium-section">
+          <div className="trust-strip">
+            <ShieldCheck size={20} />
+            <div>
+              <b>Designed for Indian markets</b>
+              <span>Optimized for NIFTY, BANK NIFTY, stock futures, and key index options setups.</span>
+            </div>
+          </div>
+
+          <div className="feature-list">
             {[
-              ['01', 'Observe', 'Read the larger market context before isolating a trade: trend, breadth, volatility and participation.'],
-              ['02', 'Qualify', 'Filter for setups where price action, volume and derivatives data point in the same direction.'],
-              ['03', 'Define', 'Map the entry zone, target and invalidation level before a position is considered.'],
-              ['04', 'Review', 'Measure execution quality and outcome without rewriting the process after the fact.'],
-            ].map(([num, title, text]) => (
-              <article key={num}>
-                <span>{num}</span>
-                <h2>{title}</h2>
-                <p>{text}</p>
-              </article>
+              ['01', 'High-conviction intraday setups', 'Pre-market and live-session setups derived from volume profile, key intraday levels, and derivatives positioning.', Target],
+              ['02', 'Position sizing & risk engine', 'Calculate exact quantity and exposure based on your portfolio capital and risk-per-trade rules before entering any position.', BarChart3],
+              ['03', 'Derivatives & volatility context', 'Monitor India VIX shifts, open interest builds, and option chain skew to align with broader market context.', TrendingUp],
+              ['04', 'Post-trade performance analytics', 'Track win rates, profit factor, and drawdown metrics over time to continuously refine your edge.', Database],
+            ].map(([num, title, desc, Icon]) => (
+              <div key={num} className="feature-row">
+                <span className="feature-number">{num}</span>
+                <div>
+                  <h2>{title}</h2>
+                  <p>{desc}</p>
+                </div>
+                <Icon size={20} />
+              </div>
             ))}
           </div>
         </section>
 
-        <section className="dark-band methodology-note">
-          <div>
-            <div className="eyebrow-line">
-              <i />A NOTE ON PERFORMANCE
+        <section className="premium-section platform-cta">
+          <div className="cta-panel">
+            <div>
+              <div className="eyebrow-line"><i />LIVE MARKET INTELLIGENCE</div>
+              <h2>Ready to upgrade your trading process?</h2>
             </div>
-            <h2>Historical data is context,<br />not a promise.</h2>
+            <Link href="/login" className="luxury-button">
+              Access portal <ArrowRight size={16} />
+            </Link>
           </div>
-          <p>
-            Any performance references on this website are illustrative or based on historical and simulated conditions. They do not represent a guarantee of future returns. Actual results depend on execution, costs, liquidity and market conditions.
-          </p>
         </section>
       </main>
     </PageFrame>
   )
 }
 
-export function AboutPage() {
+export function PremiumMethodology() {
   return (
     <PageFrame>
       <main>
         <PageHero
-          eyebrow="THE COMPANY / 03"
-          title={<>Built for people who<br /><em>take the work seriously.</em></>}
-          description="Elite Trading Hub is a market intelligence brand focused on making research more structured, risk-aware and useful for the Indian trading community."
+          eyebrow="THE RESEARCH FRAMEWORK"
+          title={<>Process over <em>prediction.</em></>}
+          description="How Elite Trading Hub evaluates price action, derivative flows, and market volatility to produce decision-grade intelligence."
         />
-        <section className="premium-section about-grid">
-          <div>
-            <SectionHeading
-              eyebrow="OUR BELIEF"
-              title="Better inputs create better decisions."
-              text="We believe trading technology should reduce noise, not increase urgency. Our work sits between raw market data and independent decision-making."
-            />
+
+        <section className="premium-section">
+          <div className="method-steps">
+            {[
+              ['01', 'Context', 'Identify macro trend, index alignment, and volatility regime before looking for trade setups.'],
+              ['02', 'Location', 'Filter for high-confluence zones where price action converges with volume nodes or key option strikes.'],
+              ['03', 'Trigger', 'Wait for explicit confirmation from intraday price action, momentum, and volume profile.'],
+              ['04', 'Risk', 'Define maximum loss and position size before order entry. Never alter stop-loss during a live trade.'],
+            ].map(([step, title, desc]) => (
+              <article key={step}>
+                <span>{step}</span>
+                <h2>{title}</h2>
+                <p>{desc}</p>
+              </article>
+            ))}
           </div>
-          <div className="about-statements">
+
+          <div className="methodology-note dark-band">
             <div>
-              <Target size={20} />
-              <b>Independent by design</b>
-              <p>Tools and analysis that support your thinking rather than replace it.</p>
-            </div>
-            <div>
-              <Database size={20} />
-              <b>Evidence over excitement</b>
-              <p>Every insight is framed by context, assumptions and risk.</p>
-            </div>
-            <div>
-              <TrendingUp size={20} />
-              <b>Built to compound</b>
-              <p>The real edge is a process you can return to, trade after trade.</p>
+              <div className="eyebrow-line"><i />DISCIPLINE MATTERS</div>
+              <h2>Why rules beat intuition.</h2>
+              <p>Discipline isn&apos;t about never taking losses—it&apos;s about ensuring every loss is controlled, deliberate, and within your risk model parameters.</p>
             </div>
           </div>
-        </section>
-        <section className="contact-banner">
-          <div>
-            <div className="eyebrow-line">
-              <i />WORK WITH US
-            </div>
-            <h2>
-              Questions, partnerships,<br />
-              <em>or just a sharper conversation?</em>
-            </h2>
-          </div>
-          <Link href="/contact" className="luxury-button">
-            Get in touch <ArrowRight size={16} />
-          </Link>
         </section>
       </main>
     </PageFrame>
   )
 }
 
-export function ContactPage() {
+export function PremiumAbout() {
   return (
     <PageFrame>
       <main>
         <PageHero
-          eyebrow="CONTACT / 04"
-          title={<>Start a more<br /><em>considered conversation.</em></>}
-          description="For platform questions, partnerships or support, send us a note. Replace the details below with the client’s official company information before launch."
+          eyebrow="ABOUT ELITE TRADING HUB"
+          title={<>Built for traders who value <em>discipline.</em></>}
+          description="We created Elite Trading Hub to provide Indian traders with clean, structured, research-driven market intelligence without the noise."
         />
-        <section className="premium-section compact-top contact-grid">
-          <div className="contact-details">
-            <div>
-              <span>SUPPORT EMAIL</span>
-              <a href="mailto:support@yourdomain.com">support@yourdomain.com</a>
+
+        <section className="premium-section">
+          <div className="about-grid">
+            <div className="about-statements">
+              <div>
+                <Crosshair size={24} />
+                <b>No noise. No hype.</b>
+                <p>We do not publish get-rich-quick tips or speculative calls. Every setup is grounded in verifiable price action and derivatives data.</p>
+              </div>
+              <div>
+                <ShieldCheck size={24} />
+                <b>Risk management first</b>
+                <p>Capital preservation is the foundation of long-term trading survival. Our engine forces position sizing discipline before trade execution.</p>
+              </div>
             </div>
-            <div>
-              <span>PHONE</span>
-              <b>+91 [client phone number]</b>
-            </div>
-            <div>
-              <span>REGISTERED OFFICE</span>
-              <p>
-                [Official company name]<br />
-                [Registered office address]<br />
-                India
-              </p>
+
+            <div className="quote-card">
+              <Sparkles size={24} />
+              <p>“Consistency in trading comes from consistent execution of a quantified edge, combined with non-negotiable risk parameters.”</p>
+              <span>— ELITE TRADING HUB MISSION STATEMENT</span>
             </div>
           </div>
-          <form className="premium-form">
-            <label>Name<input placeholder="Your name" /></label>
-            <label>Email<input type="email" placeholder="you@company.com" /></label>
-            <label>How can we help?<textarea rows={5} placeholder="Tell us what you are looking for..." /></label>
-            <button className="luxury-button" type="button">
-              Send enquiry <ArrowRight size={16} />
-            </button>
-          </form>
         </section>
       </main>
     </PageFrame>
   )
+}
+
+export function PremiumContact() {
+  return (
+    <PageFrame>
+      <main>
+        <PageHero
+          eyebrow="GET IN TOUCH"
+          title={<>We are here to <em>help.</em></>}
+          description="Have questions about the platform, methodologies, or access? Reach out to our research and support team."
+        />
+
+        <section className="premium-section">
+          <div className="contact-grid">
+            <div className="contact-details">
+              <div>
+                <span>EMAIL SUPPORT</span>
+                <a href="mailto:support@elite-tradinghub.com">support@elite-tradinghub.com</a>
+              </div>
+              <div>
+                <span>TELEGRAM COMMUNITY</span>
+                <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer">
+                  t.me/EliteTradingHub
+                </a>
+              </div>
+              <div>
+                <span>LOCATION</span>
+                <p>Mumbai & Bengaluru, India</p>
+              </div>
+            </div>
+
+            <form className="premium-form" onSubmit={(e) => e.preventDefault()}>
+              <label>
+                NAME
+                <input type="text" placeholder="Your full name" required />
+              </label>
+              <label>
+                EMAIL
+                <input type="email" placeholder="you@example.com" required />
+              </label>
+              <label>
+                MESSAGE
+                <textarea rows={4} placeholder="How can we assist you?" required />
+              </label>
+              <button type="submit" className="luxury-button">
+                Send message <ArrowRight size={16} />
+              </button>
+            </form>
+          </div>
+        </section>
+      </main>
+    </PageFrame>
+  )
+}
+
+// Aliases matching page imports
+export { 
+  PremiumHome as HomePage, 
+  PremiumFeatures as FeaturesPage, 
+  PremiumMethodology as MethodologyPage, 
+  PremiumAbout as AboutPage, 
+  PremiumContact as ContactPage 
 }
