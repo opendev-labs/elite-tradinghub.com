@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import { useState } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { ArrowUpRight, Menu, X, Lock, ChevronRight, Send } from 'lucide-react'
 import { MarketStrip } from './trading-dashboard'
 
@@ -24,38 +25,46 @@ export function SiteHeader() {
         <div className="site-header-inner">
           {/* Top Brand Icon: White Bull Head Icon (Transparent Background) */}
           <Link href="/" className="premium-brand-icon-only" onClick={() => setOpen(false)}>
-            <img 
+            <motion.img 
               src="/only-bull-head-icon.png" 
               alt="Elite Trading Hub White Bull Logo Icon" 
-              className="header-green-bull-icon" 
+              className="header-green-bull-icon"
+              whileHover={{ scale: 1.08, rotate: 2 }}
+              transition={{ type: "spring", stiffness: 300, damping: 15 }}
             />
           </Link>
 
           {/* Desktop Navigation Links */}
           <nav className="site-nav desktop-nav" aria-label="Primary navigation">
             {links.map(link => (
-              <Link key={link.href} href={link.href}>
-                {link.label}
-              </Link>
+              <motion.div key={link.href} whileHover={{ y: -1 }}>
+                <Link href={link.href}>
+                  {link.label}
+                </Link>
+              </motion.div>
             ))}
           </nav>
 
           {/* Desktop Right Actions */}
           <div className="site-actions desktop-actions">
-            <a 
-              href="https://t.me/+la1ShIiNHJ5mYzk1" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="telegram-header-btn"
-            >
-              <Send size={13} /> Telegram
-            </a>
-            <Link className="header-cta" href="/login">
-              Login <ArrowUpRight size={14} />
-            </Link>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <a 
+                href="https://t.me/+la1ShIiNHJ5mYzk1" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="telegram-header-btn"
+              >
+                <Send size={13} /> Telegram
+              </a>
+            </motion.div>
+            <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
+              <Link className="header-cta" href="/login">
+                Login <ArrowUpRight size={14} />
+              </Link>
+            </motion.div>
           </div>
 
-          {/* Clean Hamburger Icon Toggle (Pinned Far Top-Right on Mobile) */}
+          {/* Clean Hamburger Icon Toggle */}
           <button 
             className="mobile-hamburger-btn"
             aria-label={open ? 'Close navigation menu' : 'Open navigation menu'} 
@@ -65,43 +74,51 @@ export function SiteHeader() {
           </button>
         </div>
 
-        {/* Clean Dropdown Menu unfolding directly below the Header */}
-        <div className={`header-dropdown ${open ? 'open' : ''}`}>
-          <nav className="header-dropdown-inner" aria-label="Mobile navigation dropdown">
-            <div className="dropdown-links">
-              {links.map(link => (
-                <Link 
-                  key={link.href} 
-                  href={link.href} 
-                  className="dropdown-item" 
-                  onClick={() => setOpen(false)}
-                >
-                  <span>{link.label}</span>
-                  <ChevronRight size={16} className="dropdown-arrow" />
-                </Link>
-              ))}
-            </div>
-
-            <div className="dropdown-bottom-actions">
-              <div className="dropdown-status">
-                <span className="live-dot"><i /> LIVE INDEX FEED</span>
-                <span className="meta-info">Educational Platform</span>
-              </div>
-              <a 
-                href="https://t.me/+la1ShIiNHJ5mYzk1" 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="dropdown-telegram-btn"
-                onClick={() => setOpen(false)}
-              >
-                <Send size={14} /> Join Official Telegram
-              </a>
-              <Link href="/login" className="dropdown-login-btn" onClick={() => setOpen(false)}>
-                Login to Platform <ArrowUpRight size={15} />
-              </Link>
-            </div>
-          </nav>
-        </div>
+        {/* Clean Dropdown Menu unfolding with AnimatePresence */}
+        <AnimatePresence>
+          {open && (
+            <motion.div 
+              className="header-dropdown open"
+              initial={{ opacity: 0, y: '-100%' }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: '-100%' }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <nav className="header-dropdown-inner" aria-label="Mobile navigation dropdown">
+                <div className="dropdown-links">
+                  {links.map(link => (
+                    <Link 
+                      key={link.href} 
+                      href={link.href} 
+                      className="dropdown-item" 
+                      onClick={() => setOpen(false)}
+                    >
+                      {link.label}
+                    </Link>
+                  ))}
+                </div>
+                <div className="dropdown-actions">
+                  <a 
+                    href="https://t.me/+la1ShIiNHJ5mYzk1" 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    className="dropdown-telegram-btn"
+                    onClick={() => setOpen(false)}
+                  >
+                    <Send size={15} /> Join Telegram Community
+                  </a>
+                  <Link 
+                    href="/login" 
+                    className="dropdown-login-btn"
+                    onClick={() => setOpen(false)}
+                  >
+                    Login to Portal <ArrowUpRight size={16} />
+                  </Link>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
     </>
   )
@@ -110,37 +127,40 @@ export function SiteHeader() {
 export function SiteFooter() {
   return (
     <footer className="site-footer">
-      <div className="footer-top">
-        <div>
+      <div className="site-footer-inner">
+        <div className="footer-brand-column">
           <Link href="/" className="footer-brand-link">
-            <img src="/only-bull-head-icon.png" alt="Elite Trading Hub Bull Icon" className="footer-green-bull-icon" />
-            <span className="footer-brand-title">ELITE TRADING HUB</span>
+            <img 
+              src="/only-bull-head-icon.png" 
+              alt="Elite Trading Hub Bull Icon" 
+              className="footer-brand-icon" 
+            />
+            <span className="footer-brand-text">ELITE TRADING HUB</span>
           </Link>
-          <p>Decision-grade market intelligence for NIFTY 50, BANK NIFTY, and SENSEX traders.</p>
+          <p className="footer-tagline">
+            Decision-grade market intelligence for NIFTY 50, BANK NIFTY, and SENSEX traders.
+          </p>
         </div>
-        <div className="footer-links">
-          <div>
-            <b>Explore</b>
-            <Link href="/features">Platform</Link>
+        <div className="footer-links-grid">
+          <div className="footer-col">
+            <b>Platform</b>
+            <Link href="/features">Capabilities</Link>
             <Link href="/methodology">Methodology</Link>
-            <Link href="/about">About us</Link>
+            <Link href="/login">Portal Login</Link>
           </div>
-          <div>
+          <div className="footer-col">
             <b>Company</b>
+            <Link href="/about">About Us</Link>
             <Link href="/contact">Contact</Link>
-            <Link href="/terms">Terms & Conditions</Link>
-            <Link href="/privacy">Privacy Policy</Link>
-          </div>
-          <div>
-            <b>Community & Portal</b>
             <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer">
-              Telegram Group <Send size={11} style={{ display: 'inline', marginLeft: '3px' }} />
+              Telegram
             </a>
-            <Link href="/login">
-              Login Portal <Lock size={11} style={{ display: 'inline', marginLeft: '3px' }} />
-            </Link>
-            <Link href="/disclaimer">Risk disclosure</Link>
-            <Link href="/contact">Support</Link>
+          </div>
+          <div className="footer-col">
+            <b>Legal</b>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/privacy">Privacy Policy</Link>
+            <Link href="/disclaimer">Risk Disclosure</Link>
           </div>
         </div>
       </div>
@@ -154,37 +174,54 @@ export function SiteFooter() {
 
 export function PageFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="premium-site">
+    <motion.div 
+      className="premium-site"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.45, ease: 'easeOut' }}
+    >
       <SiteHeader />
       {children}
       <SiteFooter />
-    </div>
+    </motion.div>
   )
 }
 
 export function PageHero({ eyebrow, title, description }: { eyebrow: string; title: React.ReactNode; description: string }) {
   return (
-    <section className="page-hero">
+    <motion.section 
+      className="page-hero"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
+    >
       <div className="eyebrow-line">
         <img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h1>{title}</h1>
       <p>{description}</p>
-    </section>
+    </motion.section>
   )
 }
 
 export function SectionHeading({ eyebrow, title, text }: { eyebrow: string; title: string; text?: string }) {
   return (
-    <div className="premium-section-heading">
+    <motion.div 
+      className="premium-section-heading"
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+    >
       <div className="eyebrow-line">
         <img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h2>{title}</h2>
       {text && <p>{text}</p>}
-    </div>
+    </motion.div>
   )
 }
 

@@ -18,19 +18,17 @@ export function InteractiveGridBackground() {
       el.style.setProperty('--mouse-y', `${y}px`)
     }
 
-    // Set initial center coordinates
     const rect = el.getBoundingClientRect()
-    setSpotlight(rect.width / 2, rect.height / 2)
+    setSpotlight(rect.width / 2, rect.height * 0.45)
 
-    // Gentle ambient floating animation when not interacting
     const animateIdle = () => {
       if (!isInteracting) {
         const elapsed = (Date.now() - startTime) / 1000
         const currentRect = el.getBoundingClientRect()
-        const centerX = currentRect.width / 2 + Math.sin(elapsed * 0.7) * (currentRect.width * 0.18)
-        const centerY = currentRect.height / 2 + Math.cos(elapsed * 0.9) * (currentRect.height * 0.12)
+        const idleX = currentRect.width / 2 + Math.sin(elapsed * 0.4) * (currentRect.width * 0.15)
+        const idleY = currentRect.height / 2 + Math.cos(elapsed * 0.6) * (currentRect.height * 0.08)
 
-        setSpotlight(centerX, centerY)
+        setSpotlight(idleX, idleY)
       }
       animationFrameId = requestAnimationFrame(animateIdle)
     }
@@ -61,7 +59,6 @@ export function InteractiveGridBackground() {
       }
     }
 
-    // Listen on hero section element or window
     const targetEl = el.closest('section') || el.parentElement || window
     targetEl.addEventListener('pointermove', onPointerMove as EventListener, { passive: true })
     targetEl.addEventListener('touchmove', onTouchMove as EventListener, { passive: true })
@@ -77,8 +74,24 @@ export function InteractiveGridBackground() {
 
   return (
     <div ref={containerRef} className="interactive-green-grid-bg" aria-hidden="true">
-      <div className="grid-lines-layer" />
-      <div className="grid-spotlight-layer" />
+      <svg className="vector-grid-svg" width="100%" height="100%">
+        <defs>
+          {/* Base Pattern: Emerald Green Vector Grid Lines */}
+          <pattern id="base-grid-pattern" width="44" height="44" patternUnits="userSpaceOnUse">
+            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(38, 217, 138, 0.14)" strokeWidth="1" />
+          </pattern>
+          {/* Active Pattern: Soft Dimmed White Vector Grid Lines */}
+          <pattern id="active-grid-pattern" width="44" height="44" patternUnits="userSpaceOnUse">
+            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="1" />
+          </pattern>
+        </defs>
+
+        {/* Green vector grid visible across hero background */}
+        <rect width="100%" height="100%" fill="url(#base-grid-pattern)" className="grid-base-rect" />
+
+        {/* Ultra-soft faded white vector grid illuminated under cursor */}
+        <rect width="100%" height="100%" fill="url(#active-grid-pattern)" className="grid-active-rect" />
+      </svg>
     </div>
   )
 }
