@@ -18,7 +18,7 @@ export function SiteHeader() {
   return (
     <>
       <div className="premium-ribbon">
-        <span>MARKET INTELLIGENCE, BUILT FOR DECISION QUALITY</span>
+        <span>Market intelligence, built for decision quality</span>
         <span className="ribbon-tag">Educational use only</span>
       </div>
 

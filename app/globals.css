@@ -854,21 +854,24 @@ main {
 }
 
 .premium-ribbon {
-  min-height: 31px;
+  min-height: 26px;
   width: 100%;
-  padding: 8px 3vw;
+  padding: 5px 3vw;
   display: flex;
   justify-content: space-between;
+  align-items: center;
   gap: 20px;
-  background: #0a1117;
-  color: #829099;
-  font: 10.5px var(--font-mono), monospace;
-  letter-spacing: 0.12em;
+  background: #070c10;
+  color: #72808a;
+  font-size: 10.5px;
+  text-transform: none !important;
 }
 
 .premium-ribbon span {
-  color: #aeb8ba;
-  letter-spacing: 0.03em;
+  color: #84939e;
+  font-size: 10.5px;
+  letter-spacing: 0.01em;
+  text-transform: none !important;
 }
 
 .site-header {
