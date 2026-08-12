@@ -24,9 +24,9 @@ export function SiteHeader() {
 
       <header className="site-header">
         <div className="site-header-inner">
-          {/* Brand Logo with Image Icon */}
+          {/* Brand Logo with Bull Icon */}
           <Link href="/" className="premium-brand" onClick={() => setOpen(false)}>
-            <img src="/logo-icon-cropped.png" alt="Elite Trading Hub Icon" className="brand-logo-icon" />
+            <img src="/icon.png" alt="Elite Trading Hub Bull Icon" className="brand-logo-icon" />
             <span>ELITE<span>TRADING</span><em>HUB</em></span>
           </Link>
 
@@ -113,7 +113,7 @@ export function SiteFooter() {
       <div className="footer-top">
         <div>
           <Link href="/" className="premium-brand">
-            <img src="/logo-icon-cropped.png" alt="Elite Trading Hub Icon" className="brand-logo-icon" />
+            <img src="/icon.png" alt="Elite Trading Hub Bull Icon" className="brand-logo-icon" />
             <span>ELITE<span>TRADING</span><em>HUB</em></span>
           </Link>
           <p>Decision-grade market intelligence for the serious Indian trader.</p>
@@ -166,7 +166,7 @@ export function PageHero({ eyebrow, title, description }: { eyebrow: string; tit
   return (
     <section className="page-hero">
       <div className="eyebrow-line">
-        <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+        <img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h1>{title}</h1>
@@ -179,7 +179,7 @@ export function SectionHeading({ eyebrow, title, text }: { eyebrow: string; titl
   return (
     <div className="premium-section-heading">
       <div className="eyebrow-line">
-        <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+        <img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h2>{title}</h2>
