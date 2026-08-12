@@ -8,7 +8,7 @@ export default function LoginPage() {
       {/* Top Left Navigation Back Button */}
       <header className="login-top-bar">
         <Link href="/" className="back-to-site-btn">
-          <ArrowLeft size={16} /> Back to Elite Trading Hub
+          <ArrowLeft size={16} /> Back
         </Link>
         
         <div className="login-brand-tag">
