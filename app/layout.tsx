@@ -4,7 +4,33 @@ import './globals.css'
 import localFont from 'next/font/local'
 
 const interFont = localFont({
-  src: '../public/fonts/Inter-VariableFont_opsz,wght.ttf',
+  src: [
+    {
+      path: '../public/fonts/static/Inter_28pt-Regular.ttf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/static/Inter_28pt-Medium.ttf',
+      weight: '500',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/static/Inter_28pt-SemiBold.ttf',
+      weight: '600',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/static/Inter_28pt-Bold.ttf',
+      weight: '700',
+      style: 'normal',
+    },
+    {
+      path: '../public/fonts/static/Inter_28pt-Black.ttf',
+      weight: '900',
+      style: 'normal',
+    },
+  ],
   variable: '--font-inter',
   display: 'swap',
 })
