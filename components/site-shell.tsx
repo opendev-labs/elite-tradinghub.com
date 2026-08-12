@@ -24,11 +24,11 @@ export function SiteHeader() {
 
       <header className="site-header">
         <div className="site-header-inner">
-          {/* Top Corner Brand: ONLY Green Bull Icon with No Name & Transparent Background */}
+          {/* Top Corner Brand Logo: User's Original Logo Mark Icon with Transparent Background */}
           <Link href="/" className="premium-brand-icon-only" onClick={() => setOpen(false)}>
             <img 
-              src="/bull-icon-only.svg" 
-              alt="Elite Trading Hub Bull Icon" 
+              src="/user-icon-transparent.png" 
+              alt="Elite Trading Hub Icon" 
               className="header-green-bull-icon" 
             />
           </Link>
@@ -116,7 +116,7 @@ export function SiteFooter() {
       <div className="footer-top">
         <div>
           <Link href="/" className="premium-brand-icon-only">
-            <img src="/bull-icon-only.svg" alt="Elite Trading Hub Bull Icon" className="footer-green-bull-icon" />
+            <img src="/user-icon-transparent.png" alt="Elite Trading Hub Icon" className="footer-green-bull-icon" />
             <span className="footer-brand-title">ELITE TRADING HUB</span>
           </Link>
           <p>Decision-grade market intelligence for NIFTY 50, BANK NIFTY, and SENSEX traders.</p>
@@ -169,7 +169,7 @@ export function PageHero({ eyebrow, title, description }: { eyebrow: string; tit
   return (
     <section className="page-hero">
       <div className="eyebrow-line">
-        <img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />
+        <img src="/user-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h1>{title}</h1>
@@ -182,7 +182,7 @@ export function SectionHeading({ eyebrow, title, text }: { eyebrow: string; titl
   return (
     <div className="premium-section-heading">
       <div className="eyebrow-line">
-        <img src="/bull-icon-only.svg" alt="Bull Icon" className="eyebrow-logo-icon" />
+        <img src="/user-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
         {eyebrow}
       </div>
       <h2>{title}</h2>
