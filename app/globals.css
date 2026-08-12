@@ -941,26 +941,46 @@ main {
   font: 600 11.5px var(--font-mono), monospace;
 }
 
-/* Mobile Hamburger Toggle Pinned to Absolute Far Top-Right Corner */
-.mobile-toggle {
+/* High-End Institutional Mobile Menu Trigger Pill */
+.mobile-toggle-pill {
   display: none;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  background: var(--surface-2);
-  border: 1px solid var(--border);
+  align-items: center;
+  gap: 7px;
+  padding: 7px 13px;
+  background: rgba(14, 25, 34, 0.9);
+  border: 1px solid rgba(38, 217, 138, 0.35);
+  border-radius: 9999px;
   color: var(--emerald);
-  border-radius: 6px;
+  font: 600 11px/1 var(--font-mono), monospace;
+  letter-spacing: 0.08em;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  margin-left: auto !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
 }
 
-.mobile-toggle:hover {
-  border-color: var(--emerald);
+.mobile-toggle-pill:hover, .mobile-toggle-pill.active {
   background: #123026;
+  border-color: var(--emerald);
+  box-shadow: 0 0 15px rgba(38, 217, 138, 0.3);
 }
 
-/* Buttery Smooth Mobile Drawer Overlay */
+.pulse-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 8px var(--emerald);
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { transform: scale(0.95); opacity: 0.8; }
+  50% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(0.95); opacity: 0.8; }
+}
+
+/* Buttery Smooth High-Glass Mobile Drawer Overlay */
 .mobile-drawer {
   position: fixed;
   inset: 0;
@@ -979,7 +999,7 @@ main {
   position: absolute;
   inset: 0;
   background: rgba(9, 14, 19, 0.85);
-  backdrop-filter: blur(14px);
+  backdrop-filter: blur(18px);
   opacity: 0;
   transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -995,8 +1015,9 @@ main {
   bottom: 0;
   width: 86vw;
   max-width: 380px;
-  background: #0d141b;
-  border-left: 1px solid var(--border);
+  background: rgba(13, 20, 27, 0.97);
+  backdrop-filter: blur(24px);
+  border-left: 1px solid rgba(38, 217, 138, 0.25);
   box-shadow: -20px 0 60px rgba(0, 0, 0, 0.95);
   display: flex;
   flex-direction: column;
@@ -1013,47 +1034,48 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-bottom: 20px;
+  padding-bottom: 18px;
   border-bottom: 1px solid var(--border);
-  margin-bottom: 24px;
 }
 
-.mobile-drawer-title {
+.mobile-drawer-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  color: var(--emerald);
+  cursor: pointer;
+}
+
+.mobile-drawer-badge {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--muted-foreground);
-  font: 11px var(--font-mono);
-  letter-spacing: 0.12em;
-}
-
-.mobile-status-badge {
-  display: flex;
-  align-items: center;
-  gap: 5px;
+  margin: 20px 0 24px;
+  padding: 8px 12px;
+  background: rgba(38, 217, 138, 0.08);
+  border: 1px solid rgba(38, 217, 138, 0.2);
   color: var(--emerald);
-  font: 10.5px var(--font-mono);
-}
-
-.mobile-status-badge i {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: var(--emerald);
-  box-shadow: 0 0 8px var(--emerald);
+  font: 10.5px/1 var(--font-mono);
+  letter-spacing: 0.08em;
+  border-radius: 4px;
 }
 
 .mobile-nav-links {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
 
 .mobile-nav-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 14px 18px;
+  padding: 15px 18px;
   background: var(--surface-2);
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -1065,6 +1087,17 @@ main {
 .mobile-nav-item:hover, .mobile-nav-item:active {
   border-color: var(--emerald);
   color: var(--emerald);
+  background: #10241e;
+}
+
+.nav-arrow {
+  color: var(--muted-foreground);
+  transition: transform 0.2s ease;
+}
+
+.mobile-nav-item:hover .nav-arrow {
+  color: var(--emerald);
+  transform: translateX(3px);
 }
 
 .mobile-drawer-actions {
@@ -1090,10 +1123,26 @@ main {
 .mobile-drawer-footer {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 6px;
   text-align: center;
   color: #64717a;
   font: 10.5px var(--font-mono);
+}
+
+.live-status {
+  color: var(--emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.live-status i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--emerald);
+  box-shadow: 0 0 8px var(--emerald);
 }
 
 /* Spacious Clean Hero Section */
@@ -1703,9 +1752,7 @@ main {
   line-height: 1.85;
 }
 
-/* ==========================================================================
-   Full-Screen Fixed Login Page & Bull-Bear Edge-to-Edge Canvas
-   ========================================================================== */
+/* Full-Screen Fixed Login Page */
 .login-fullscreen-wrapper {
   position: fixed;
   inset: 0;
@@ -1888,7 +1935,7 @@ main {
   width: 100%;
 }
 
-/* Institutional Full Screen Bull-Bear Wallpaper Canvas (No Border, No Scroll, Edge-to-Edge) */
+/* Institutional Full Screen Bull-Bear Wallpaper Canvas */
 .admin-login-wrapper {
   width: 100vw;
   height: 100vh;
@@ -2287,33 +2334,19 @@ main {
   }
   .site-header-inner {
     width: 100%;
-    max-width: 100%;
-    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    position: relative;
   }
-  .site-nav.desktop-nav, .desktop-actions, .header-status, .header-cta {
+  .site-nav.desktop-nav, .desktop-actions, .header-status, .header-cta, .menu-btn {
     display: none !important;
   }
 
-  /* Absolute Top-Right Corner Pinned Hamburger Toggle */
-  .mobile-toggle {
+  /* High-End Institutional Mobile Menu Pill Trigger Pinned to Far Right */
+  .mobile-toggle-pill {
     display: flex !important;
-    align-items: center;
-    justify-content: center;
-    position: absolute !important;
-    right: 0 !important;
-    top: 50% !important;
-    transform: translateY(-50%) !important;
-    width: 44px;
-    height: 44px;
-    background: var(--surface-2);
-    border: 1px solid var(--border);
-    color: var(--emerald);
-    border-radius: 6px;
-    cursor: pointer;
-    z-index: 1001;
+    margin-left: auto !important;
   }
 
   .premium-hero {

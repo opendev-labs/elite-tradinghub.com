@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from 'recharts'
-import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Calculator, Check, ChevronRight, Clock3, Crosshair, Info, LockKeyhole, Menu, ShieldCheck, Sparkles, TrendingUp, X } from 'lucide-react'
+import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Calculator, Check, ChevronRight, Clock3, Crosshair, Info, LockKeyhole, ShieldCheck, Sparkles, TrendingUp, X, SlidersHorizontal } from 'lucide-react'
 
 const market = [
   { name: 'NIFTY 50', value: '24,718.60', change: '+0.84%', up: true },
@@ -31,7 +31,29 @@ export function ComplianceNotice() {
 
 export function Header() {
   const [menu, setMenu] = useState(false)
-  return <header className="topbar"><a className="brand" href="#top"><span className="brand-mark"><Crosshair size={18} /></span><span>ELITE<span>TRADING</span><em>HUB</em></span></a><nav className={menu ? 'nav open' : 'nav'}><a href="#setups">Setups</a><a href="#calculator">Risk Calculator</a><a href="#methodology">Methodology</a><a href="#disclosures">Disclosures</a></nav><div className="header-actions"><span className="live"><i /> MARKET OPEN</span><button className="icon-btn" aria-label="Notifications"><Bell size={17} /></button><button className="menu-btn" aria-label="Open menu" onClick={() => setMenu(!menu)}><Menu size={19} /></button></div></header>
+  return (
+    <header className="topbar">
+      <a className="brand" href="#top">
+        <span className="brand-mark"><Crosshair size={18} /></span>
+        <span>ELITE<span>TRADING</span><em>HUB</em></span>
+      </a>
+      <nav className={menu ? 'nav open' : 'nav'}>
+        <a href="#setups">Setups</a>
+        <a href="#calculator">Risk Calculator</a>
+        <a href="#methodology">Methodology</a>
+        <a href="#disclosures">Disclosures</a>
+      </nav>
+      <div className="header-actions">
+        <span className="live"><i /> MARKET OPEN</span>
+        <button className="icon-btn" aria-label="Notifications"><Bell size={17} /></button>
+        <button className={`mobile-toggle-pill ${menu ? 'active' : ''}`} aria-label="Toggle Menu" onClick={() => setMenu(!menu)}>
+          <span className="pulse-dot" />
+          <span className="pill-text">{menu ? 'CLOSE' : 'MENU'}</span>
+          {menu ? <X size={15} /> : <SlidersHorizontal size={15} />}
+        </button>
+      </div>
+    </header>
+  )
 }
 
 function MarketStrip() { return <div className="market-strip">{market.map((item) => <div className="ticker" key={item.name}><span>{item.name}</span><b>{item.value}</b><small className={item.up ? 'positive' : 'negative'}>{item.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}{item.change}</small></div>)}</div> }

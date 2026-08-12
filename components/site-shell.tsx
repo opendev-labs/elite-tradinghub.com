@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useState, useEffect } from 'react'
-import { ArrowUpRight, Crosshair, Menu, X, Lock, ShieldCheck, ChevronRight } from 'lucide-react'
+import { ArrowUpRight, Crosshair, Menu, X, Lock, ShieldCheck, ChevronRight, SlidersHorizontal } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Overview' },
@@ -15,7 +15,7 @@ const links = [
 export function SiteHeader() {
   const [open, setOpen] = useState(false)
 
-  // Prevent background scroll when mobile drawer is active
+  // Lock background scrolling when mobile menu drawer is open
   useEffect(() => {
     if (open) {
       document.body.style.overflow = 'hidden'
@@ -36,12 +36,13 @@ export function SiteHeader() {
 
       <header className="site-header">
         <div className="site-header-inner">
+          {/* Brand Logo (Far Left) */}
           <Link href="/" className="premium-brand" onClick={() => setOpen(false)}>
             <span className="premium-mark"><Crosshair size={17} /></span>
             <span>ELITE<span>TRADING</span><em>HUB</em></span>
           </Link>
 
-          {/* Desktop Navigation */}
+          {/* Desktop Navigation Links */}
           <nav className="site-nav desktop-nav" aria-label="Primary navigation">
             {links.map(link => (
               <Link key={link.href} href={link.href}>
@@ -58,41 +59,53 @@ export function SiteHeader() {
             </Link>
           </div>
 
-          {/* Mobile Hamburger Toggle Pinned to Far Top Right Corner */}
+          {/* High-End Institutional Mobile Menu Toggle (Far Right Pinned) */}
           <button 
-            className="mobile-toggle" 
+            className={`mobile-toggle-pill ${open ? 'active' : ''}`}
             aria-label={open ? 'Close navigation menu' : 'Open navigation menu'} 
             onClick={() => setOpen(!open)}
           >
-            {open ? <X size={22} /> : <Menu size={22} />}
+            <span className="pulse-dot" />
+            <span className="pill-text">{open ? 'CLOSE' : 'MENU'}</span>
+            {open ? <X size={15} /> : <SlidersHorizontal size={15} />}
           </button>
         </div>
 
-        {/* Buttery Smooth Mobile Drawer Overlay */}
-        <div className={open ? 'mobile-drawer open' : 'mobile-drawer'}>
+        {/* Buttery Smooth High-Glass Mobile Drawer Overlay */}
+        <div className={`mobile-drawer ${open ? 'open' : ''}`}>
           <div className="mobile-drawer-backdrop" onClick={() => setOpen(false)} />
           <nav className="mobile-drawer-content" aria-label="Mobile navigation">
             <div className="mobile-drawer-header">
-              <span className="mobile-drawer-title"><ShieldCheck size={14} /> NAVIGATION</span>
-              <span className="mobile-status-badge"><i /> LIVE DATA</span>
+              <div className="premium-brand">
+                <span className="premium-mark"><Crosshair size={15} /></span>
+                <span>ELITE<span>TRADING</span></span>
+              </div>
+              <button className="mobile-drawer-close" onClick={() => setOpen(false)} aria-label="Close menu">
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="mobile-drawer-badge">
+              <ShieldCheck size={13} /> INSTITUTIONAL TERMINAL NAVIGATION
             </div>
 
             <div className="mobile-nav-links">
               {links.map(link => (
                 <Link key={link.href} href={link.href} className="mobile-nav-item" onClick={() => setOpen(false)}>
                   <span>{link.label}</span>
-                  <ChevronRight size={16} />
+                  <ChevronRight size={16} className="nav-arrow" />
                 </Link>
               ))}
             </div>
 
             <div className="mobile-drawer-actions">
               <Link href="/login" className="mobile-drawer-cta" onClick={() => setOpen(false)}>
-                Login to Platform <ArrowUpRight size={16} />
+                <span>Access Trading Portal</span>
+                <ArrowUpRight size={16} />
               </Link>
               <div className="mobile-drawer-footer">
+                <span className="live-status"><i /> LIVE NSE/BSE CONNECTION</span>
                 <span>© 2026 Elite Trading Hub</span>
-                <span>Institutional Grade Intelligence</span>
               </div>
             </div>
           </nav>
