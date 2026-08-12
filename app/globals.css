@@ -1248,13 +1248,14 @@ main {
   transform: scale(1.02);
 }
 
-/* Header Brand: Just Green Bull Logo Icon with No Name */
+/* Header Brand: Pure Green Bull Logo Icon with No Name */
 .header-green-bull-icon {
-  width: 36px;
-  height: 36px;
+  width: auto;
+  height: 42px;
+  max-width: 48px;
   object-fit: contain;
   background: transparent !important;
-  filter: drop-shadow(0 0 10px rgba(38, 217, 138, 0.4));
+  filter: drop-shadow(0 0 12px rgba(38, 217, 138, 0.45));
   transition: transform 0.2s ease;
 }
 
