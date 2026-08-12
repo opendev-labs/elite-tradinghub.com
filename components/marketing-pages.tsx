@@ -3,7 +3,6 @@
 import Link from 'next/link'
 import { ArrowRight, BarChart3, Check, Database, Send, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { PageFrame, PageHero, SectionHeading } from './site-shell'
-import { LiveOrbitBackground } from './live-orbit-background'
 import { MarketStrip } from './trading-dashboard'
 
 const capabilities = [
@@ -19,32 +18,17 @@ export function PremiumHome() {
         {/* Full-Bleed Market Ticker Strip */}
         <MarketStrip />
 
-        {/* Hero Section centered around the Full Logo Image Showcase */}
-        <section className="premium-hero hero-logo-showcase-section">
-          <LiveOrbitBackground />
-
-          <div className="hero-content hero-center-content">
-            {/* The Logo as the Entire Hero Visual Centerpiece */}
-            <div className="hero-logo-full-container">
+        {/* Clean Pure Black Hero Section with Transparent Official Logo Showcase */}
+        <section className="pure-black-hero-section">
+          <div className="pure-black-hero-content">
+            {/* The Logo with 100% Transparent Background */}
+            <div className="hero-logo-transparent-wrapper">
               <img 
-                src="/logo-cropped.png" 
+                src="/logo-transparent.png" 
                 alt="Elite Trading Hub Official Logo" 
-                className="hero-logo-full-img"
+                className="hero-logo-transparent-img"
               />
             </div>
-
-            <div className="eyebrow-line center-eyebrow">
-              <img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
-              ELITE MARKET INTELLIGENCE / INDIA
-            </div>
-            
-            <h1 className="hero-headline-refined">
-              The signal is only as good as the <em>decision</em> it creates.
-            </h1>
-
-            <p className="hero-subtitle">
-              Elite Trading Hub turns market complexity into a calm, structured operating layer for traders navigating Indian equities, indices and options.
-            </p>
 
             <div className="hero-buttons hero-center-buttons">
               <Link href="/features" className="luxury-button">
@@ -107,7 +91,7 @@ export function PremiumHome() {
         <section className="dark-band">
           <div>
             <div className="eyebrow-line">
-              <img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+              <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
               WHY ELITE
             </div>
             <h2>Clarity compounds.</h2>
@@ -132,7 +116,7 @@ export function PremiumHome() {
           <div className="cta-panel">
             <div>
               <div className="eyebrow-line">
-                <img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
+                <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />
                 READY WHEN YOU ARE
               </div>
               <h2>
@@ -191,7 +175,7 @@ export function PremiumFeatures() {
         <section className="premium-section platform-cta">
           <div className="cta-panel">
             <div>
-              <div className="eyebrow-line"><img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
+              <div className="eyebrow-line"><img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
               <h2>Ready to upgrade your trading process?</h2>
             </div>
             <Link href="/login" className="luxury-button">
@@ -232,7 +216,7 @@ export function PremiumMethodology() {
 
           <div className="methodology-note dark-band">
             <div>
-              <div className="eyebrow-line"><img src="/icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
+              <div className="eyebrow-line"><img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
               <h2>Why rules beat intuition.</h2>
               <p>Discipline isn&apos;t about never taking losses—it&apos;s about ensuring every loss is controlled, deliberate, and within your risk model parameters.</p>
             </div>
@@ -257,7 +241,7 @@ export function PremiumAbout() {
           <div className="about-grid">
             <div className="about-statements">
               <div>
-                <img src="/icon.png" alt="Bull Icon" className="about-logo-icon" />
+                <img src="/green-bull-icon-transparent.png" alt="Bull Icon" className="about-logo-icon" />
                 <b>No noise. No hype.</b>
                 <p>We do not publish get-rich-quick tips or speculative calls. Every setup is grounded in verifiable price action and derivatives data.</p>
               </div>

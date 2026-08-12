@@ -1198,40 +1198,86 @@ main {
   background: var(--emerald);
 }
 
-.brand-logo-icon {
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-  border-radius: 4px;
+/* Pure Black Hero Section (No 2D Live Wallpaper) */
+.pure-black-hero-section {
+  min-height: 580px;
+  width: 100%;
+  padding: 80px 3vw 90px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  background: #090e13 !important;
+  position: relative;
+  overflow: hidden;
 }
 
-.hero-logo-full-container {
+.pure-black-hero-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 920px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-logo-transparent-wrapper {
   width: 100%;
   max-width: 680px;
-  margin: 0 auto 24px;
+  margin: 0 auto 36px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.hero-logo-full-img {
+.hero-logo-transparent-img {
   width: 100%;
-  max-width: 620px;
+  max-width: 580px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 0 50px rgba(38, 217, 138, 0.28)) drop-shadow(0 20px 40px rgba(0, 0, 0, 0.8));
+  filter: drop-shadow(0 0 45px rgba(38, 217, 138, 0.22));
   transition: transform 0.3s ease;
 }
 
-.hero-logo-full-img:hover {
+.hero-logo-transparent-img:hover {
   transform: scale(1.02);
+}
+
+/* Header Brand: Just Green Bull Logo Icon with No Name */
+.header-green-bull-icon {
+  width: 36px;
+  height: 36px;
+  object-fit: contain;
+  background: transparent !important;
+  filter: drop-shadow(0 0 10px rgba(38, 217, 138, 0.4));
+  transition: transform 0.2s ease;
+}
+
+.header-green-bull-icon:hover {
+  transform: scale(1.08);
+}
+
+.footer-green-bull-icon {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+  background: transparent !important;
+}
+
+.footer-brand-title {
+  color: var(--foreground);
+  font: 700 15px var(--font-mono);
+  letter-spacing: 0.05em;
+  margin-left: 10px;
 }
 
 .eyebrow-logo-icon, .about-logo-icon {
   width: 16px;
   height: 16px;
   object-fit: contain;
-  border-radius: 3px;
+  background: transparent !important;
 }
 
 .hero-center-content {
