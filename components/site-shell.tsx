@@ -50,21 +50,22 @@ export function SiteHeader() {
             ))}
           </nav>
 
-          <div className="site-actions">
+          {/* Desktop Right Actions */}
+          <div className="site-actions desktop-actions">
             <span className="header-status"><i /> NSE / BSE DATA</span>
             <Link className="header-cta" href="/login">
               Login <ArrowUpRight size={14} />
             </Link>
-
-            {/* Mobile Hamburger Toggle in Top Right Corner */}
-            <button 
-              className="mobile-toggle" 
-              aria-label={open ? 'Close navigation menu' : 'Open navigation menu'} 
-              onClick={() => setOpen(!open)}
-            >
-              {open ? <X size={22} /> : <Menu size={22} />}
-            </button>
           </div>
+
+          {/* Mobile Hamburger Toggle Pinned to Far Top Right Corner */}
+          <button 
+            className="mobile-toggle" 
+            aria-label={open ? 'Close navigation menu' : 'Open navigation menu'} 
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X size={22} /> : <Menu size={22} />}
+          </button>
         </div>
 
         {/* Buttery Smooth Mobile Drawer Overlay */}

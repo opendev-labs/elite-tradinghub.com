@@ -38,6 +38,7 @@ body {
   overflow-x: hidden;
   --x: calc(var(--posX, 0) * 1px);
   --y: calc(var(--posY, 0) * 1px);
+  touch-action: manipulation;
 }
 
 /* User Interactive Mesh Background */
@@ -845,24 +846,24 @@ main {
 }
 
 .site-header {
-  height: 76px;
+  height: 70px;
   width: 100%;
   padding: 0 3vw;
-  display: flex;
-  align-items: center;
   position: sticky;
   top: 0;
   z-index: 100;
-  background: #090e13f0;
+  background: rgba(9, 14, 19, 0.95);
   border-bottom: 1px solid var(--border);
-  backdrop-filter: blur(15px);
+  backdrop-filter: blur(16px);
 }
 
 .site-header-inner {
   width: 100%;
+  height: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  position: relative;
 }
 
 .premium-brand {
@@ -910,7 +911,7 @@ main {
   color: var(--foreground);
 }
 
-.site-actions {
+.site-actions.desktop-actions {
   display: flex;
   align-items: center;
   gap: 18px;
@@ -940,7 +941,7 @@ main {
   font: 600 11.5px var(--font-mono), monospace;
 }
 
-/* Mobile Hamburger Toggle in Top-Right Corner */
+/* Mobile Hamburger Toggle Pinned to Top-Right Corner */
 .mobile-toggle {
   display: none;
   place-items: center;
@@ -1128,7 +1129,7 @@ main {
 
 .eyebrow-line {
   display: flex;
-  gap: 9px;
+  gap: 99px;
   align-items: center;
   color: var(--emerald);
   font: 11.5px var(--font-mono), monospace;
@@ -2271,8 +2272,8 @@ main {
   }
 }
 
-/* Precise Mobile Smartphone Breakpoint (< 840px) */
-@media (max-width: 840px) {
+/* Precise Mobile Smartphone Breakpoint (< 900px) */
+@media (max-width: 900px) {
   .premium-ribbon {
     padding: 8px 16px;
     font-size: 9.5px;
@@ -2284,13 +2285,21 @@ main {
     padding: 0 16px;
     height: 66px;
   }
-  .site-nav.desktop-nav, .header-status, .header-cta {
+  .site-header-inner {
+    width: 100%;
+    max-width: 100%;
+    position: relative;
+  }
+  .site-nav.desktop-nav, .desktop-actions, .header-status, .header-cta {
     display: none !important;
   }
-  /* Top-Right Hamburger Toggle Button */
+  /* Top-Right Hamburger Toggle Button Pinned to Far Corner */
   .mobile-toggle {
     display: grid !important;
-    margin-left: auto;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
   }
   .premium-hero {
     padding: 45px 18px 60px;
