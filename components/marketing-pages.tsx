@@ -15,9 +15,6 @@ export function PremiumHome() {
   return (
     <PageFrame>
       <main>
-        {/* Full-Bleed Market Ticker Strip */}
-        <MarketStrip />
-
         {/* Clean Pure Black Hero Section showcasing Clean Centered Logo Image (No Gemini Watermark) */}
         <section className="pure-black-hero-section">
           <div className="pure-black-hero-content">

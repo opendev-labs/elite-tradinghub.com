@@ -52,7 +52,31 @@ export function Header() {
   )
 }
 
-function MarketStrip() { return <div className="market-strip">{market.map((item) => <div className="ticker" key={item.name}><span>{item.name}</span><b>{item.value}</b><small className={item.up ? 'positive' : 'negative'}>{item.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}{item.change}</small></div>)}</div> }
+export function MarketStrip() {
+  const items = [...market, ...market, ...market, ...market]
+  return (
+    <div className="market-bulletin-strip" aria-label="Live Index Ticker Bulletin">
+      <div className="bulletin-badge">
+        <span className="live-dot" /> LIVE
+      </div>
+      <div className="market-bulletin-container">
+        <div className="market-bulletin-track">
+          {items.map((item, index) => (
+            <div className="bulletin-item" key={`${item.name}-${index}`}>
+              <span className="name">{item.name}</span>
+              <span className="val">{item.value}</span>
+              <span className={`change ${item.up ? 'positive' : 'negative'}`}>
+                {item.up ? <ArrowUpRight size={12} /> : <ArrowDownRight size={12} />}
+                {item.change}
+              </span>
+              <span className="bulletin-separator">•</span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  )
+}
 
 function SetupCard({ setup }: { setup: typeof setups[number] }) { return <article className={`setup-card ${setup.tone}`}><div className="setup-top"><div><span className="symbol">{setup.symbol}</span><span className="badge">{setup.bias}</span></div><span className="score"><strong>{setup.score}</strong>/100</span></div><div className="setup-grid"><div><span>ENTRY ZONE</span><b>{setup.level}</b></div><div><span>TARGET</span><b className="positive">{setup.target}</b></div><div><span>STOP LOSS</span><b className="negative">{setup.stop}</b></div></div><div className="setup-bottom"><span><Clock3 size={13} /> Intraday</span><span><Activity size={13} /> High conviction</span><button aria-label={`View ${setup.symbol} setup`}><ChevronRight size={17} /></button></div></article> }
 
@@ -113,5 +137,3 @@ export default function TradingDashboard({ showHeader = false }: { showHeader?: 
     </div>
   )
 }
-
-export { MarketStrip }

@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { ArrowUpRight, Menu, X, Lock, ChevronRight, Send } from 'lucide-react'
+import { MarketStrip } from './trading-dashboard'
 
 const links = [
   { href: '/', label: 'Overview' },
@@ -17,10 +18,7 @@ export function SiteHeader() {
 
   return (
     <>
-      <div className="premium-ribbon">
-        <span>Market intelligence, built for decision quality</span>
-        <span className="ribbon-tag">Educational use only</span>
-      </div>
+      <MarketStrip />
 
       <header className="site-header">
         <div className="site-header-inner">
@@ -44,7 +42,6 @@ export function SiteHeader() {
 
           {/* Desktop Right Actions */}
           <div className="site-actions desktop-actions">
-            <span className="header-status"><i /> NIFTY / BANKNIFTY / SENSEX</span>
             <a 
               href="https://t.me/+la1ShIiNHJ5mYzk1" 
               target="_blank" 
