@@ -1,8 +1,8 @@
 'use client'
 
 import Link from 'next/link'
-import { useState, useEffect } from 'react'
-import { ArrowUpRight, Crosshair, Menu, X, Lock, ShieldCheck, ChevronRight, Send } from 'lucide-react'
+import { useState } from 'react'
+import { ArrowUpRight, Menu, X, Lock, ChevronRight, Send } from 'lucide-react'
 
 const links = [
   { href: '/', label: 'Overview' },
@@ -24,9 +24,9 @@ export function SiteHeader() {
 
       <header className="site-header">
         <div className="site-header-inner">
-          {/* Brand Logo (Far Left) */}
+          {/* Brand Logo with Image Icon */}
           <Link href="/" className="premium-brand" onClick={() => setOpen(false)}>
-            <span className="premium-mark"><Crosshair size={17} /></span>
+            <img src="/logo-icon-cropped.png" alt="Elite Trading Hub Icon" className="brand-logo-icon" />
             <span>ELITE<span>TRADING</span><em>HUB</em></span>
           </Link>
 
@@ -113,7 +113,7 @@ export function SiteFooter() {
       <div className="footer-top">
         <div>
           <Link href="/" className="premium-brand">
-            <span className="premium-mark"><Crosshair size={17} /></span>
+            <img src="/logo-icon-cropped.png" alt="Elite Trading Hub Icon" className="brand-logo-icon" />
             <span>ELITE<span>TRADING</span><em>HUB</em></span>
           </Link>
           <p>Decision-grade market intelligence for the serious Indian trader.</p>
@@ -165,7 +165,10 @@ export function PageFrame({ children }: { children: React.ReactNode }) {
 export function PageHero({ eyebrow, title, description }: { eyebrow: string; title: React.ReactNode; description: string }) {
   return (
     <section className="page-hero">
-      <div className="eyebrow-line"><i />{eyebrow}</div>
+      <div className="eyebrow-line">
+        <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+        {eyebrow}
+      </div>
       <h1>{title}</h1>
       <p>{description}</p>
     </section>
@@ -175,7 +178,10 @@ export function PageHero({ eyebrow, title, description }: { eyebrow: string; tit
 export function SectionHeading({ eyebrow, title, text }: { eyebrow: string; title: string; text?: string }) {
   return (
     <div className="premium-section-heading">
-      <div className="eyebrow-line"><i />{eyebrow}</div>
+      <div className="eyebrow-line">
+        <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+        {eyebrow}
+      </div>
       <h2>{title}</h2>
       {text && <p>{text}</p>}
     </div>

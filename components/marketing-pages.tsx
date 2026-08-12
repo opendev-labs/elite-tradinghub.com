@@ -1,14 +1,14 @@
 'use client'
 
 import Link from 'next/link'
-import { ArrowRight, BarChart3, Check, Crosshair, Database, LockKeyhole, Send, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
+import { ArrowRight, BarChart3, Check, Database, Send, ShieldCheck, Sparkles, Target, TrendingUp } from 'lucide-react'
 import { PageFrame, PageHero, SectionHeading } from './site-shell'
 import { LiveOrbitBackground } from './live-orbit-background'
-import TradingDashboard, { MarketStrip, Setups, RiskCalculator, Methodology } from './trading-dashboard'
+import { MarketStrip } from './trading-dashboard'
 
 const capabilities = [
   ['Market coverage', 'NIFTY 50, BANK NIFTY, NSE and BSE equities, indices and selected options setups.', BarChart3],
-  ['Signal discipline', 'A transparent framework combining price action, volume, volatility and derivatives context.', Crosshair],
+  ['Signal discipline', 'A transparent framework combining price action, volume, volatility and derivatives context.', BarChart3],
   ['Risk first', 'Position sizing and stop-loss logic designed to put the downside before the trade idea.', ShieldCheck],
 ]
 
@@ -19,14 +19,25 @@ export function PremiumHome() {
         {/* Full-Bleed Market Ticker Strip */}
         <MarketStrip />
 
-        {/* Clean, Full-Bleed Hero Section with Interactive Mesh Background */}
+        {/* Clean, Full-Bleed Hero Section with Interactive Mesh Background & Main Logo */}
         <section className="premium-hero">
           <LiveOrbitBackground />
 
           <div className="hero-content">
-            <div className="eyebrow-line">
-              <i />ELITE MARKET INTELLIGENCE / INDIA
+            {/* Main Brand Logo in Hero Section */}
+            <div className="hero-logo-banner">
+              <img 
+                src="/logo-cropped.png" 
+                alt="Elite Trading Hub Logo" 
+                className="hero-logo-img"
+              />
             </div>
+
+            <div className="eyebrow-line">
+              <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+              ELITE MARKET INTELLIGENCE / INDIA
+            </div>
+            
             <h1>
               The signal is only as good as the <em>decision</em> it creates.
             </h1>
@@ -93,7 +104,8 @@ export function PremiumHome() {
         <section className="dark-band">
           <div>
             <div className="eyebrow-line">
-              <i />WHY ELITE
+              <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+              WHY ELITE
             </div>
             <h2>Clarity compounds.</h2>
             <p>
@@ -117,7 +129,8 @@ export function PremiumHome() {
           <div className="cta-panel">
             <div>
               <div className="eyebrow-line">
-                <i />READY WHEN YOU ARE
+                <img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />
+                READY WHEN YOU ARE
               </div>
               <h2>
                 Trade less reactively.<br />
@@ -175,7 +188,7 @@ export function PremiumFeatures() {
         <section className="premium-section platform-cta">
           <div className="cta-panel">
             <div>
-              <div className="eyebrow-line"><i />LIVE MARKET INTELLIGENCE</div>
+              <div className="eyebrow-line"><img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />LIVE MARKET INTELLIGENCE</div>
               <h2>Ready to upgrade your trading process?</h2>
             </div>
             <Link href="/login" className="luxury-button">
@@ -216,7 +229,7 @@ export function PremiumMethodology() {
 
           <div className="methodology-note dark-band">
             <div>
-              <div className="eyebrow-line"><i />DISCIPLINE MATTERS</div>
+              <div className="eyebrow-line"><img src="/logo-icon-cropped.png" alt="" className="eyebrow-logo-icon" />DISCIPLINE MATTERS</div>
               <h2>Why rules beat intuition.</h2>
               <p>Discipline isn&apos;t about never taking losses—it&apos;s about ensuring every loss is controlled, deliberate, and within your risk model parameters.</p>
             </div>
@@ -241,7 +254,7 @@ export function PremiumAbout() {
           <div className="about-grid">
             <div className="about-statements">
               <div>
-                <Crosshair size={24} />
+                <img src="/logo-icon-cropped.png" alt="" className="about-logo-icon" />
                 <b>No noise. No hype.</b>
                 <p>We do not publish get-rich-quick tips or speculative calls. Every setup is grounded in verifiable price action and derivatives data.</p>
               </div>
