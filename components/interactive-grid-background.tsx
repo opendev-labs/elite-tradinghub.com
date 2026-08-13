@@ -56,6 +56,7 @@ export function InteractiveGridBackground() {
 
     handleResize()
     window.addEventListener('resize', handleResize, { passive: true })
+    let isTouch = false
 
     const spawnRipple = (clientX: number, clientY: number) => {
       const rect = container.getBoundingClientRect()
@@ -79,28 +80,51 @@ export function InteractiveGridBackground() {
       targetMouseY = clientY - rect.top
     }
 
-    const onPointerMove = (e: PointerEvent) => handlePointer(e.clientX, e.clientY)
-    const onPointerDown = (e: PointerEvent) => {
+    const clearPointer = () => {
+      targetMouseX = -1000
+      targetMouseY = -1000
+    }
+
+    const onPointerMove = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') {
+        isTouch = true
+        return
+      }
       handlePointer(e.clientX, e.clientY)
+    }
+    const onPointerDown = (e: PointerEvent) => {
+      if (e.pointerType === 'touch') isTouch = true
+      if (!isTouch) handlePointer(e.clientX, e.clientY)
       spawnRipple(e.clientX, e.clientY)
     }
+    const onPointerLeave = () => {
+      clearPointer()
+    }
+
     const onTouchStart = (e: TouchEvent) => {
+      isTouch = true
+      clearPointer()
       if (e.touches && e.touches[0]) {
-        handlePointer(e.touches[0].clientX, e.touches[0].clientY)
         spawnRipple(e.touches[0].clientX, e.touches[0].clientY)
       }
     }
-    const onTouchMove = (e: TouchEvent) => {
-      if (e.touches && e.touches[0]) {
-        handlePointer(e.touches[0].clientX, e.touches[0].clientY)
-      }
+    const onTouchMove = () => {
+      isTouch = true
+      clearPointer()
+    }
+    const onTouchEnd = () => {
+      isTouch = true
+      clearPointer()
     }
 
     const targetEl = container.closest('section') || container.parentElement || window
     targetEl.addEventListener('pointermove', onPointerMove as EventListener, { passive: true })
     targetEl.addEventListener('pointerdown', onPointerDown as EventListener, { passive: true })
+    targetEl.addEventListener('pointerleave', onPointerLeave as EventListener, { passive: true })
     targetEl.addEventListener('touchstart', onTouchStart as EventListener, { passive: true })
     targetEl.addEventListener('touchmove', onTouchMove as EventListener, { passive: true })
+    targetEl.addEventListener('touchend', onTouchEnd as EventListener, { passive: true })
+    targetEl.addEventListener('touchcancel', onTouchEnd as EventListener, { passive: true })
 
     const render = () => {
       const now = Date.now()
@@ -152,11 +176,11 @@ export function InteractiveGridBackground() {
           let shiftY = 0
           let maxGlow = 0
 
-          // Mouse spotlight glow ONLY (zero hover bending)
+          // Mouse spotlight glow ONLY for desktop mouse (zero hover glow on touch/mobile)
           const mdx = baseX - mouseX
           const mdy = baseY - mouseY
           const mdist = Math.hypot(mdx, mdy)
-          if (mdist < 160 && mdist > 0) {
+          if (!isTouch && mdist < 160 && mdist > 0) {
             mouseGlow[idx] = 1 - mdist / 160
           }
 
