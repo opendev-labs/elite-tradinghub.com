@@ -59,24 +59,33 @@ export const metadata: Metadata = {
   ],
   icons: {
     icon: [
-      { url: '/only-bull-head-icon.png', type: 'image/png' },
-      { url: '/only-bull-head-icon.png', type: 'image/png', sizes: '32x32' },
+      { url: '/square-og-logo.png?v=3', type: 'image/png' },
+      { url: '/square-og-logo.png?v=3', type: 'image/png', sizes: '32x32' },
     ],
-    shortcut: '/only-bull-head-icon.png',
-    apple: '/only-bull-head-icon.png',
+    shortcut: '/square-og-logo.png?v=3',
+    apple: '/apple-touch-icon.png?v=3',
   },
   manifest: '/manifest.json',
   openGraph: {
     title: 'Elite Trading Hub — Decision-Grade Market Intelligence',
-    description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time execution signals.',
+    description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics.',
     url: 'https://elite-tradinghub.com',
     siteName: 'Elite Trading Hub',
     images: [
       {
-        url: 'https://elite-tradinghub.com/og-image.png',
+        url: 'https://elite-tradinghub.com/og-image.png?v=3',
+        secureUrl: 'https://elite-tradinghub.com/og-image.png?v=3',
         width: 1200,
         height: 630,
         alt: 'Elite Trading Hub — Decision-Grade Market Intelligence',
+        type: 'image/png',
+      },
+      {
+        url: 'https://elite-tradinghub.com/square-og-logo.png?v=3',
+        secureUrl: 'https://elite-tradinghub.com/square-og-logo.png?v=3',
+        width: 512,
+        height: 512,
+        alt: 'Elite Trading Hub',
         type: 'image/png',
       },
     ],
@@ -89,7 +98,7 @@ export const metadata: Metadata = {
     description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders.',
     site: '@EliteTradingHub',
     creator: '@EliteTradingHub',
-    images: ['https://elite-tradinghub.com/og-image.png'],
+    images: ['https://elite-tradinghub.com/og-image.png?v=3'],
   },
   robots: {
     index: true,
@@ -112,6 +121,18 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="en" className="dark">
+      <head>
+        <meta property="og:image" content="https://elite-tradinghub.com/og-image.png?v=3" />
+        <meta property="og:image:secure_url" content="https://elite-tradinghub.com/og-image.png?v=3" />
+        <meta property="og:image:type" content="image/png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
+        <meta property="og:site_name" content="Elite Trading Hub" />
+        <meta itemprop="image" content="https://elite-tradinghub.com/og-image.png?v=3" />
+        <link rel="image_src" href="https://elite-tradinghub.com/og-image.png?v=3" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=3" />
+      </head>
       <body className={`${interFont.variable} ${interFont.className}`}>
         {children}
         {process.env.NODE_ENV === 'production' && <Analytics />}
