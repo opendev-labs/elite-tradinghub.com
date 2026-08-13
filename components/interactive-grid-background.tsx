@@ -76,13 +76,13 @@ export function InteractiveGridBackground() {
     <div ref={containerRef} className="interactive-green-grid-bg" aria-hidden="true">
       <svg className="vector-grid-svg" width="100%" height="100%">
         <defs>
-          {/* Base Pattern: Emerald Green Vector Grid Lines */}
+          {/* Base Pattern: Darker Faint Emerald Green Vector Grid Lines */}
           <pattern id="base-grid-pattern" width="44" height="44" patternUnits="userSpaceOnUse">
-            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(38, 217, 138, 0.14)" strokeWidth="1" />
+            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(38, 217, 138, 0.05)" strokeWidth="1" />
           </pattern>
-          {/* Active Pattern: Soft Dimmed White Vector Grid Lines */}
+          {/* Active Pattern: 10% Brighter Dimmed White Vector Grid Lines */}
           <pattern id="active-grid-pattern" width="44" height="44" patternUnits="userSpaceOnUse">
-            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(255, 255, 255, 0.28)" strokeWidth="1" />
+            <path d="M 44 0 L 0 0 0 44" fill="none" stroke="rgba(255, 255, 255, 0.22)" strokeWidth="1" />
           </pattern>
         </defs>
 
