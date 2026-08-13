@@ -19,7 +19,7 @@ export function InteractiveGridBackground() {
     const container = containerRef.current
     if (!canvas || !container) return
 
-    const ctx = canvas.getContext('2d')
+    const ctx = canvas.getContext('2d', { alpha: true })
     if (!ctx) return
 
     let animationFrameId: number
@@ -27,7 +27,6 @@ export function InteractiveGridBackground() {
     let height = 0
     let dpr = 1
 
-    const GRID_SIZE = 22 // Fine 22px sub-mesh for smooth curve bending
     let mouseX = -1000
     let mouseY = -1000
     let targetMouseX = -1000
@@ -39,10 +38,11 @@ export function InteractiveGridBackground() {
       const rect = container.getBoundingClientRect()
       width = rect.width
       height = rect.height
-      dpr = Math.min(window.devicePixelRatio || 1, 2)
+      const isMobile = width < 768
+      dpr = isMobile ? 1.25 : Math.min(window.devicePixelRatio || 1, 1.5)
 
-      canvas.width = width * dpr
-      canvas.height = height * dpr
+      canvas.width = Math.floor(width * dpr)
+      canvas.height = Math.floor(height * dpr)
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
 
@@ -105,117 +105,119 @@ export function InteractiveGridBackground() {
     const render = () => {
       const now = Date.now()
 
-      // Smooth mouse interpolation
       mouseX += (targetMouseX - mouseX) * 0.15
       mouseY += (targetMouseY - mouseY) * 0.15
 
-      // Idle mouse movement if user isn't interacting
       if (!isInteracting) {
         const elapsed = (now - startTime) / 1000
         targetMouseX = width / 2 + Math.sin(elapsed * 0.4) * (width * 0.15)
         targetMouseY = height * 0.45 + Math.cos(elapsed * 0.6) * (height * 0.08)
       }
 
-      // Filter expired ripples (> 1.9s duration)
-      const activeRipples = ripplesRef.current.filter(r => (now - r.startTime) < 1900)
+      const isMobile = width < 768
+      const duration = isMobile ? 1300 : 1800
+      const activeRipples = ripplesRef.current.filter(r => (now - r.startTime) < duration)
       ripplesRef.current = activeRipples
 
       ctx.clearRect(0, 0, canvas.width, canvas.height)
       ctx.save()
       ctx.scale(dpr, dpr)
 
-      const cols = Math.ceil(width / GRID_SIZE) + 2
-      const rows = Math.ceil(height / GRID_SIZE) + 2
+      // Responsive Grid: 28px on mobile (prevents zoomed-in look), 44px on desktop
+      const MAJOR_GRID = isMobile ? 28 : 44
+      const SUB_GRID = isMobile ? 14 : 22
+      const SUB_STEPS = 2
 
-      // Compute 2D node grid with elastic matrix displacement
-      const gridNodes: { x: number; y: number; glowRatio: number; rippleGlow: number }[][] = []
+      const maxTravel = isMobile ? 550 : 1050
+      const speed = isMobile ? 440 : 560
+      const maxBend = isMobile ? 4.5 : 5.5 // Subtle, delicate bending
+
+      const cols = Math.ceil(width / SUB_GRID) + 2
+      const rows = Math.ceil(height / SUB_GRID) + 2
+      const totalNodes = cols * rows
+
+      // Optimized Float32 arrays
+      const posX = new Float32Array(totalNodes)
+      const posY = new Float32Array(totalNodes)
+      const mouseGlow = new Float32Array(totalNodes)
+      const rippleGlow = new Float32Array(totalNodes)
 
       for (let c = 0; c < cols; c++) {
-        gridNodes[c] = []
         for (let r = 0; r < rows; r++) {
-          const baseX = c * GRID_SIZE
-          const baseY = r * GRID_SIZE
+          const idx = c * rows + r
+          const baseX = c * SUB_GRID
+          const baseY = r * SUB_GRID
 
           let shiftX = 0
           let shiftY = 0
-          let maxRippleGlow = 0
+          let maxGlow = 0
 
-          // Mouse spotlight illumination ONLY (Zero grid bending / zero displacement on hover)
+          // Mouse spotlight glow ONLY (zero hover bending)
           const mdx = baseX - mouseX
           const mdy = baseY - mouseY
           const mdist = Math.hypot(mdx, mdy)
-          let mouseGlow = 0
-          if (mdist < 180 && mdist > 0) {
-            mouseGlow = 1 - mdist / 180
+          if (mdist < 160 && mdist > 0) {
+            mouseGlow[idx] = 1 - mdist / 160
           }
 
-          // Wave Grid Bending: Follows the wave continuously from center to screen edges
+          // Subtle Wave Bending (follows green wave everywhere it travels)
           for (let i = 0; i < activeRipples.length; i++) {
             const ripple = activeRipples[i]
             const age = (now - ripple.startTime) / 1000
-            const maxTravel = 1200 // Travels up to 1200px across entire screen
-            const waveRadius = age * 580 // Smooth 580px/s propagation speed
+            const waveRadius = age * speed
             const rdx = baseX - ripple.x
             const rdy = baseY - ripple.y
             const rdist = Math.hypot(rdx, rdy)
 
             if (rdist > 0 && waveRadius < maxTravel + 150) {
               const deltaR = rdist - waveRadius
-              // Proportional wave width so wave crest remains full & curved even 800px away
-              const WAVE_WIDTH = Math.max(34, waveRadius * 0.07)
+              const WAVE_WIDTH = Math.max(28, waveRadius * 0.065)
 
               if (Math.abs(deltaR) < WAVE_WIDTH) {
-                const normDelta = deltaR / WAVE_WIDTH // -1 to 1
-                // Physical sine wave displacement
+                const normDelta = deltaR / WAVE_WIDTH
                 const waveShape = Math.sin(normDelta * Math.PI)
-                
-                // Sustained wave intensity until 850px then smooth fade out to 1200px
-                const distFade = rdist < 850 ? 1.0 : Math.max(0, 1 - (rdist - 850) / 350)
-                const timeFade = Math.max(0, 1 - age / 1.9)
+                const distFade = rdist < (maxTravel * 0.8) ? 1.0 : Math.max(0, 1 - (rdist - maxTravel * 0.8) / (maxTravel * 0.2))
+                const timeFade = Math.max(0, 1 - age / (duration / 1000))
                 const intensity = waveShape * distFade * timeFade
 
-                // Grid nodes physically bend with the wave everywhere the wave goes
-                shiftX += (rdx / rdist) * 12 * intensity
-                shiftY += (rdy / rdist) * 12 * intensity
+                shiftX += (rdx / rdist) * maxBend * intensity
+                shiftY += (rdy / rdist) * maxBend * intensity
 
-                const glowIntensity = Math.cos(normDelta * (Math.PI / 2)) * distFade * timeFade
-                if (glowIntensity > maxRippleGlow) {
-                  maxRippleGlow = glowIntensity
-                }
+                const glowInt = Math.cos(normDelta * (Math.PI / 2)) * distFade * timeFade
+                if (glowInt > maxGlow) maxGlow = glowInt
               }
             }
           }
 
-          gridNodes[c][r] = {
-            x: baseX + shiftX,
-            y: baseY + shiftY,
-            glowRatio: mouseGlow,
-            rippleGlow: maxRippleGlow
-          }
+          posX[idx] = baseX + shiftX
+          posY[idx] = baseY + shiftY
+          rippleGlow[idx] = maxGlow
         }
       }
 
-      // Draw Major Grid Lines (spaced every 44px, connected through 22px sub-node curves)
-      // Horizontal Lines (every r % 2 === 0)
-      for (let r = 0; r < rows; r += 2) {
-        let isPathOpen = false
-
+      // Draw Horizontal Grid Lines
+      for (let r = 0; r < rows; r += SUB_STEPS) {
         for (let c = 0; c < cols - 1; c++) {
-          const p1 = gridNodes[c][r]
-          const p2 = gridNodes[c + 1][r]
+          const idx1 = c * rows + r
+          const idx2 = (c + 1) * rows + r
 
-          const avgMouseGlow = (p1.glowRatio + p2.glowRatio) / 2
-          const avgRippleGlow = Math.max(p1.rippleGlow, p2.rippleGlow)
+          const x1 = posX[idx1]
+          const y1 = posY[idx1]
+          const x2 = posX[idx2]
+          const y2 = posY[idx2]
+
+          const avgMouse = (mouseGlow[idx1] + mouseGlow[idx2]) / 2
+          const avgRipple = Math.max(rippleGlow[idx1], rippleGlow[idx2])
 
           ctx.beginPath()
-          ctx.moveTo(p1.x, p1.y)
-          ctx.lineTo(p2.x, p2.y)
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
 
-          if (avgRippleGlow > 0.04) {
-            ctx.strokeStyle = `rgba(38, 217, 138, ${0.05 + avgRippleGlow * 0.95})`
-            ctx.lineWidth = 1 + avgRippleGlow * 1.3
-          } else if (avgMouseGlow > 0.05) {
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + avgMouseGlow * 0.18})`
+          if (avgRipple > 0.04) {
+            ctx.strokeStyle = `rgba(38, 217, 138, ${0.05 + avgRipple * 0.95})`
+            ctx.lineWidth = 1 + avgRipple * 1.2
+          } else if (avgMouse > 0.05) {
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + avgMouse * 0.18})`
             ctx.lineWidth = 1
           } else {
             ctx.strokeStyle = 'rgba(38, 217, 138, 0.05)'
@@ -226,24 +228,29 @@ export function InteractiveGridBackground() {
         }
       }
 
-      // Vertical Lines (every c % 2 === 0)
-      for (let c = 0; c < cols; c += 2) {
+      // Draw Vertical Grid Lines
+      for (let c = 0; c < cols; c += SUB_STEPS) {
         for (let r = 0; r < rows - 1; r++) {
-          const p1 = gridNodes[c][r]
-          const p2 = gridNodes[c][r + 1]
+          const idx1 = c * rows + r
+          const idx2 = c * rows + (r + 1)
 
-          const avgMouseGlow = (p1.glowRatio + p2.glowRatio) / 2
-          const avgRippleGlow = Math.max(p1.rippleGlow, p2.rippleGlow)
+          const x1 = posX[idx1]
+          const y1 = posY[idx1]
+          const x2 = posX[idx2]
+          const y2 = posY[idx2]
+
+          const avgMouse = (mouseGlow[idx1] + mouseGlow[idx2]) / 2
+          const avgRipple = Math.max(rippleGlow[idx1], rippleGlow[idx2])
 
           ctx.beginPath()
-          ctx.moveTo(p1.x, p1.y)
-          ctx.lineTo(p2.x, p2.y)
+          ctx.moveTo(x1, y1)
+          ctx.lineTo(x2, y2)
 
-          if (avgRippleGlow > 0.04) {
-            ctx.strokeStyle = `rgba(38, 217, 138, ${0.05 + avgRippleGlow * 0.95})`
-            ctx.lineWidth = 1 + avgRippleGlow * 1.3
-          } else if (avgMouseGlow > 0.05) {
-            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + avgMouseGlow * 0.18})`
+          if (avgRipple > 0.04) {
+            ctx.strokeStyle = `rgba(38, 217, 138, ${0.05 + avgRipple * 0.95})`
+            ctx.lineWidth = 1 + avgRipple * 1.2
+          } else if (avgMouse > 0.05) {
+            ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + avgMouse * 0.18})`
             ctx.lineWidth = 1
           } else {
             ctx.strokeStyle = 'rgba(38, 217, 138, 0.05)'
