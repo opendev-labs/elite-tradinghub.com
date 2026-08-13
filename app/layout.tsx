@@ -73,8 +73,8 @@ export const metadata: Metadata = {
     siteName: 'Elite Trading Hub',
     images: [
       {
-        url: 'https://elite-tradinghub.com/og-image.png?v=25',
-        secureUrl: 'https://elite-tradinghub.com/og-image.png?v=25',
+        url: 'https://elite-tradinghub.com/og-image.png?v=26',
+        secureUrl: 'https://elite-tradinghub.com/og-image.png?v=26',
         width: 1200,
         height: 630,
         alt: 'Elite Trading Hub — Decision-Grade Market Intelligence',
@@ -98,7 +98,7 @@ export const metadata: Metadata = {
     description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders.',
     site: '@EliteTradingHub',
     creator: '@EliteTradingHub',
-    images: ['https://elite-tradinghub.com/og-image.png?v=25'],
+    images: ['https://elite-tradinghub.com/og-image.png?v=26'],
   },
   robots: {
     index: true,
@@ -134,8 +134,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta property="og:url" content="https://elite-tradinghub.com" />
         <meta property="og:site_name" content="Elite Trading Hub" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://elite-tradinghub.com/og-image.png?v=25" />
-        <meta property="og:image:secure_url" content="https://elite-tradinghub.com/og-image.png?v=25" />
+        <meta property="og:image" content="https://elite-tradinghub.com/og-image.png?v=26" />
+        <meta property="og:image:secure_url" content="https://elite-tradinghub.com/og-image.png?v=26" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -143,9 +143,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
         <meta name="twitter:description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders." />
-        <meta name="twitter:image" content="https://elite-tradinghub.com/og-image.png?v=25" />
-        <meta itemprop="image" content="https://elite-tradinghub.com/og-image.png?v=25" />
-        <link rel="image_src" href="https://elite-tradinghub.com/og-image.png?v=25" />
+        <meta name="twitter:image" content="https://elite-tradinghub.com/og-image.png?v=26" />
+        <meta itemprop="image" content="https://elite-tradinghub.com/og-image.png?v=26" />
+        <link rel="image_src" href="https://elite-tradinghub.com/og-image.png?v=26" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=25" />
         <link rel="icon" href="/apple-touch-icon.png?v=25" />
       </head>
