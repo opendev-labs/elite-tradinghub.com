@@ -12,6 +12,7 @@ interface Ripple {
 export function InteractiveGridBackground() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
+  const ripplesRef = useRef<Ripple[]>([])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -32,7 +33,6 @@ export function InteractiveGridBackground() {
     let targetMouseX = -1000
     let targetMouseY = -1000
     let isInteracting = false
-    const ripplesRef = useRef<Ripple[]>([])
     const startTime = Date.now()
 
     const handleResize = () => {
