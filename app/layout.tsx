@@ -36,19 +36,77 @@ const interFont = localFont({
 })
 
 export const metadata: Metadata = {
-  title: 'Elite Trading Hub — Decision-grade market intelligence',
-  description: 'A premium market intelligence platform for Indian traders seeking structured analysis, quantified risk and better decisions.',
+  metadataBase: new URL('https://elite-tradinghub.com'),
+  title: {
+    default: 'Elite Trading Hub — Decision-Grade Market Intelligence',
+    template: '%s | Elite Trading Hub',
+  },
+  description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow, algorithmic risk analytics, and real-time execution signals.',
+  applicationName: 'Elite Trading Hub',
+  authors: [{ name: 'Elite Trading Hub', url: 'https://elite-tradinghub.com' }],
+  generator: 'Elite Trading Hub System',
+  keywords: [
+    'NIFTY 50',
+    'BANK NIFTY',
+    'SENSEX',
+    'Options Flow',
+    'Market Intelligence',
+    'Institutional Trading',
+    'Quant Trading',
+    'Algorithmic Trading',
+    'NSE India',
+    'Option Chain Analysis'
+  ],
   icons: {
-    icon: '/only-bull-head-icon.png',
+    icon: [
+      { url: '/only-bull-head-icon.png', type: 'image/png' },
+      { url: '/only-bull-head-icon.png', type: 'image/png', sizes: '32x32' },
+    ],
     shortcut: '/only-bull-head-icon.png',
     apple: '/only-bull-head-icon.png',
   },
-  generator: 'v0.app',
+  manifest: '/manifest.json',
+  openGraph: {
+    title: 'Elite Trading Hub — Decision-Grade Market Intelligence',
+    description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time execution signals.',
+    url: 'https://elite-tradinghub.com',
+    siteName: 'Elite Trading Hub',
+    images: [
+      {
+        url: 'https://elite-tradinghub.com/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'Elite Trading Hub — Decision-Grade Market Intelligence',
+        type: 'image/png',
+      },
+    ],
+    locale: 'en_US',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Elite Trading Hub — Decision-Grade Market Intelligence',
+    description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders.',
+    site: '@EliteTradingHub',
+    creator: '@EliteTradingHub',
+    images: ['https://elite-tradinghub.com/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
 }
 
 export const viewport: Viewport = {
   colorScheme: 'dark',
-  themeColor: '#090e13',
+  themeColor: '#000000',
 }
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
