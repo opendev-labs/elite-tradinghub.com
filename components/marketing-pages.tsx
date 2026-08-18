@@ -15,13 +15,14 @@ const capabilities = [
 
 // Calm luxury spring & cubic-bezier transitions for $300M startup feel
 const fadeInVariants = {
-  hidden: { opacity: 0, y: 24 },
+  hidden: { opacity: 0, y: 32, scale: 0.98 },
   visible: (i: number = 0) => ({
     opacity: 1,
     y: 0,
+    scale: 1,
     transition: {
-      duration: 0.75,
-      delay: i * 0.1,
+      duration: 1.1,
+      delay: i * 0.12,
       ease: [0.16, 1, 0.3, 1]
     }
   })
@@ -32,8 +33,8 @@ const staggerContainer = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.12,
-      delayChildren: 0.08
+      staggerChildren: 0.14,
+      delayChildren: 0.1
     }
   }
 }
@@ -138,7 +139,8 @@ export function PremiumHome() {
                 className="capability-card"
                 variants={fadeInVariants}
                 custom={i}
-                whileHover={{ y: -4, transition: { duration: 0.25, ease: "easeOut" } }}
+                whileHover={{ y: -6, scale: 1.02, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
+                whileTap={{ scale: 0.98 }}
               >
                 <Icon size={20} />
                 <span>0{i + 1}</span>
@@ -155,10 +157,10 @@ export function PremiumHome() {
         {/* Dark Band Philosophy Statement */}
         <motion.section 
           className="dark-band"
-          initial={{ opacity: 0, y: 24 }}
+          initial={{ opacity: 0, y: 32 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
         >
           <div>
             <div className="eyebrow-line">
@@ -177,8 +179,8 @@ export function PremiumHome() {
           </div>
           <motion.div 
             className="quote-card"
-            whileHover={{ scale: 1.015 }}
-            transition={{ duration: 0.3 }}
+            whileHover={{ y: -5, scale: 1.018, transition: { duration: 0.45, ease: [0.16, 1, 0.3, 1] } }}
+            whileTap={{ scale: 0.98 }}
           >
             <Sparkles size={18} />
             <p>

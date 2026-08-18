@@ -238,8 +238,8 @@ export function InteractiveGridBackground() {
           ctx.lineTo(x2, y2)
 
           if (avgRipple > 0.04) {
-            ctx.strokeStyle = `rgba(38, 217, 138, ${0.05 + avgRipple * 0.95})`
-            ctx.lineWidth = 1 + avgRipple * 1.2
+            ctx.strokeStyle = `rgba(38, 217, 138, ${0.045 + avgRipple * 0.875})`
+            ctx.lineWidth = 1 + avgRipple * 1.1
           } else if (avgMouse > 0.05) {
             ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + avgMouse * 0.18})`
             ctx.lineWidth = 1
@@ -271,8 +271,8 @@ export function InteractiveGridBackground() {
           ctx.lineTo(x2, y2)
 
           if (avgRipple > 0.04) {
-            ctx.strokeStyle = `rgba(38, 217, 138, ${0.05 + avgRipple * 0.95})`
-            ctx.lineWidth = 1 + avgRipple * 1.2
+            ctx.strokeStyle = `rgba(38, 217, 138, ${0.045 + avgRipple * 0.875})`
+            ctx.lineWidth = 1 + avgRipple * 1.1
           } else if (avgMouse > 0.05) {
             ctx.strokeStyle = `rgba(255, 255, 255, ${0.05 + avgMouse * 0.18})`
             ctx.lineWidth = 1

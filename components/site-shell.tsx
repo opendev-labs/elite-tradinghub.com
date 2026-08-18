@@ -1,10 +1,12 @@
 'use client'
 
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { ArrowUpRight, Menu, X, Lock, ChevronRight, Send } from 'lucide-react'
+import { ArrowUpRight, Menu, X, Lock, ChevronRight, Send, User, LayoutDashboard } from 'lucide-react'
 import { MarketStrip } from './trading-dashboard'
+import { getStoredUser, subscribeFirebaseUser, UserSessionData } from '@/lib/firebase'
 
 const links = [
   { href: '/', label: 'Overview' },
@@ -16,6 +18,20 @@ const links = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false)
+  const { data: session } = useSession()
+  const [fbUser, setFbUser] = useState<UserSessionData | null>(null)
+
+  useEffect(() => {
+    setFbUser(getStoredUser())
+    const unsubscribe = subscribeFirebaseUser((u) => setFbUser(u))
+    return () => unsubscribe()
+  }, [])
+
+  const isLoggedIn = !!session || !!fbUser
+  const activeName = session?.user?.name || fbUser?.name || 'Trader'
+  const activeImage = session?.user?.image || fbUser?.image
+  const firstName = activeName.split(' ')[0]
+  const initials = firstName.slice(0, 2).toUpperCase()
 
   return (
     <>
@@ -58,8 +74,24 @@ export function SiteHeader() {
               </a>
             </motion.div>
             <motion.div whileHover={{ scale: 1.03 }} whileTap={{ scale: 0.97 }}>
-              <Link className="header-cta" href="/login">
-                Login <ArrowUpRight size={14} />
+              <Link className={`header-cta ${isLoggedIn ? 'logged-in-profile-chip' : ''}`} href="/login">
+                {isLoggedIn ? (
+                  <div className="header-google-profile-wrap">
+                    {activeImage ? (
+                      <img src={activeImage} alt={activeName} className="header-google-avatar-img" />
+                    ) : (
+                      <div className="header-google-avatar-initials">{initials}</div>
+                    )}
+                    <span className="header-profile-name">{firstName}</span>
+                    <span className="header-profile-divider" />
+                    <span className="header-dash-label">Dashboard</span>
+                    <LayoutDashboard size={13} style={{ color: '#26d98a' }} />
+                  </div>
+                ) : (
+                  <>
+                    Login <ArrowUpRight size={14} />
+                  </>
+                )}
               </Link>
             </motion.div>
           </div>
@@ -112,7 +144,18 @@ export function SiteHeader() {
                     className="dropdown-login-btn"
                     onClick={() => setOpen(false)}
                   >
-                    Login to Portal <ArrowUpRight size={16} />
+                    {isLoggedIn ? (
+                      <div className="mobile-profile-flex">
+                        {activeImage ? (
+                          <img src={activeImage} alt={activeName} className="header-google-avatar-img" />
+                        ) : (
+                          <div className="header-google-avatar-initials">{initials}</div>
+                        )}
+                        <span>Dashboard ({firstName})</span>
+                      </div>
+                    ) : (
+                      'Login to Portal'
+                    )} <ArrowUpRight size={16} />
                   </Link>
                 </div>
               </nav>
@@ -128,109 +171,102 @@ export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="site-footer-inner">
-        <div className="footer-brand-column">
-          <Link href="/" className="footer-brand-link">
-            <img 
-              src="/only-bull-head-icon.png" 
-              alt="Elite Trading Hub Bull Icon" 
-              className="footer-brand-icon" 
-            />
-            <span className="footer-brand-text">ELITE TRADING HUB</span>
+        <div className="footer-brand-col">
+          <Link href="/" className="footer-logo-wrap">
+            <img src="/only-bull-head-icon.png" alt="Elite Trading Hub Logo" className="footer-bull-logo" />
+            <span>ELITE<b>TRADING</b><em style={{ fontStyle: 'normal', color: '#5c6c75' }}>HUB</em></span>
           </Link>
-          <p className="footer-tagline">
-            Decision-grade market intelligence for NIFTY 50, BANK NIFTY, and SENSEX traders.
+          <p className="footer-desc">
+            Decision-grade quantitative market intelligence, options flow analytics, and algorithmic execution setups for Indian market participants.
           </p>
+          <div className="footer-reg-info">
+            <span>SEBI Registered Research Analyst Standards Compliant</span>
+            <span>NSE / BSE Real-Time Feed Protocol Data</span>
+          </div>
         </div>
+
         <div className="footer-links-grid">
-          <div className="footer-col">
-            <b>Platform</b>
-            <Link href="/features">Capabilities</Link>
-            <Link href="/methodology">Methodology</Link>
-            <Link href="/login">Portal Login</Link>
+          <div>
+            <h4>PLATFORM</h4>
+            <Link href="/features">NIFTY Setups</Link>
+            <Link href="/features">Risk Calculator</Link>
+            <Link href="/features">Options Chain</Link>
+            <Link href="/methodology">Institutional Methodology</Link>
           </div>
-          <div className="footer-col">
-            <b>Company</b>
-            <Link href="/about">About Us</Link>
-            <Link href="/contact">Contact</Link>
-            <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer">
-              Telegram
-            </a>
+
+          <div>
+            <h4>COMPANY</h4>
+            <Link href="/about">About Elite Hub</Link>
+            <Link href="/contact">Contact Support</Link>
+            <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer">Telegram Channel</a>
           </div>
-          <div className="footer-col">
-            <b>Legal</b>
-            <Link href="/terms">Terms of Service</Link>
+
+          <div>
+            <h4>LEGAL & COMPLIANCE</h4>
             <Link href="/privacy">Privacy Policy</Link>
-            <Link href="/disclaimer">Risk Disclosure</Link>
+            <Link href="/terms">Terms of Service</Link>
+            <Link href="/disclaimer">Risk Disclaimer</Link>
           </div>
         </div>
       </div>
-      <div className="footer-bottom">
-        <span>© 2026 Elite Trading Hub. All rights reserved.</span>
-        <span>Educational content only. Not investment advice.</span>
+
+      <div className="footer-bottom-bar">
+        <span>© {new Date().getFullYear()} Elite Trading Hub. All rights reserved.</span>
+        <span>Made for Professional Indian Market Traders</span>
       </div>
     </footer>
   )
 }
 
+export function SiteShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="site-shell-wrapper">
+      <SiteHeader />
+      <main className="site-shell-main">{children}</main>
+      <SiteFooter />
+    </div>
+  )
+}
+
 export function PageFrame({ children }: { children: React.ReactNode }) {
   return (
-    <motion.div 
-      className="premium-site"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
-    >
+    <div className="site-shell-wrapper">
       <SiteHeader />
       {children}
       <SiteFooter />
-    </motion.div>
+    </div>
   )
 }
 
-export function PageHero({ eyebrow, title, description }: { eyebrow: string; title: React.ReactNode; description: string }) {
+export function PageHero({ kicker, title, desc }: { kicker: string; title: string; desc: string }) {
   return (
-    <motion.section 
-      className="page-hero"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.65, ease: [0.16, 1, 0.3, 1] }}
-    >
+    <section className="premium-hero-sub">
       <div className="eyebrow-line">
         <img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
-        {eyebrow}
+        {kicker}
       </div>
       <h1>{title}</h1>
-      <p>{description}</p>
-    </motion.section>
+      <p>{desc}</p>
+    </section>
   )
 }
 
-export function SectionHeading({ eyebrow, title, text }: { eyebrow: string; title: string; text?: string }) {
+export function SectionHeading({ kicker, title, desc }: { kicker: string; title: string; desc?: string }) {
   return (
-    <motion.div 
-      className="premium-section-heading"
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-    >
-      <div className="eyebrow-line">
-        <img src="/only-bull-head-icon.png" alt="Bull Icon" className="eyebrow-logo-icon" />
-        {eyebrow}
-      </div>
+    <div className="section-head">
+      <span className="section-kicker">{kicker}</span>
       <h2>{title}</h2>
-      {text && <p>{text}</p>}
-    </motion.div>
+      {desc && <p>{desc}</p>}
+    </div>
   )
 }
 
-export function LegalPage({ title, eyebrow, children }: { title: string; eyebrow: string; children: React.ReactNode }) {
+export function LegalPage({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <PageFrame>
       <main className="legal-main">
-        <PageHero eyebrow={eyebrow} title={title} description="Please read this information carefully before using the Elite Trading Hub platform." />
-        <article className="legal-copy">{children}</article>
+        <PageHero kicker="LEGAL & COMPLIANCE" title={title} desc="Elite Trading Hub platform policies and SEBI guidelines." />
+        <div className="legal-copy">{children}</div>
       </main>
     </PageFrame>
   )

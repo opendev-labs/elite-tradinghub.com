@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
 import localFont from 'next/font/local'
+import { AuthProvider } from '@/components/auth-provider'
 
 const interFont = localFont({
   src: [
@@ -144,13 +145,15 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="twitter:title" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
         <meta name="twitter:description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders." />
         <meta name="twitter:image" content="https://elite-tradinghub.com/og-image.png?v=26" />
-        <meta itemprop="image" content="https://elite-tradinghub.com/og-image.png?v=26" />
+        <meta itemProp="image" content="https://elite-tradinghub.com/og-image.png?v=26" />
         <link rel="image_src" href="https://elite-tradinghub.com/og-image.png?v=26" />
         <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=25" />
         <link rel="icon" href="/apple-touch-icon.png?v=25" />
       </head>
       <body className={`${interFont.variable} ${interFont.className}`}>
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
