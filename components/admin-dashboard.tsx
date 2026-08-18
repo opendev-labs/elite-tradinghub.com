@@ -6,6 +6,7 @@ import { motion } from 'framer-motion'
 import {
   AreaChart, Area, BarChart, Bar, XAxis, YAxis, Tooltip as RechartsTooltip, ResponsiveContainer, PieChart, Pie, Cell
 } from 'recharts'
+import { signOut } from 'next-auth/react'
 import {
   Users, Activity, Search, LogOut, ArrowLeft,
   ArrowUpRight, Eye, CreditCard, Server,
@@ -157,9 +158,9 @@ export function AdminDashboardView() {
           <div className="user-profile-chip admin-chip">
             <div className="user-chip-initials admin-initials">Y</div>
             <span className="user-chip-name">Yash (Admin)</span>
-            <a href="/login" className="user-chip-logout" title="Sign Out">
+            <button onClick={() => signOut({ callbackUrl: '/login' })} className="user-chip-logout" title="Sign Out">
               <LogOut size={14} />
-            </a>
+            </button>
           </div>
         </div>
       </header>
