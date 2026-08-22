@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  getAuth, initializeAuth, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence,
+  GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
   signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser
 } from 'firebase/auth'
 import {
@@ -21,8 +22,37 @@ const firebaseConfig = {
 // Initialize Firebase App singleton
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp()
 
-export const auth = getAuth(app)
-export const db   = getDatabase(app)
+// Suppress transient IndexedDB "Database is closing/hidden" background exceptions in dev
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    if (
+      event.reason &&
+      (typeof event.reason.message === 'string' &&
+        (event.reason.message.includes('Database is closing') ||
+         event.reason.message.includes('connection is closing') ||
+         event.reason.message.includes('Database is hidden') ||
+         event.reason.message.includes('IDBDatabase')))
+    ) {
+      event.preventDefault();
+    }
+  });
+}
+
+// Initialize Auth with explicit LocalStorage persistence fallback to avoid IndexedDB closing bugs
+export const auth = (() => {
+  if (typeof window === 'undefined') {
+    return getAuth(app)
+  }
+  try {
+    return initializeAuth(app, {
+      persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
+    })
+  } catch (e) {
+    return getAuth(app)
+  }
+})()
+
+export const db = getDatabase(app)
 
 export const googleProvider = new GoogleAuthProvider()
 googleProvider.setCustomParameters({
