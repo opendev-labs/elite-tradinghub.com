@@ -40,7 +40,11 @@ export function SiteHeader() {
   const handleGoogleSignInPrompt = async () => {
     setIsConnecting(true);
     try {
-      await signInWithGoogleFirebase();
+      const res = await signInWithGoogleFirebase();
+      if (res?.user) {
+        setFbUser(res.user);
+        setShowGooglePrompt(false);
+      }
     } catch (e) {
       console.error('Google One-Tap Error:', e);
     } finally {
@@ -275,7 +279,7 @@ export function SiteHeader() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.3 }}
-            className="fixed bottom-5 right-5 z-[9999] w-80 p-4 rounded-2xl bg-zinc-900/95 border border-zinc-700/80 backdrop-blur-xl shadow-2xl text-zinc-100 flex flex-col gap-3"
+            className="fixed bottom-5 right-5 z-[9999] w-84 p-4.5 rounded-2xl bg-zinc-900/95 border border-zinc-700/80 backdrop-blur-xl shadow-2xl text-zinc-100 flex flex-col gap-3.5"
           >
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-2">
@@ -294,21 +298,28 @@ export function SiteHeader() {
               </div>
               <button
                 onClick={() => setShowGooglePrompt(false)}
-                className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+                className="p-1 rounded-md text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors cursor-pointer"
                 aria-label="Dismiss Google prompt card"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             </div>
 
-            <p className="text-[11px] text-zinc-300 leading-relaxed">
-              Connect effortlessly with your browser&apos;s Google account for fast, 1-click access to live market intelligence.
-            </p>
+            {/* Profile Picture & Account Box */}
+            <div className="p-3 bg-zinc-950/80 border border-zinc-800 rounded-xl flex items-center gap-3">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/40 shrink-0">
+                <User className="w-4.5 h-4.5 text-emerald-400" />
+              </div>
+              <div className="flex flex-col min-w-0 flex-1">
+                <span className="text-xs font-bold text-zinc-100 truncate">Google Account Detected</span>
+                <span className="text-[10px] text-zinc-400 truncate font-mono">1-Click Fast OAuth Sign-In</span>
+              </div>
+            </div>
 
             <button
               onClick={handleGoogleSignInPrompt}
               disabled={isConnecting}
-              className="w-full h-9 rounded-xl text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer"
+              className="w-full h-9.5 rounded-xl text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center justify-center gap-2 shadow-md hover:shadow-lg cursor-pointer disabled:opacity-50"
             >
               <svg className="w-4 h-4 shrink-0" viewBox="0 0 24 24">
                 <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />

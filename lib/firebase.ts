@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import {
-  getAuth, initializeAuth, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence,
+  getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence,
   GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
   signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser
 } from 'firebase/auth'
@@ -38,19 +38,12 @@ if (typeof window !== 'undefined') {
   });
 }
 
-// Initialize Auth with explicit LocalStorage persistence fallback to avoid IndexedDB closing bugs
-export const auth = (() => {
-  if (typeof window === 'undefined') {
-    return getAuth(app)
-  }
-  try {
-    return initializeAuth(app, {
-      persistence: [browserLocalPersistence, browserSessionPersistence, inMemoryPersistence]
-    })
-  } catch (e) {
-    return getAuth(app)
-  }
-})()
+// Export standard singleton Auth instance and set LocalStorage persistence safely
+export const auth = getAuth(app)
+
+if (typeof window !== 'undefined') {
+  setPersistence(auth, browserLocalPersistence).catch(() => {})
+}
 
 export const db = getDatabase(app)
 
