@@ -107,6 +107,14 @@ export function SiteHeader() {
               <span>Telegram</span>
             </a>
 
+            <Link
+              href="/login"
+              className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-black transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+            >
+              <LayoutDashboard className="w-3.5 h-3.5 text-black" />
+              <span>Dashboard</span>
+            </Link>
+
             {!isLoggedIn ? (
               <Link
                 href="/login"
