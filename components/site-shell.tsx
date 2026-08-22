@@ -205,65 +205,68 @@ export function SiteHeader() {
                 ))}
               </div>
 
-              <div className="pt-3 border-t border-zinc-800 space-y-2">
+              <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2.5">
+                {isLoggedIn && (
+                  <div className="p-3 bg-zinc-900/90 border border-zinc-800 rounded-xl flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {activeImage ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={activeImage} alt={activeName} className="w-8 h-8 rounded-full object-cover border border-emerald-500/50 shrink-0" />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/40 shrink-0">
+                          {initials}
+                        </div>
+                      )}
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold text-zinc-100 truncate">{activeName}</span>
+                        <span className="text-[10px] font-mono text-zinc-400 truncate">{session?.user?.email || fbUser?.email || "Verified Trader"}</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* 3 Buttons stacked cleanly one directly below another */}
                 <a
                   href="https://t.me/+la1ShIiNHJ5mYzk1"
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="w-full h-10 px-4 rounded-lg text-xs font-semibold bg-[#0088cc] hover:bg-[#0077b5] text-black flex items-center justify-center gap-2 shadow-md transition-all"
+                  className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-[#0088cc] hover:bg-[#0077b5] text-black flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
                 >
                   <Send className="w-4 h-4 text-black" />
                   <span>Join Telegram Community</span>
                 </a>
 
+                <Link
+                  href="/login"
+                  onClick={() => setOpen(false)}
+                  className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
+                >
+                  <LayoutDashboard className="w-4 h-4 text-black" />
+                  <span>Dashboard</span>
+                </Link>
+
                 {!isLoggedIn ? (
                   <Link
                     href="/login"
                     onClick={() => setOpen(false)}
-                    className="w-full h-10 px-4 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2 shadow-md"
+                    className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
                   >
                     <span>Login</span>
                     <ArrowUpRight className="w-4 h-4 text-zinc-950" />
                   </Link>
                 ) : (
-                  <div className="space-y-2">
-                    <div className="p-3 bg-zinc-900 border border-zinc-800 rounded-xl flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        {activeImage ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img src={activeImage} alt={activeName} className="w-8 h-8 rounded-full object-cover border border-emerald-500/50" />
-                        ) : (
-                          <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/40">
-                            {initials}
-                          </div>
-                        )}
-                        <div className="flex flex-col">
-                          <span className="text-xs font-bold text-zinc-100">{activeName}</span>
-                          <span className="text-[10px] font-mono text-zinc-400">{session?.user?.email || fbUser?.email || "Client"}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <Link
-                      href="/login"
-                      onClick={() => setOpen(false)}
-                      className="w-full h-10 px-4 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center gap-2 shadow-md"
-                    >
-                      <LayoutDashboard className="w-4 h-4 text-black" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <button
-                      onClick={async () => {
-                        setOpen(false);
-                        await logoutFirebase();
-                        window.location.href = '/login';
-                      }}
-                      className="w-full h-10 px-4 rounded-lg text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 flex items-center justify-center gap-2"
-                    >
-                      <LogOut className="w-4 h-4 text-red-400" />
-                      <span>Sign Out</span>
-                    </button>
-                  </div>
+                  <button
+                    onClick={async () => {
+                      setOpen(false);
+                      await logoutFirebase();
+                      window.location.href = '/login';
+                    }}
+                    className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer shrink-0"
+                  >
+                    <LogOut className="w-4 h-4 text-red-400" />
+                    <span>Sign Out</span>
+                  </button>
                 )}
               </div>
             </motion.div>
