@@ -215,7 +215,7 @@ function Sidebar({
                 <span>Close</span>
               </button>
             </div>
-            <div className="flex-1 overflow-y-auto">{children}</div>
+            <div className="flex-1 flex flex-col min-h-0 h-full justify-between overflow-hidden">{children}</div>
           </div>
         </SheetContent>
       </Sheet>

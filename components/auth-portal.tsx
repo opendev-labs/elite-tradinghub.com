@@ -272,9 +272,9 @@ export function AuthPortal() {
         <Sidebar
           variant="inset"
           collapsible="icon"
-          className="border-r border-zinc-800 bg-zinc-900 text-zinc-100 sticky top-0 h-screen"
+          className="border-r border-zinc-800 bg-zinc-900 text-zinc-100 sticky top-0 h-full min-h-full flex flex-col justify-between"
         >
-          <SidebarHeader className="border-b border-zinc-800 px-3 py-3">
+          <SidebarHeader className="border-b border-zinc-800 px-3 py-3 shrink-0">
             <SidebarMenu>
               <SidebarMenuItem>
                 <SidebarMenuButton size="lg" className="hover:bg-zinc-800 cursor-default" tabIndex={-1}>
@@ -292,7 +292,7 @@ export function AuthPortal() {
             </SidebarMenu>
           </SidebarHeader>
 
-          <SidebarContent className="bg-zinc-900 py-2">
+          <SidebarContent className="bg-zinc-900 py-2 flex-1 overflow-y-auto">
             <SidebarGroup>
               <SidebarGroupLabel className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest px-3 mb-1">
                 Menu
@@ -322,31 +322,31 @@ export function AuthPortal() {
             </SidebarGroup>
           </SidebarContent>
 
-          <SidebarFooter className="bg-zinc-900 border-t border-zinc-800 p-2">
+          <SidebarFooter className="bg-zinc-900 border-t border-zinc-800 p-2.5 mt-auto shrink-0">
             <SidebarMenu>
               <SidebarMenuItem>
                 <DropdownMenu>
-                  <DropdownMenuTrigger className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-zinc-800 transition-colors text-left outline-none cursor-pointer">
-                    <div className="w-7 h-7 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-sm font-bold text-emerald-400 flex-shrink-0">
+                  <DropdownMenuTrigger className="w-full flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800 hover:bg-zinc-800/80 transition-all text-left outline-none cursor-pointer">
+                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-sm font-bold text-emerald-400 flex-shrink-0">
                       {(user.name || "U").charAt(0).toUpperCase()}
                     </div>
                     <div className="group-data-[collapsible=icon]:hidden min-w-0 flex-1 ml-2.5">
-                      <p className="text-sm font-medium text-zinc-100 truncate capitalize">{user.name}</p>
-                      <p className="text-[10px] text-zinc-500 truncate">{user.email}</p>
+                      <p className="text-sm font-bold text-zinc-100 truncate capitalize">{user.name}</p>
+                      <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
                     </div>
-                    <ChevronDown className="ml-auto w-3.5 h-3.5 text-zinc-500 group-data-[collapsible=icon]:hidden" />
+                    <ChevronDown className="ml-auto w-4 h-4 text-zinc-400 group-data-[collapsible=icon]:hidden" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent side="top" align="center" sideOffset={8} className="w-52 bg-zinc-900/95 border-zinc-800 backdrop-blur-xl text-zinc-100 rounded-xl p-1.5 shadow-2xl z-[100] mb-1">
-                    <div className="px-2.5 py-2 border-b border-zinc-800/80 mb-1">
+                  <DropdownMenuContent side="top" align="start" sideOffset={10} className="w-60 bg-zinc-900/95 border-zinc-800 backdrop-blur-2xl text-zinc-100 rounded-xl p-2 shadow-2xl z-[100] mb-2">
+                    <div className="px-3 py-2.5 border-b border-zinc-800/80 mb-1.5 bg-zinc-950/50 rounded-lg">
                       <p className="text-xs font-bold text-zinc-100 truncate capitalize">{user.name}</p>
                       <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
                     </div>
-                    <DropdownMenuItem onClick={() => setTab("Settings")} className="hover:bg-zinc-800/80 cursor-pointer text-xs text-zinc-200 font-semibold rounded-lg">
-                      <Settings className="w-4 h-4 mr-2 text-zinc-400" /> Settings
+                    <DropdownMenuItem onClick={() => setTab("Settings")} className="hover:bg-zinc-800/80 cursor-pointer text-xs text-zinc-200 font-semibold rounded-lg p-2 flex items-center gap-2">
+                      <Settings className="w-4 h-4 text-zinc-400" /> Settings
                     </DropdownMenuItem>
                     <DropdownMenuSeparator className="bg-zinc-800 my-1" />
-                    <DropdownMenuItem onClick={logout} className="hover:bg-red-500/10 cursor-pointer text-xs text-red-400 font-semibold rounded-lg">
-                      <LogOut className="w-4 h-4 mr-2 text-red-400" /> Sign Out
+                    <DropdownMenuItem onClick={logout} className="hover:bg-red-500/10 cursor-pointer text-xs text-red-400 font-semibold rounded-lg p-2 flex items-center gap-2">
+                      <LogOut className="w-4 h-4 text-red-400" /> Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
