@@ -4,9 +4,16 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, Activity } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, Activity, ChevronDown, User, LogOut } from 'lucide-react';
 import { MarketStrip } from './trading-dashboard';
-import { getStoredUser, subscribeFirebaseUser, trackPageView, UserSessionData } from '@/lib/firebase';
+import { getStoredUser, subscribeFirebaseUser, trackPageView, logoutFirebase, UserSessionData } from '@/lib/firebase';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 const links = [
   { href: '/', label: 'Overview' },
@@ -83,30 +90,70 @@ export function SiteHeader() {
               <span>Telegram</span>
             </a>
 
-            <Link
-              href="/login"
-              className="h-9 px-4 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-            >
-              {isLoggedIn ? (
-                <div className="flex items-center gap-2">
+            {!isLoggedIn ? (
+              <Link
+                href="/login"
+                className="h-9 px-4 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              >
+                <span>Login</span>
+                <ArrowUpRight className="w-3.5 h-3.5" />
+              </Link>
+            ) : (
+              <DropdownMenu>
+                <DropdownMenuTrigger className="h-9 px-3.5 rounded-full text-xs font-semibold bg-zinc-900 border border-zinc-700/80 text-zinc-100 hover:border-emerald-500/60 hover:bg-zinc-800 transition-all flex items-center gap-2 shadow-md cursor-pointer outline-none focus:outline-none group">
                   {activeImage ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={activeImage} alt={activeName} className="w-5 h-5 rounded-full border border-emerald-950" />
+                    <img src={activeImage} alt={activeName} className="w-5 h-5 rounded-full object-cover border border-emerald-500/50 shrink-0" />
                   ) : (
-                    <div className="w-5 h-5 rounded-full bg-emerald-950 text-emerald-300 font-bold text-[10px] flex items-center justify-center">
+                    <div className="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-[10px] flex items-center justify-center border border-emerald-500/40 shrink-0">
                       {initials}
                     </div>
                   )}
-                  <span>Dashboard ({firstName})</span>
-                  <LayoutDashboard className="w-3.5 h-3.5 text-black" />
-                </div>
-              ) : (
-                <>
-                  <span>Login</span>
-                  <ArrowUpRight className="w-3.5 h-3.5" />
-                </>
-              )}
-            </Link>
+                  <span className="font-semibold text-zinc-100">{activeName}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-200 transition-transform duration-200" />
+                </DropdownMenuTrigger>
+
+                <DropdownMenuContent align="end" className="w-56 bg-zinc-900/95 border-zinc-800 backdrop-blur-xl text-zinc-100 rounded-xl p-2 shadow-2xl z-[100]">
+                  {/* User Profile Header */}
+                  <div className="flex items-center gap-3 p-2.5 mb-1.5 border-b border-zinc-800/80 bg-zinc-950/50 rounded-lg">
+                    {activeImage ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={activeImage} alt={activeName} className="w-9 h-9 rounded-full object-cover border border-emerald-500/50 shrink-0" />
+                    ) : (
+                      <div className="w-9 h-9 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-sm flex items-center justify-center border border-emerald-500/40 shrink-0">
+                        {initials}
+                      </div>
+                    )}
+                    <div className="overflow-hidden flex-1">
+                      <p className="text-xs font-bold text-zinc-100 truncate">{activeName}</p>
+                      <p className="text-[10px] text-zinc-400 truncate font-mono">{session?.user?.email || fbUser?.email || "Client"}</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-1">
+                    <DropdownMenuItem className="p-0">
+                      <Link href="/login" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition-all cursor-pointer">
+                        <LayoutDashboard className="w-4 h-4 text-emerald-400 shrink-0" />
+                        <span className="font-semibold">Dashboard</span>
+                      </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuSeparator className="bg-zinc-800 my-1" />
+
+                    <DropdownMenuItem
+                      onClick={async () => {
+                        await logoutFirebase();
+                        window.location.href = '/login';
+                      }}
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                    >
+                      <LogOut className="w-4 h-4 text-red-400 shrink-0" />
+                      <span className="font-semibold">Sign Out</span>
+                    </DropdownMenuItem>
+                  </div>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
 
           {/* Mobile menu trigger */}
