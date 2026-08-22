@@ -1,7 +1,7 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import {
-  getAuth, GoogleAuthProvider, signInWithPopup, signOut as firebaseSignOut,
-  onAuthStateChanged, User as FirebaseUser
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser
 } from 'firebase/auth'
 import {
   getDatabase, ref, onValue, push, set, update, remove, serverTimestamp
@@ -196,8 +196,34 @@ export async function trackPageView(pagePath: string) {
   }
 }
 
+export async function checkGoogleRedirectResult(): Promise<UserSessionData | null> {
+  if (typeof window === 'undefined') return null
+  try {
+    const result = await getRedirectResult(auth)
+    if (result?.user) {
+      const userData: UserSessionData = {
+        name: result.user.displayName || 'Pro Trader',
+        email: result.user.email,
+        image: result.user.photoURL,
+        uid: result.user.uid,
+      }
+      setStoredUser(userData)
+      await syncUserToRtdb(userData, true)
+      return userData
+    }
+  } catch (err) {
+    console.error('Firebase Redirect Auth Error:', err)
+  }
+  return null
+}
+
 export async function signInWithGoogleFirebase() {
   try {
+    const isMobile = typeof window !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
+    if (isMobile) {
+      await signInWithRedirect(auth, googleProvider)
+      return { user: null, redirecting: true, error: null }
+    }
     const result = await signInWithPopup(auth, googleProvider)
     const userData: UserSessionData = {
       name: result.user.displayName || 'Pro Trader',
@@ -207,10 +233,15 @@ export async function signInWithGoogleFirebase() {
     }
     setStoredUser(userData)
     await syncUserToRtdb(userData, true)
-    return { user: userData, error: null }
+    return { user: userData, redirecting: false, error: null }
   } catch (err: any) {
-    console.error('Firebase Google Sign-In Error:', err)
-    return { user: null, error: err.message || 'Google Sign-In failed' }
+    console.error('Firebase Google Popup Error (Fallback to Redirect):', err)
+    try {
+      await signInWithRedirect(auth, googleProvider)
+      return { user: null, redirecting: true, error: null }
+    } catch (redirectErr: any) {
+      return { user: null, redirecting: false, error: redirectErr.message || 'Google Sign-In failed' }
+    }
   }
 }
 

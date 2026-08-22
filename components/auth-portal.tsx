@@ -20,7 +20,7 @@ import {
   Area, AreaChart, CartesianGrid, XAxis, YAxis,
   ResponsiveContainer, Tooltip,
 } from "recharts";
-import { signInWithGoogleFirebase } from '@/lib/firebase';
+import { signInWithGoogleFirebase, checkGoogleRedirectResult } from '@/lib/firebase';
 import { signIn } from 'next-auth/react';
 import { AuthLoginScreen } from "@/components/auth-login-screen";
 
@@ -137,18 +137,28 @@ export function AuthPortal() {
       const stored = localStorage.getItem("eth_client_session");
       if (stored) { setUser(JSON.parse(stored)); setLoading(false); return; }
     } catch {}
-    fetch("/api/auth/session")
-      .then(r => r.ok ? r.json() : null)
-      .then(s => {
-        if (s?.user?.email) {
-          const u = { email: s.user.email, name: s.user.name || s.user.email.split("@")[0], plan: "PRO" };
-          setUser(u);
-          try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
-        }
-      })
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, []);
+
+    // Handle Mobile Google OAuth Redirect result
+    checkGoogleRedirectResult().then(userData => {
+      if (userData) {
+        setUser({ email: userData.email, name: userData.name, plan: "PRO" });
+        setLoading(false);
+        toast("Welcome!", "success");
+        return;
+      }
+      fetch("/api/auth/session")
+        .then(r => r.ok ? r.json() : null)
+        .then(s => {
+          if (s?.user?.email) {
+            const u = { email: s.user.email, name: s.user.name || s.user.email.split("@")[0], plan: "PRO" };
+            setUser(u);
+            try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
+          }
+        })
+        .catch(() => {})
+        .finally(() => setLoading(false));
+    }).catch(() => setLoading(false));
+  }, [toast]);
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -197,6 +207,10 @@ export function AuthPortal() {
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         toast("Welcome!", "success");
         setBusy(false);
+        return;
+      }
+      if (fbResult.redirecting) {
+        // Redirecting on mobile browser...
         return;
       }
       
