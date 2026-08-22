@@ -109,16 +109,16 @@ export function SiteHeader() {
 
             <Link
               href="/login"
-              className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-black transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+              className="h-9 px-3.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
             >
-              <LayoutDashboard className="w-3.5 h-3.5 text-black" />
-              <span>Dashboard</span>
+              <LayoutDashboard className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-white font-bold">Dashboard</span>
             </Link>
 
             {!isLoggedIn ? (
               <Link
                 href="/login"
-                className="h-9 px-4 rounded-lg text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+                className="h-9 px-4 rounded-lg text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
               >
                 <span>Login</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -157,9 +157,9 @@ export function SiteHeader() {
 
                   <div className="space-y-1">
                     <DropdownMenuItem className="p-0">
-                      <Link href="/login" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-zinc-200 hover:text-white hover:bg-zinc-800/80 transition-all cursor-pointer">
+                      <Link href="/login" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white hover:bg-zinc-800/80 transition-all cursor-pointer font-bold">
                         <LayoutDashboard className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span className="font-semibold">Dashboard</span>
+                        <span className="font-bold text-white">Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
 
@@ -170,10 +170,10 @@ export function SiteHeader() {
                         await logoutFirebase();
                         window.location.href = '/login';
                       }}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-all cursor-pointer"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-all cursor-pointer font-bold"
                     >
                       <LogOut className="w-4 h-4 text-red-400 shrink-0" />
-                      <span className="font-semibold">Sign Out</span>
+                      <span className="font-bold">Sign Out</span>
                     </DropdownMenuItem>
                   </div>
                 </DropdownMenuContent>
@@ -239,28 +239,28 @@ export function SiteHeader() {
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setOpen(false)}
-                  className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-[#0088cc] hover:bg-[#0077b5] text-black flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
+                  className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
                 >
-                  <Send className="w-4 h-4 text-black" />
-                  <span>Join Telegram Community</span>
+                  <Send className="w-4 h-4 text-white" />
+                  <span className="text-white font-bold">Join Telegram Community</span>
                 </a>
 
                 <Link
                   href="/login"
                   onClick={() => setOpen(false)}
-                  className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-black flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
+                  className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
                 >
-                  <LayoutDashboard className="w-4 h-4 text-black" />
-                  <span>Dashboard</span>
+                  <LayoutDashboard className="w-4 h-4 text-emerald-400" />
+                  <span className="text-white font-bold tracking-wide">Dashboard</span>
                 </Link>
 
                 {!isLoggedIn ? (
                   <Link
                     href="/login"
                     onClick={() => setOpen(false)}
-                    className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
+                    className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
                   >
-                    <span>Login</span>
+                    <span className="text-zinc-950 font-bold">Login</span>
                     <ArrowUpRight className="w-4 h-4 text-zinc-950" />
                   </Link>
                 ) : (
@@ -270,10 +270,10 @@ export function SiteHeader() {
                       await logoutFirebase();
                       window.location.href = '/login';
                     }}
-                    className="w-full h-10 px-4 rounded-xl text-xs font-semibold bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer shrink-0"
+                    className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-400 flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer shrink-0"
                   >
                     <LogOut className="w-4 h-4 text-red-400" />
-                    <span>Sign Out</span>
+                    <span className="text-red-400 font-bold">Sign Out</span>
                   </button>
                 )}
               </div>
