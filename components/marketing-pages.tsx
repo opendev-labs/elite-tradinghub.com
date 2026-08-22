@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { PageFrame, PageHero, SectionHeading } from './site-shell';
 import { InteractiveGridBackground } from './interactive-grid-background';
+import { TestimonialsSection } from './testimonials-section';
 import { pushRtdbData } from '@/lib/firebase';
 
 const capabilities = [
@@ -236,6 +237,9 @@ export function PremiumHome() {
             </div>
           </motion.div>
         </section>
+
+        {/* 3D Testimonials Section Replicated from Vishwaleader.com */}
+        <TestimonialsSection />
 
         {/* Platform CTA */}
         <section className="py-16 w-full px-4 sm:px-6 lg:px-8">

@@ -558,17 +558,17 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56 bg-zinc-900 border border-zinc-800 text-zinc-200">
-                <div className="px-3 py-2 border-b border-zinc-800">
-                  <p className="text-xs font-semibold text-zinc-100">{user.displayName}</p>
-                  <p className="text-[10px] text-zinc-500 font-mono">{user.email}</p>
+              <DropdownMenuContent side="top" align="center" sideOffset={8} className="w-56 bg-zinc-900/95 border border-zinc-800 backdrop-blur-xl text-zinc-200 rounded-xl p-1.5 shadow-2xl z-[100] mb-1">
+                <div className="px-3 py-2 border-b border-zinc-800 mb-1">
+                  <p className="text-xs font-bold text-zinc-100">{user.displayName}</p>
+                  <p className="text-[10px] text-zinc-400 font-mono">{user.email}</p>
                 </div>
-                <DropdownMenuItem onClick={() => setTab("Settings")} className="text-xs text-zinc-300 hover:bg-zinc-800 cursor-pointer">
-                  <Settings className="w-3.5 h-3.5 mr-2" /> Settings
+                <DropdownMenuItem onClick={() => setTab("Settings")} className="text-xs text-zinc-200 font-semibold hover:bg-zinc-800/80 cursor-pointer rounded-lg">
+                  <Settings className="w-4 h-4 mr-2 text-zinc-400" /> Settings
                 </DropdownMenuItem>
-                <DropdownMenuSeparator className="bg-zinc-800" />
-                <DropdownMenuItem onClick={logout} className="text-xs text-red-400 hover:bg-red-500/10 cursor-pointer">
-                  <LogOut className="w-3.5 h-3.5 mr-2" /> Log out
+                <DropdownMenuSeparator className="bg-zinc-800 my-1" />
+                <DropdownMenuItem onClick={logout} className="text-xs text-red-400 font-semibold hover:bg-red-500/10 cursor-pointer rounded-lg">
+                  <LogOut className="w-4 h-4 mr-2 text-red-400" /> Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

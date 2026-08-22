@@ -336,13 +336,17 @@ export function AuthPortal() {
                     </div>
                     <ChevronDown className="ml-auto w-3.5 h-3.5 text-zinc-500 group-data-[collapsible=icon]:hidden" />
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-44 bg-zinc-900 border-zinc-800 text-zinc-100 rounded-xl">
-                    <DropdownMenuItem onClick={() => setTab("Settings")} className="hover:bg-zinc-800 cursor-pointer text-sm text-zinc-300">
-                      <Settings className="w-3.5 h-3.5 mr-2 text-zinc-500" /> Settings
+                  <DropdownMenuContent side="top" align="center" sideOffset={8} className="w-52 bg-zinc-900/95 border-zinc-800 backdrop-blur-xl text-zinc-100 rounded-xl p-1.5 shadow-2xl z-[100] mb-1">
+                    <div className="px-2.5 py-2 border-b border-zinc-800/80 mb-1">
+                      <p className="text-xs font-bold text-zinc-100 truncate capitalize">{user.name}</p>
+                      <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
+                    </div>
+                    <DropdownMenuItem onClick={() => setTab("Settings")} className="hover:bg-zinc-800/80 cursor-pointer text-xs text-zinc-200 font-semibold rounded-lg">
+                      <Settings className="w-4 h-4 mr-2 text-zinc-400" /> Settings
                     </DropdownMenuItem>
-                    <DropdownMenuSeparator className="bg-zinc-800" />
-                    <DropdownMenuItem onClick={logout} className="hover:bg-zinc-800 cursor-pointer text-sm text-zinc-400">
-                      <LogOut className="w-3.5 h-3.5 mr-2" /> Sign Out
+                    <DropdownMenuSeparator className="bg-zinc-800 my-1" />
+                    <DropdownMenuItem onClick={logout} className="hover:bg-red-500/10 cursor-pointer text-xs text-red-400 font-semibold rounded-lg">
+                      <LogOut className="w-4 h-4 mr-2 text-red-400" /> Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
