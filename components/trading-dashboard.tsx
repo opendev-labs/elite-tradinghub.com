@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip as RechartsTooltip, XAxis, YAxis } from 'recharts'
-import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Calculator, Check, ChevronRight, Clock3, Crosshair, Info, LockKeyhole, ShieldCheck, Sparkles, TrendingUp, X, SlidersHorizontal } from 'lucide-react'
+import { Activity, ArrowDownRight, ArrowUpRight, BarChart3, Bell, Calculator, Check, ChevronRight, Clock3, Crosshair, Info, LockKeyhole, ShieldCheck, Sparkles, TrendingUp, X, SlidersHorizontal, Menu } from 'lucide-react'
 
 const market = [
   { name: 'NIFTY 50', value: '24,718.60', change: '+0.84%', up: true },
@@ -78,7 +78,33 @@ export function MarketStrip() {
   )
 }
 
-function SetupCard({ setup }: { setup: typeof setups[number] }) { return <article className={`setup-card ${setup.tone}`}><div className="setup-top"><div><span className="symbol">{setup.symbol}</span><span className="badge">{setup.bias}</span></div><span className="score"><strong>{setup.score}</strong>/100</span></div><div className="setup-grid"><div><span>ENTRY ZONE</span><b>{setup.level}</b></div><div><span>TARGET</span><b className="positive">{setup.target}</b></div><div><span>STOP LOSS</span><b className="negative">{setup.stop}</b></div></div><div className="setup-bottom"><span><Clock3 size={13} /> Intraday</span><span><Activity size={13} /> High conviction</span><button aria-label={`View ${setup.symbol} setup`}><ChevronRight size={17} /></button></div></article> }
+function SetupCard({ setup }: { setup: typeof setups[number] }) { 
+  return (
+    <article className={`setup-card ${setup.tone} flex flex-col justify-between`}>
+      <div>
+        <div className="setup-top">
+          <div><span className="symbol">{setup.symbol}</span><span className="badge">{setup.bias}</span></div>
+          <span className="score"><strong>{setup.score}</strong>/100</span>
+        </div>
+        <div className="setup-grid">
+          <div><span>ENTRY ZONE</span><b>{setup.level}</b></div>
+          <div><span>TARGET</span><b className="positive">{setup.target}</b></div>
+          <div><span>STOP LOSS</span><b className="negative">{setup.stop}</b></div>
+        </div>
+      </div>
+      <div className="setup-bottom flex items-center justify-between pt-3 mt-2 border-t border-zinc-800/60">
+        <div className="flex items-center gap-3">
+          <span><Clock3 size={13} /> Intraday</span>
+          <span><Activity size={13} /> High conviction</span>
+        </div>
+        <a href="/login" className="px-3 py-1.5 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold text-xs rounded-lg shadow-sm flex items-center gap-1 transition-all">
+          <span>Open platform</span>
+          <ArrowUpRight size={13} className="text-zinc-950" />
+        </a>
+      </div>
+    </article>
+  )
+}
 
 export function Setups() { const [tab, setTab] = useState('Index') ; return <section id="setups" className="section"><div className="section-head"><div><SectionLabel>REAL-TIME ANALYSIS</SectionLabel><h2>Today&apos;s high-conviction setups</h2><p>System-generated levels built from price action, volume and derivatives data.</p></div><div className="tabs">{['Index', 'Equities', 'Options'].map(t => <button key={t} className={tab === t ? 'active' : ''} onClick={() => setTab(t)}>{t}</button>)}</div></div><div className="setup-list">{setups.map(s => <SetupCard key={s.symbol} setup={s} />)}</div></section> }
 

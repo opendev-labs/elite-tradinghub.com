@@ -348,7 +348,7 @@ main {
   width: 100%;
   max-width: 100%;
   margin: 0;
-  padding: 0 3vw;
+  padding: 0;
 }
 
 .hero {
@@ -1351,7 +1351,8 @@ main {
 .pure-black-hero-section {
   min-height: 580px;
   width: 100%;
-  padding: 80px 3vw 90px;
+  max-width: 100%;
+  padding: 80px 1.5rem 90px;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1412,7 +1413,8 @@ main {
   align-items: center;
   text-align: center;
   margin: 0 auto;
-  max-width: 920px;
+  width: 100%;
+  max-width: 100%;
   position: relative;
   z-index: 1;
 }

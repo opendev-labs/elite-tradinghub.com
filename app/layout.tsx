@@ -1,8 +1,10 @@
 import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import localFont from 'next/font/local'
 import { AuthProvider } from '@/components/auth-provider'
+
 
 const interFont = localFont({
   src: [
@@ -112,6 +114,9 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+  verification: {
+    google: 'HKqgjze8W-QJ5QabDBBhTHaC3JrRDi_xg5_u2Fb5WyU',
+  },
 }
 
 export const viewport: Viewport = {
@@ -128,6 +133,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className="dark">
       <head>
         <title>Elite Trading Hub — Decision-Grade Market Intelligence</title>
+        <meta name="google-site-verification" content="HKqgjze8W-QJ5QabDBBhTHaC3JrRDi_xg5_u2Fb5WyU" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics." />
         <meta property="og:title" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
@@ -147,8 +153,64 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="twitter:image" content="https://elite-tradinghub.com/og-image.png?v=26" />
         <meta itemProp="image" content="https://elite-tradinghub.com/og-image.png?v=26" />
         <link rel="image_src" href="https://elite-tradinghub.com/og-image.png?v=26" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png?v=25" />
         <link rel="icon" href="/apple-touch-icon.png?v=25" />
+
+        {/* JSON-LD Structured Data Schema.org */}
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify([
+              {
+                '@context': 'https://schema.org',
+                '@type': 'Organization',
+                'name': 'Elite Trading Hub',
+                'url': 'https://elite-tradinghub.com',
+                'logo': 'https://elite-tradinghub.com/only-bull-head-icon.png',
+                'sameAs': [
+                  'https://t.me/+la1ShIiNHJ5mYzk1',
+                  'https://twitter.com/EliteTradingHub'
+                ],
+                'description': 'Quantitative market intelligence and decision-grade options flow analytics for Indian market traders.'
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'WebSite',
+                'name': 'Elite Trading Hub',
+                'url': 'https://elite-tradinghub.com',
+                'potentialAction': {
+                  '@type': 'SearchAction',
+                  'target': 'https://elite-tradinghub.com/admin?q={search_term_string}',
+                  'query-input': 'required name=search_term_string'
+                }
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'FinancialService',
+                'name': 'Elite Trading Hub Analytics',
+                'url': 'https://elite-tradinghub.com',
+                'areaServed': 'IN',
+                'serviceType': 'Quantitative Market Intelligence & Risk Analytics'
+              }
+            ])
+          }}
+        />
+
+        {/* Google Analytics (gtag.js) */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-L5J86Q4T62"
+          strategy="afterInteractive"
+        />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-L5J86Q4T62', {
+              page_path: window.location.pathname,
+            });
+          `}
+        </Script>
       </head>
       <body className={`${interFont.variable} ${interFont.className}`}>
         <AuthProvider>
