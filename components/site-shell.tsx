@@ -4,8 +4,9 @@ import Link from 'next/link';
 import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, Activity, ChevronDown, User, LogOut } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, Activity, ChevronDown, User, LogOut, Sun, Moon } from 'lucide-react';
 import { MarketStrip } from './trading-dashboard';
+import { useTheme } from './theme-context';
 import { getStoredUser, subscribeFirebaseUser, trackPageView, logoutFirebase, signInWithGoogleFirebase, UserSessionData } from '@/lib/firebase';
 import {
   DropdownMenu,
@@ -25,6 +26,7 @@ const links = [
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);
+  const { theme, toggleTheme } = useTheme();
   const { data: session } = useSession();
   const [fbUser, setFbUser] = useState<UserSessionData | null>(null);
   const [showGooglePrompt, setShowGooglePrompt] = useState(true);
@@ -107,14 +109,6 @@ export function SiteHeader() {
               <span>Telegram</span>
             </a>
 
-            <Link
-              href="/login"
-              className="h-9 px-3.5 rounded-lg text-xs font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
-            >
-              <LayoutDashboard className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-white font-bold">Dashboard</span>
-            </Link>
-
             {!isLoggedIn ? (
               <Link
                 href="/login"
@@ -161,6 +155,24 @@ export function SiteHeader() {
                         <LayoutDashboard className="w-4 h-4 text-emerald-400 shrink-0" />
                         <span className="font-bold text-white">Dashboard</span>
                       </Link>
+                    </DropdownMenuItem>
+
+                    {/* Light Mode / Dark Mode Theme Switch */}
+                    <DropdownMenuItem
+                      onClick={toggleTheme}
+                      className="flex items-center justify-between px-3 py-2 rounded-lg text-xs text-zinc-200 hover:bg-zinc-800/80 transition-all cursor-pointer font-semibold"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        {theme === "dark" ? (
+                          <Sun className="w-4 h-4 text-amber-400 shrink-0" />
+                        ) : (
+                          <Moon className="w-4 h-4 text-indigo-400 shrink-0" />
+                        )}
+                        <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+                      </div>
+                      <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        {theme === "dark" ? "Light" : "Dark"}
+                      </span>
                     </DropdownMenuItem>
 
                     <DropdownMenuSeparator className="bg-zinc-800 my-1" />

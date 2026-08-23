@@ -17,7 +17,9 @@ import {
   TrendingUp, Activity, DollarSign, RefreshCw, Briefcase, Plus,
   FileSpreadsheet, Filter, SlidersHorizontal, Download, Eye, Grid, List,
   MoreHorizontal, CheckSquare, Square, Building2, UserPlus, X, HelpCircle, Globe,
+  Sun, Moon
 } from "lucide-react";
+import { useTheme } from "./theme-context";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis,
   ResponsiveContainer, Tooltip, Line, LineChart, PieChart, Pie, Cell,
@@ -187,6 +189,7 @@ export interface AdminDashboardProps {
 
 // ── Main Component ────────────────────────────────────────────────────────
 export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashboardProps) {
+  const { theme, toggleTheme } = useTheme();
   const [user, setUser]               = useState<any>(null);
   const [loading, setLoading]         = useState(true);
   const [tab, setTab]                 = useState(defaultTab);
@@ -565,12 +568,25 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                   <p className="text-xs font-bold text-zinc-100">{user.displayName}</p>
                   <p className="text-[10px] text-zinc-400 font-mono">{user.email}</p>
                 </div>
-                <DropdownMenuItem onClick={() => setTab("Settings")} className="text-xs text-zinc-200 font-semibold hover:bg-zinc-800/80 cursor-pointer rounded-lg">
-                  <Settings className="w-4 h-4 mr-2 text-zinc-400" /> Settings
+                <DropdownMenuItem onClick={() => setTab("Settings")} className="text-xs text-zinc-200 font-semibold hover:bg-zinc-800/80 cursor-pointer rounded-lg p-2 flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-zinc-400" /> Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={toggleTheme} className="text-xs text-zinc-200 font-semibold hover:bg-zinc-800/80 cursor-pointer rounded-lg p-2 flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {theme === "dark" ? (
+                      <Sun className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <Moon className="w-4 h-4 text-indigo-400" />
+                    )}
+                    <span>{theme === "dark" ? "Light Mode" : "Dark Mode"}</span>
+                  </div>
+                  <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                    {theme === "dark" ? "Light" : "Dark"}
+                  </span>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator className="bg-zinc-800 my-1" />
-                <DropdownMenuItem onClick={logout} className="text-xs text-red-400 font-semibold hover:bg-red-500/10 cursor-pointer rounded-lg">
-                  <LogOut className="w-4 h-4 mr-2 text-red-400" /> Log out
+                <DropdownMenuItem onClick={logout} className="text-xs text-red-400 font-semibold hover:bg-red-500/10 cursor-pointer rounded-lg p-2 flex items-center gap-2">
+                  <LogOut className="w-4 h-4 text-red-400" /> Log out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>

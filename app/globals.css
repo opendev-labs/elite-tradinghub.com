@@ -67,6 +67,41 @@ body {
   touch-action: manipulation;
 }
 
+/* Light Mode Theme Overrides */
+html.light, html.light body, html.light .app-shell {
+  background: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-zinc-950,
+html.light .bg-black,
+html.light .bg-zinc-900 {
+  background-color: #ffffff !important;
+  color: #0f172a !important;
+}
+
+html.light .bg-zinc-900\/90,
+html.light .bg-zinc-900\/95,
+html.light .bg-zinc-950\/95 {
+  background-color: rgba(255, 255, 255, 0.96) !important;
+  color: #0f172a !important;
+}
+
+html.light .border-zinc-800,
+html.light .border-zinc-700 {
+  border-color: #e2e8f0 !important;
+}
+
+html.light .text-zinc-100,
+html.light .text-white {
+  color: #0f172a !important;
+}
+
+html.light .text-zinc-400,
+html.light .text-zinc-500 {
+  color: #64748b !important;
+}
+
 /* User Interactive Mesh Background (Pure Pitch-Black Base - Zero Navy Blue Tint) */
 .interactive-mesh-bg {
   position: absolute;
