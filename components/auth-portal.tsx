@@ -14,13 +14,13 @@ import {
   LayoutDashboard, TrendingUp, Calculator, Settings, LogOut,
   ChevronDown, ChevronRight, Bell, Search, Lock,
   ArrowUpRight, ArrowDownRight, Radio, BookOpen, Activity,
-  Target, ShieldCheck, Wifi, Send, Globe,
+  Target, ShieldCheck, Wifi, Send, Globe, Loader2
 } from "lucide-react";
 import {
   Area, AreaChart, CartesianGrid, XAxis, YAxis,
   ResponsiveContainer, Tooltip,
 } from "recharts";
-import { signInWithGoogleFirebase, checkGoogleRedirectResult } from '@/lib/firebase';
+import { signInWithGoogleFirebase, checkGoogleRedirectResult, getStoredUser, subscribeFirebaseUser, logoutFirebase } from '@/lib/firebase';
 import { signIn } from 'next-auth/react';
 import { AuthLoginScreen } from "@/components/auth-login-screen";
 
@@ -133,15 +133,42 @@ export function AuthPortal() {
   }, []);
 
   useEffect(() => {
+    // 1. Check local storage for client session
     try {
       const stored = localStorage.getItem("eth_client_session");
-      if (stored) { setUser(JSON.parse(stored)); setLoading(false); return; }
+      if (stored) {
+        setUser(JSON.parse(stored));
+        setLoading(false);
+      }
     } catch {}
 
-    // Handle Mobile Google OAuth Redirect result
+    // 2. Check stored Firebase user
+    try {
+      const fbUser = getStoredUser();
+      if (fbUser?.email) {
+        const u = { email: fbUser.email, name: fbUser.name || fbUser.email.split("@")[0] || "Trader", plan: "PRO" };
+        setUser(u);
+        try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
+        setLoading(false);
+      }
+    } catch {}
+
+    // 3. Subscribe to live Firebase Auth state change
+    const unsubFb = subscribeFirebaseUser((fbU) => {
+      if (fbU?.email) {
+        const u = { email: fbU.email, name: fbU.name || fbU.email.split("@")[0] || "Trader", plan: "PRO" };
+        setUser(u);
+        try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
+        setLoading(false);
+      }
+    });
+
+    // 4. Handle Mobile Google OAuth Redirect result & NextAuth session
     checkGoogleRedirectResult().then(userData => {
       if (userData) {
-        setUser({ email: userData.email, name: userData.name, plan: "PRO" });
+        const u = { email: userData.email, name: userData.name, plan: "PRO" };
+        setUser(u);
+        try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
         toast("Welcome!", "success");
         return;
@@ -158,6 +185,8 @@ export function AuthPortal() {
         .catch(() => {})
         .finally(() => setLoading(false));
     }).catch(() => setLoading(false));
+
+    return () => unsubFb();
   }, [toast]);
 
   const login = async (e: React.FormEvent) => {
@@ -222,7 +251,11 @@ export function AuthPortal() {
   };
 
   const logout = async () => {
-    try { localStorage.removeItem("eth_client_session"); } catch {}
+    try {
+      localStorage.removeItem("eth_client_session");
+      localStorage.removeItem("eth_user");
+    } catch {}
+    await logoutFirebase().catch(() => {});
     await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
     setUser(null);
   };

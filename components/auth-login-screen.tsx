@@ -20,8 +20,8 @@ export function AuthLoginScreen({
   subtitle = "Login to continue",
   portalType = "client",
 }: AuthLoginScreenProps) {
-  const [email, setEmail] = useState(portalType === "admin" ? "admin@elite" : "");
-  const [password, setPassword] = useState(portalType === "admin" ? "elite123123" : "");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -127,7 +127,7 @@ export function AuthLoginScreen({
                 type={portalType === "admin" ? "text" : "email"}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder={portalType === "admin" ? "admin@elite" : "you@example.com"}
+                placeholder={portalType === "admin" ? "Enter username" : "you@example.com"}
                 required
                 className="w-full h-10 px-3.5 text-xs bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
               />
