@@ -6,7 +6,6 @@ import Script from 'next/script'
 import './globals.css'
 import localFont from 'next/font/local'
 import { AuthProvider } from '@/components/auth-provider'
-import { ThemeProvider } from '@/components/theme-context'
 
 
 const interFont = localFont({
@@ -216,11 +215,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         </Script>
       </head>
       <body className={`${interFont.variable} ${interFont.className}`}>
-        <ThemeProvider>
-          <AuthProvider>
-            {children}
-          </AuthProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          {children}
+        </AuthProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>
