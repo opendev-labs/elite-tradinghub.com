@@ -360,20 +360,23 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
   }, []);
 
   const login = async (em: string, pw: string) => {
-    const isYash  = em.trim().toLowerCase() === "yash" && pw.trim() === "123123";
-    const isAdmin = (em.trim().toLowerCase() === "admin" || em.trim().toLowerCase() === "admin@elitetradinghub.com") && (pw.trim() === "admin123" || pw.trim() === "123123");
-    if (isYash || isAdmin) {
-      const a = { email: isYash ? "yash@nexus.com" : "admin@elitetradinghub.com", displayName: isYash ? "Yash" : "Administrator" };
-      setUser(a);
-      try { localStorage.setItem("eth_admin_session", JSON.stringify(a)); } catch {}
-      toast("Welcome to Admin Control Center", "success");
-    } else {
-      // Demo fallback login for any credentials
-      const a = { email: em.trim(), displayName: em.split("@")[0] || "Admin" };
-      setUser(a);
-      try { localStorage.setItem("eth_admin_session", JSON.stringify(a)); } catch {}
-      toast("Welcome to Admin Control Center", "success");
-    }
+    const cleanEmail = em.trim().toLowerCase();
+    const cleanPass  = pw.trim();
+
+    const isValidAdmin =
+      cleanEmail === "admin@elite" ||
+      cleanEmail === "admin" ||
+      cleanEmail === "admin@elitetradinghub.com" ||
+      cleanEmail === "yash";
+
+    const a = {
+      email: cleanEmail.includes("@") ? cleanEmail : "admin@elitetradinghub.com",
+      displayName: cleanEmail === "yash" ? "Yash" : "Administrator",
+    };
+
+    setUser(a);
+    try { localStorage.setItem("eth_admin_session", JSON.stringify(a)); } catch {}
+    toast("Welcome to Admin Control Center", "success");
   };
 
   const logout = async () => {
@@ -485,7 +488,6 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
           title="Studio Admin"
           subtitle="Enterprise Dashboard Portal"
           onLogin={login}
-          onGoogleLogin={() => login("admin@elitetradinghub.com", "123123")}
         />
       </>
     );
