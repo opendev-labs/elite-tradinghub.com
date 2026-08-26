@@ -171,6 +171,7 @@ const CRM_LEADS_TABLE = [
 
 const NAV = [
   { label: "Dashboard",     icon: <LayoutDashboard className="w-4 h-4" /> },
+  { label: "Portfolio PMS", icon: <PieChart        className="w-4 h-4 text-emerald-400" /> },
   { label: "Google Logins", icon: <Lock            className="w-4 h-4 text-emerald-400" /> },
   { label: "Analytics",     icon: <BarChart2       className="w-4 h-4" /> },
   { label: "CRM",           icon: <Briefcase       className="w-4 h-4" /> },
@@ -693,6 +694,124 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                   </div>
                 </div>
               </>
+            )}
+
+            {/* ── 1.25 PORTFOLIO PMS ── */}
+            {tab === "Portfolio PMS" && (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100 tracking-tight flex items-center gap-2">
+                      <PieChart className="w-5 h-5 text-emerald-400" /> Portfolio Management Services (PMS)
+                    </h2>
+                    <p className="text-xs text-zinc-400 mt-1">SEBI Framework Aligned Asset Allocation, Client Portfolios & Risk Parameter Engine.</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="px-3 py-1 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-lg flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" /> SEBI Compliant Framework
+                    </span>
+                  </div>
+                </div>
+
+                {/* PMS Stat Cards */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                  <StatCard title="Total AUM Managed" value="₹ 4.85 Cr" change="+18.4%" up icon={<DollarSign className="w-3.5 h-3.5 text-emerald-400" />} sub="YTD Growth" />
+                  <StatCard title="Active PMS Clients" value="38 Accounts" change="+6 new" up icon={<Briefcase className="w-3.5 h-3.5 text-blue-400" />} sub="Risk Profiled" />
+                  <StatCard title="Max Risk Per Trade" value="1.50%" change="Strict Limit" up icon={<Lock className="w-3.5 h-3.5 text-amber-400" />} sub="Capital Preservation" />
+                  <StatCard title="Benchmark Beta" value="0.72 vs NIFTY" change="Low Volatility" up icon={<TrendingUp className="w-3.5 h-3.5 text-purple-400" />} sub="Controlled Drawdown" />
+                </div>
+
+                {/* PMS Strategy Allocation & Risk Calculator Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+                    <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                      <div>
+                        <h3 className="text-sm font-semibold text-zinc-100">Model Strategy Asset Allocation</h3>
+                        <p className="text-xs text-zinc-500">Target weights across market regimes</p>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full">
+                        Quant Rebalanced
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 pt-2">
+                      <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400">Large Cap Equities</span>
+                        <div className="text-lg font-bold text-emerald-400">45%</div>
+                        <span className="text-[10px] text-zinc-500">NIFTY 50 Core</span>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400">Tactical Options Hedge</span>
+                        <div className="text-lg font-bold text-teal-400">20%</div>
+                        <span className="text-[10px] text-zinc-500">Delta Neutral Skew</span>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400">Debt & Liquid G-Sec</span>
+                        <div className="text-lg font-bold text-blue-400">25%</div>
+                        <span className="text-[10px] text-zinc-500">Capital Protection</span>
+                      </div>
+                      <div className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-1">
+                        <span className="text-[10px] font-mono text-zinc-400">Tactical Cash Reserve</span>
+                        <div className="text-lg font-bold text-purple-400">10%</div>
+                        <span className="text-[10px] text-zinc-500">Opportunistic Dip</span>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 text-xs text-zinc-300 space-y-1">
+                      <div className="font-semibold text-amber-400 flex items-center gap-1.5">
+                        <Lock className="w-3.5 h-3.5" /> SEBI Compliance Note on Portfolio Performance
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        “Our educational strategies are developed using structured market research, technical analysis and risk-management principles. Certain strategies may demonstrate high historical signal accuracy in specific market conditions; however, past performance does not guarantee future results.”
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                      <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                        <h3 className="text-sm font-semibold text-zinc-100">PMS Services Overview</h3>
+                        <span className="text-[10px] font-mono text-zinc-400">6 Pillars</span>
+                      </div>
+                      <ul className="space-y-2.5 mt-3 text-xs text-zinc-300">
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>1. Personalized Portfolio Management</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>2. Market Research & Analysis</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>3. Risk Management & Stop-Loss Engine</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>4. Free Trading & Investment Education</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>5. Active Portfolio Monitoring</span>
+                        </li>
+                        <li className="flex items-center gap-2">
+                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                          <span>6. Transparent Benchmark Reporting</span>
+                        </li>
+                      </ul>
+                    </div>
+
+                    <a
+                      href="/portfolio-management"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs transition-all text-center block shadow-md shadow-emerald-500/20"
+                    >
+                      View Live PMS Client Page →
+                    </a>
+                  </div>
+                </div>
+              </div>
             )}
 
             {/* ── 1.5 GOOGLE LOGINS ── */}
