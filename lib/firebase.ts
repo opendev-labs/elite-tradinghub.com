@@ -1,7 +1,8 @@
 import { initializeApp, getApps, getApp } from 'firebase/app'
 import {
-  getAuth, setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence,
+  getAuth, setPersistence, browserLocalPersistence,
   GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
+  signInWithCredential,
   signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser
 } from 'firebase/auth'
 import {
@@ -258,13 +259,36 @@ export async function signInWithGoogleFirebase() {
     await syncUserToRtdb(userData, true)
     return { user: userData, redirecting: false, error: null }
   } catch (err: any) {
-    console.error('Firebase Google Popup Error (Fallback to Redirect):', err)
+    console.error('Firebase Google Sign-In Error:', err)
     try {
       await signInWithRedirect(auth, googleProvider)
       return { user: null, redirecting: true, error: null }
     } catch (redirectErr: any) {
       return { user: null, redirecting: false, error: redirectErr.message || 'Google Sign-In failed' }
     }
+  }
+}
+
+/**
+ * Sign into Firebase using a Google ID token obtained from Google Identity
+ * Services One Tap (no popup / no redirect required).
+ */
+export async function signInWithGoogleCredential(idToken: string) {
+  try {
+    const credential = GoogleAuthProvider.credential(idToken)
+    const result = await signInWithCredential(auth, credential)
+    const userData: UserSessionData = {
+      name: result.user.displayName || 'Pro Trader',
+      email: result.user.email,
+      image: result.user.photoURL,
+      uid: result.user.uid,
+    }
+    setStoredUser(userData)
+    await syncUserToRtdb(userData, true)
+    return { user: userData, error: null }
+  } catch (err: any) {
+    console.error('Firebase credential sign-in error:', err)
+    return { user: null, error: err.message || 'Sign-in failed' }
   }
 }
 

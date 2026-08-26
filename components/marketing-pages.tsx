@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import {
   ArrowRight, BarChart3, Check, Database, Send,
   ShieldCheck, Sparkles, Target, TrendingUp, Layers, CheckCircle2,
+  PieChart, BookOpen, GraduationCap,
 } from 'lucide-react';
 import { PageFrame, PageHero, SectionHeading } from './site-shell';
 import { InteractiveGridBackground } from './interactive-grid-background';
@@ -236,6 +237,121 @@ export function PremiumHome() {
               </p>
             </div>
           </motion.div>
+        </section>
+
+        {/* Portfolio Management & Free Knowledge Feature Section */}
+        <section className="py-16 w-full px-4 sm:px-6 lg:px-8 border-t border-zinc-800/60">
+          <SectionHeading
+            kicker="PORTFOLIO & EDUCATION"
+            title="Personalized Portfolio Solutions & Free Knowledge"
+            desc="Disciplined capital management, technical research, and free trader education aligned with SEBI framework standards."
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10">
+            {/* Portfolio Management Card */}
+            <motion.div
+              initial={{ opacity: 0, x: -20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-900/90 to-zinc-950 p-8 flex flex-col justify-between space-y-6 shadow-xl hover:border-emerald-500/40 transition-all group"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                    <PieChart className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 rounded-full">
+                    SEBI Framework Aligned
+                  </span>
+                </div>
+
+                <h3 className="text-2xl font-bold text-zinc-100 group-hover:text-emerald-400 transition-colors">
+                  Portfolio Management Service
+                </h3>
+
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Tailored investment approaches based on client objectives, strict risk parameters, active market research, and transparent performance reporting.
+                </p>
+
+                <ul className="space-y-2.5 pt-2">
+                  <li className="flex items-start gap-2.5 text-xs text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Personalized asset allocation & risk parameters</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-xs text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Fundamental & technical market trend analysis</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-xs text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                    <span>Transparent fee structure & benchmark reporting</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-4 border-t border-zinc-800 flex items-center justify-between">
+                <span className="text-[11px] text-zinc-500 font-mono">Disciplined Management</span>
+                <Link
+                  href="/portfolio-management"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-bold text-xs transition-all shadow-md shadow-emerald-500/20"
+                >
+                  Explore Portfolio PMS <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </motion.div>
+
+            {/* Free Knowledge Hub Card */}
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="rounded-3xl border border-zinc-800 bg-gradient-to-b from-zinc-900/90 to-zinc-950 p-8 flex flex-col justify-between space-y-6 shadow-xl hover:border-purple-500/40 transition-all group"
+            >
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-400">
+                    <GraduationCap className="w-6 h-6" />
+                  </div>
+                  <span className="text-[10px] font-mono font-semibold uppercase tracking-wider text-purple-400 bg-purple-500/10 border border-purple-500/20 px-3 py-1 rounded-full">
+                    Free Learning Hub
+                  </span>
+                </div>
+
+                <h3 className="text-2xl font-bold text-zinc-100 group-hover:text-purple-400 transition-colors">
+                  Trading & Investment Education
+                </h3>
+
+                <p className="text-xs text-zinc-400 leading-relaxed">
+                  Free comprehensive educational modules designed to empower traders with technical analysis, risk sizing, chart pattern recognition, and market psychology.
+                </p>
+
+                <ul className="space-y-2.5 pt-2">
+                  <li className="flex items-start gap-2.5 text-xs text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span>Technical & Fundamental Analysis Curriculum</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-xs text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span>Risk/Reward expected value & position sizing math</span>
+                  </li>
+                  <li className="flex items-start gap-2.5 text-xs text-zinc-300">
+                    <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0 mt-0.5" />
+                    <span>Trading psychology & emotional discipline principles</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className="pt-4 border-t border-zinc-800 flex items-center justify-between">
+                <span className="text-[11px] text-zinc-500 font-mono">Zero Cost Education</span>
+                <Link
+                  href="/knowledge"
+                  className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs transition-all shadow-md shadow-purple-600/20"
+                >
+                  Access Free Knowledge <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </motion.div>
+          </div>
         </section>
 
         {/* 3D Testimonials Section Replicated from Vishwaleader.com */}

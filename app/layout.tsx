@@ -188,10 +188,18 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
               {
                 '@context': 'https://schema.org',
                 '@type': 'FinancialService',
-                'name': 'Elite Trading Hub Analytics',
-                'url': 'https://elite-tradinghub.com',
+                'name': 'Elite Trading Hub Portfolio Management Service',
+                'url': 'https://elite-tradinghub.com/portfolio-management',
                 'areaServed': 'IN',
-                'serviceType': 'Quantitative Market Intelligence & Risk Analytics'
+                'serviceType': 'Personalized Portfolio Management & Quantitative Risk Analytics',
+                'description': 'Customized investment approach based on client objectives and risk profile, market research & analysis, risk management, and transparent performance reporting aligned with SEBI framework.'
+              },
+              {
+                '@context': 'https://schema.org',
+                '@type': 'EducationalOrganization',
+                'name': 'Elite Trading Hub Free Knowledge',
+                'url': 'https://elite-tradinghub.com/knowledge',
+                'description': 'Free trading and investment education covering Technical Analysis, Fundamental Analysis, Chart Patterns, Market Trends, Risk/Reward Concepts, Position Sizing, Trading Psychology, and Portfolio Management.'
               }
             ])
           }}
