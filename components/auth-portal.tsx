@@ -20,7 +20,7 @@ import {
   Area, AreaChart, CartesianGrid, XAxis, YAxis,
   ResponsiveContainer, Tooltip,
 } from "recharts";
-import { signInWithGoogleFirebase, checkGoogleRedirectResult, getStoredUser, subscribeFirebaseUser, logoutFirebase } from '@/lib/firebase';
+import { signInWithGoogleFirebase, checkGoogleRedirectResult, getStoredUser, subscribeFirebaseUser, logoutFirebase, performFullLogout } from '@/lib/firebase';
 import { signIn } from 'next-auth/react';
 import { AuthLoginScreen } from "@/components/auth-login-screen";
 
@@ -70,7 +70,12 @@ function NavBtn({ onClick, children, ...props }: any) {
   const { setOpenMobile, isMobile } = useSidebar();
   return (
     <SidebarMenuButton
-      onClick={(e: any) => { if (onClick) onClick(e); if (isMobile) setOpenMobile(false); }}
+      type="button"
+      onClick={(e: any) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (onClick) onClick(e);
+        if (isMobile) setOpenMobile(false);
+      }}
       {...props}
     >{children}</SidebarMenuButton>
   );
@@ -251,13 +256,9 @@ export function AuthPortal() {
   };
 
   const logout = async () => {
-    try {
-      localStorage.removeItem("eth_client_session");
-      localStorage.removeItem("eth_user");
-    } catch {}
-    await logoutFirebase().catch(() => {});
-    await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
+    await performFullLogout();
     setUser(null);
+    window.location.href = '/';
   };
 
   // Calculator
@@ -305,7 +306,7 @@ export function AuthPortal() {
         <Sidebar
           variant="inset"
           collapsible="icon"
-          className="border-r border-zinc-800 bg-zinc-900 text-zinc-100 sticky top-0 h-full min-h-full flex flex-col justify-between"
+          className="border-r border-zinc-800 bg-zinc-900 text-zinc-100 sticky top-0 h-screen max-h-screen overflow-hidden flex flex-col justify-between"
         >
           <SidebarHeader className="border-b border-zinc-800 px-3 py-3 shrink-0">
             <SidebarMenu>
@@ -325,7 +326,7 @@ export function AuthPortal() {
             </SidebarMenu>
           </SidebarHeader>
 
-          <SidebarContent className="bg-zinc-900 py-2 flex-1 overflow-y-auto">
+          <SidebarContent className="bg-zinc-900 py-2 flex-1 overflow-hidden select-none">
             <SidebarGroup>
               <SidebarGroupLabel className="text-[10px] font-semibold text-zinc-600 uppercase tracking-widest px-3 mb-1">
                 Menu

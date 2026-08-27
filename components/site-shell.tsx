@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, Activity, ChevronDown, User, LogOut } from 'lucide-react';
 import { MarketStrip } from './trading-dashboard';
-import { getStoredUser, subscribeFirebaseUser, trackPageView, logoutFirebase, signInWithGoogleFirebase, signInWithGoogleCredential, checkGoogleRedirectResult, UserSessionData } from '@/lib/firebase';
+import { getStoredUser, subscribeFirebaseUser, trackPageView, logoutFirebase, performFullLogout, signInWithGoogleFirebase, signInWithGoogleCredential, checkGoogleRedirectResult, UserSessionData } from '@/lib/firebase';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -40,11 +40,39 @@ export function SiteHeader() {
     idToken: string;
   } | null>(null);
 
+  const [localSession, setLocalSession] = useState<{ name: string; email: string; href: string } | null>(null);
+
   // ── Firebase auth state & redirect handler ──
   useEffect(() => {
     setFbUser(getStoredUser());
     trackPageView(window.location.pathname);
     const unsubscribe = subscribeFirebaseUser((u) => setFbUser(u));
+
+    try {
+      const adminStr = localStorage.getItem("eth_admin_session");
+      if (adminStr) {
+        const a = JSON.parse(adminStr);
+        if (a?.email || a?.username || a?.displayName) {
+          setLocalSession({
+            name: a.displayName || a.username || "Administrator",
+            email: a.email || "admin@elitetradinghub.com",
+            href: "/admin"
+          });
+        }
+      } else {
+        const clientStr = localStorage.getItem("eth_client_session");
+        if (clientStr) {
+          const c = JSON.parse(clientStr);
+          if (c?.email) {
+            setLocalSession({
+              name: c.name || c.email.split("@")[0] || "Trader",
+              email: c.email,
+              href: "/login"
+            });
+          }
+        }
+      }
+    } catch {}
 
     checkGoogleRedirectResult().then((userData) => {
       if (userData) {
@@ -74,6 +102,9 @@ export function SiteHeader() {
             const res = await signInWithGoogleCredential(response.credential);
             if (res.user) {
               setFbUser(res.user);
+              const u = { email: res.user.email, name: res.user.name || "Trader", plan: "PRO" };
+              try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
+              window.location.href = '/login';
             }
           } catch (e) {
             console.error('GIS One Tap sign-in error:', e);
@@ -81,10 +112,10 @@ export function SiteHeader() {
             setIsConnecting(false);
           }
         },
-        auto_select: true,
+        auto_select: false,
         itp_support: true,
         cancel_on_tap_outside: false,
-        use_fedcm_for_prompt: true,
+        use_fedcm_for_prompt: false,
       });
 
       (window as any).google.accounts.id.prompt();
@@ -120,6 +151,9 @@ export function SiteHeader() {
         setFbUser(userData);
         setShowGooglePrompt(false);
         setDetectedGoogleUser(null);
+        const u = { email: userData.email, name: userData.name || "Trader", plan: "PRO" };
+        try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
+        window.location.href = '/login';
       }
     } catch (e) {
       console.error('Google Sign-In Error:', e);
@@ -128,9 +162,11 @@ export function SiteHeader() {
     }
   };
 
-  const isLoggedIn = !!session || !!fbUser;
-  const activeName = session?.user?.name || fbUser?.name || '';
+  const isLoggedIn = !!session || !!fbUser || !!localSession;
+  const activeName = session?.user?.name || fbUser?.name || localSession?.name || '';
+  const activeEmail = session?.user?.email || fbUser?.email || localSession?.email || '';
   const activeImage = session?.user?.image || fbUser?.image || '';
+  const dashboardHref = localSession?.href || '/login';
   const firstName = activeName.split(' ')[0] || 'Trader';
   const initials = firstName.slice(0, 2).toUpperCase() || '?';
 
@@ -222,13 +258,13 @@ export function SiteHeader() {
                     )}
                     <div className="overflow-hidden flex-1">
                       <p className="text-xs font-bold text-zinc-100 truncate">{activeName}</p>
-                      <p className="text-[10px] text-zinc-400 truncate font-mono">{session?.user?.email || fbUser?.email || "Client"}</p>
+                      <p className="text-[10px] text-zinc-400 truncate font-mono">{activeEmail || session?.user?.email || fbUser?.email || "Account"}</p>
                     </div>
                   </div>
 
                   <div className="space-y-1">
                     <DropdownMenuItem className="p-0">
-                      <Link href="/login" className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white hover:bg-zinc-800/80 transition-all cursor-pointer font-bold">
+                      <Link href={dashboardHref} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white hover:bg-zinc-800/80 transition-all cursor-pointer font-bold">
                         <LayoutDashboard className="w-4 h-4 text-emerald-400 shrink-0" />
                         <span className="font-bold text-white">Dashboard</span>
                       </Link>
@@ -238,8 +274,8 @@ export function SiteHeader() {
 
                     <DropdownMenuItem
                       onClick={async () => {
-                        await logoutFirebase();
-                        window.location.href = '/login';
+                        await performFullLogout();
+                        window.location.href = '/';
                       }}
                       className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-all cursor-pointer font-bold"
                     >
@@ -296,7 +332,7 @@ export function SiteHeader() {
                       )}
                       <div className="flex flex-col min-w-0">
                         <span className="text-xs font-bold text-zinc-100 truncate">{activeName}</span>
-                        <span className="text-[10px] font-mono text-zinc-400 truncate">{session?.user?.email || fbUser?.email || "Verified Trader"}</span>
+                        <span className="text-[10px] font-mono text-zinc-400 truncate">{activeEmail || session?.user?.email || fbUser?.email || "Verified User"}</span>
                       </div>
                     </div>
                   </div>
@@ -314,7 +350,7 @@ export function SiteHeader() {
                 </a>
 
                 <Link
-                  href="/login"
+                  href={dashboardHref}
                   onClick={() => setOpen(false)}
                   className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
                 >
@@ -335,8 +371,8 @@ export function SiteHeader() {
                   <button
                     onClick={async () => {
                       setOpen(false);
-                      await logoutFirebase();
-                      window.location.href = '/login';
+                      await performFullLogout();
+                      window.location.href = '/';
                     }}
                     className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-400 flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer shrink-0"
                   >

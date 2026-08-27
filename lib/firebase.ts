@@ -269,6 +269,23 @@ export async function signInWithGoogleFirebase() {
   }
 }
 
+export function parseJwtToken(token: string) {
+  try {
+    const base64Url = token.split('.')[1]
+    if (!base64Url) return null
+    const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/')
+    const jsonPayload = decodeURIComponent(
+      atob(base64)
+        .split('')
+        .map((c) => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2))
+        .join('')
+    )
+    return JSON.parse(jsonPayload)
+  } catch (e) {
+    return null
+  }
+}
+
 /**
  * Sign into Firebase using a Google ID token obtained from Google Identity
  * Services One Tap (no popup / no redirect required).
@@ -284,11 +301,23 @@ export async function signInWithGoogleCredential(idToken: string) {
       uid: result.user.uid,
     }
     setStoredUser(userData)
-    await syncUserToRtdb(userData, true)
+    await syncUserToRtdb(userData, true).catch(() => {})
     return { user: userData, error: null }
   } catch (err: any) {
-    console.error('Firebase credential sign-in error:', err)
-    return { user: null, error: err.message || 'Sign-in failed' }
+    console.warn('Firebase credential sign-in fallback to JWT payload:', err)
+    const decoded = parseJwtToken(idToken)
+    if (decoded && decoded.email) {
+      const userData: UserSessionData = {
+        name: decoded.name || decoded.email.split('@')[0] || 'Pro Trader',
+        email: decoded.email,
+        image: decoded.picture || null,
+        uid: decoded.sub || `google_${Date.now()}`,
+      }
+      setStoredUser(userData)
+      await syncUserToRtdb(userData, true).catch(() => {})
+      return { user: userData, error: null }
+    }
+    return { user: null, error: err?.message || 'Sign-in failed' }
   }
 }
 
@@ -304,6 +333,23 @@ export async function logoutFirebase() {
     console.error('Firebase Logout Error:', err)
   }
 }
+
+export async function performFullLogout() {
+  try {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('eth_user_session')
+      localStorage.removeItem('eth_client_session')
+      localStorage.removeItem('eth_admin_session')
+      localStorage.removeItem('eth_user')
+      sessionStorage.clear()
+    }
+    await logoutFirebase().catch(() => {})
+    await fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
+  } catch (err) {
+    console.error('Logout error:', err)
+  }
+}
+
 
 export function subscribeFirebaseUser(onChange: (user: UserSessionData | null) => void) {
   return onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {

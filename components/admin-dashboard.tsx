@@ -24,7 +24,7 @@ import {
 } from "recharts";
 import { AuthLoginScreen } from "@/components/auth-login-screen";
 import {
-  subscribeRtdbData, pushRtdbData, writeRtdbData, updateRtdbData, formatTimeAgo
+  subscribeRtdbData, pushRtdbData, writeRtdbData, updateRtdbData, formatTimeAgo, performFullLogout
 } from "@/lib/firebase";
 
 
@@ -74,7 +74,12 @@ function NavBtn({ onClick, children, ...props }: any) {
   const { setOpenMobile, isMobile } = useSidebar();
   return (
     <SidebarMenuButton
-      onClick={(e: any) => { if (onClick) onClick(e); if (isMobile) setOpenMobile(false); }}
+      type="button"
+      onClick={(e: any) => {
+        if (e && e.preventDefault) e.preventDefault();
+        if (onClick) onClick(e);
+        if (isMobile) setOpenMobile(false);
+      }}
       {...props}
     >{children}</SidebarMenuButton>
   );
@@ -381,9 +386,9 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
   };
 
   const logout = async () => {
-    try { localStorage.removeItem("eth_admin_session"); } catch {}
-    await fetch("/api/auth/signout", { method: "POST" }).catch(() => {});
+    await performFullLogout();
     setUser(null);
+    window.location.href = '/';
   };
 
   const broadcast = async (e: React.FormEvent) => {
@@ -500,7 +505,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
       <Toast toasts={toasts} />
 
       <SidebarProvider defaultOpen>
-        <Sidebar className="border-r border-zinc-800 bg-zinc-900">
+        <Sidebar className="border-r border-zinc-800 bg-zinc-900 sticky top-0 h-screen max-h-screen overflow-hidden flex flex-col justify-between">
           <SidebarHeader className="h-16 px-4 flex items-center justify-between border-b border-zinc-800">
             <div className="flex items-center gap-2.5">
               {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -512,7 +517,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
             </div>
           </SidebarHeader>
 
-          <SidebarContent className="px-2 py-4 space-y-6">
+          <SidebarContent className="px-2 py-4 space-y-6 overflow-hidden select-none">
             <SidebarGroup>
               <SidebarGroupLabel className="text-[10px] font-medium uppercase tracking-wider text-zinc-500 px-2 mb-2">
                 Dashboards
