@@ -169,7 +169,7 @@ export function AuthPortal() {
     try {
       const fbUser = getStoredUser();
       if (fbUser?.email) {
-        const u = { email: fbUser.email, name: fbUser.name || fbUser.email.split("@")[0] || "Trader", plan: "PRO" };
+        const u = { email: fbUser.email, name: fbUser.name || fbUser.email.split("@")[0] || "Trader", image: fbUser.image || null, plan: "PRO" };
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
@@ -179,7 +179,7 @@ export function AuthPortal() {
     // 3. Subscribe to live Firebase Auth state change
     const unsubFb = subscribeFirebaseUser((fbU) => {
       if (fbU?.email) {
-        const u = { email: fbU.email, name: fbU.name || fbU.email.split("@")[0] || "Trader", plan: "PRO" };
+        const u = { email: fbU.email, name: fbU.name || fbU.email.split("@")[0] || "Trader", image: fbU.image || null, plan: "PRO" };
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
@@ -189,7 +189,7 @@ export function AuthPortal() {
     // 4. Handle Mobile Google OAuth Redirect result & NextAuth session
     checkGoogleRedirectResult().then(userData => {
       if (userData) {
-        const u = { email: userData.email, name: userData.name, plan: "PRO" };
+        const u = { email: userData.email, name: userData.name, image: userData.image || null, plan: "PRO" };
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
@@ -200,7 +200,7 @@ export function AuthPortal() {
         .then(r => r.ok ? r.json() : null)
         .then(s => {
           if (s?.user?.email) {
-            const u = { email: s.user.email, name: s.user.name || s.user.email.split("@")[0], plan: "PRO" };
+            const u = { email: s.user.email, name: s.user.name || s.user.email.split("@")[0], image: s.user.image || null, plan: "PRO" };
             setUser(u);
             try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
           }
@@ -379,9 +379,14 @@ export function AuthPortal() {
               <SidebarMenuItem>
                 <DropdownMenu>
                   <DropdownMenuTrigger className="w-full flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800 hover:bg-zinc-800/80 transition-all text-left outline-none cursor-pointer">
-                    <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-sm font-bold text-emerald-400 flex-shrink-0">
-                      {(user?.name || "Trader").charAt(0).toUpperCase()}
-                    </div>
+                    {user?.image ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={user.image} alt={user.name || "User"} className="w-10 h-10 rounded-xl object-cover border border-emerald-500/50 flex-shrink-0" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-base font-bold text-emerald-400 flex-shrink-0">
+                        {(user?.name || "Trader").charAt(0).toUpperCase()}
+                      </div>
+                    )}
                     <div className="group-data-[collapsible=icon]:hidden min-w-0 flex-1 ml-2.5">
                       <p className="text-sm font-bold text-zinc-100 truncate capitalize">{user?.name || "Trader"}</p>
                       <p className="text-[10px] text-zinc-400 font-mono truncate">{user?.email || ""}</p>

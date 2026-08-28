@@ -40,7 +40,7 @@ export function SiteHeader() {
     idToken: string;
   } | null>(null);
 
-  const [localSession, setLocalSession] = useState<{ name: string; email: string; href: string } | null>(null);
+  const [localSession, setLocalSession] = useState<{ name: string; email: string; image?: string; href: string } | null>(null);
 
   // ── Firebase auth state & redirect handler ──
   useEffect(() => {
@@ -56,6 +56,7 @@ export function SiteHeader() {
           setLocalSession({
             name: a.displayName || a.username || "Administrator",
             email: a.email || "admin@elitetradinghub.com",
+            image: a.image || "",
             href: "/admin"
           });
         }
@@ -67,6 +68,7 @@ export function SiteHeader() {
             setLocalSession({
               name: c.name || c.email.split("@")[0] || "Trader",
               email: c.email,
+              image: c.image || "",
               href: "/login"
             });
           }
@@ -112,7 +114,7 @@ export function SiteHeader() {
               const res = await signInWithGoogleCredential(response.credential);
               if (res.user) {
                 setFbUser(res.user);
-                const u = { email: res.user.email, name: res.user.name || res.user.email?.split("@")[0] || "Trader", plan: "PRO" };
+                const u = { email: res.user.email, name: res.user.name || res.user.email?.split("@")[0] || "Trader", image: res.user.image || null, plan: "PRO" };
                 try {
                   localStorage.setItem("eth_client_session", JSON.stringify(u));
                   localStorage.setItem("eth_user_session", JSON.stringify(res.user));
@@ -136,7 +138,7 @@ export function SiteHeader() {
           auto_select: false,
           itp_support: true,
           cancel_on_tap_outside: false,
-          use_fedcm_for_prompt: true,
+          use_fedcm_for_prompt: false,
         });
 
         (window as any).google.accounts.id.prompt((notification: any) => {
@@ -182,7 +184,7 @@ export function SiteHeader() {
         setFbUser(userData);
         setShowGooglePrompt(false);
         setDetectedGoogleUser(null);
-        const u = { email: userData.email, name: userData.name || userData.email?.split("@")[0] || "Trader", plan: "PRO" };
+        const u = { email: userData.email, name: userData.name || userData.email?.split("@")[0] || "Trader", image: userData.image || null, plan: "PRO" };
         try {
           localStorage.setItem("eth_client_session", JSON.stringify(u));
           localStorage.setItem("eth_user_session", JSON.stringify(userData));
@@ -203,7 +205,7 @@ export function SiteHeader() {
   const isLoggedIn = !!session || !!fbUser || !!localSession;
   const activeName = session?.user?.name || fbUser?.name || localSession?.name || '';
   const activeEmail = session?.user?.email || fbUser?.email || localSession?.email || '';
-  const activeImage = session?.user?.image || fbUser?.image || '';
+  const activeImage = session?.user?.image || fbUser?.image || localSession?.image || '';
   const dashboardHref = localSession?.href || '/login';
   const firstName = activeName.split(' ')[0] || 'Trader';
   const initials = firstName.slice(0, 2).toUpperCase() || '?';
