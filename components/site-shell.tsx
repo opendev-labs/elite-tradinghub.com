@@ -437,6 +437,7 @@ export function SiteFooter() {
                 <li><Link href="/about" className="hover:text-zinc-100 transition-colors">About Elite Hub</Link></li>
                 <li><Link href="/portfolio-management" className="hover:text-zinc-100 transition-colors font-medium text-emerald-400">Portfolio Management</Link></li>
                 <li><Link href="/knowledge" className="hover:text-zinc-100 transition-colors font-medium text-purple-400">Free Knowledge</Link></li>
+                <li><Link href="/build-webapp" className="hover:text-emerald-400 font-semibold text-emerald-400/90 transition-colors flex items-center gap-1">Build a WebApp <ArrowUpRight className="w-3 h-3 text-emerald-400" /></Link></li>
                 <li><Link href="/contact" className="hover:text-zinc-100 transition-colors">Contact Support</Link></li>
                 <li>
                   <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-100 transition-colors flex items-center gap-1">
@@ -461,7 +462,13 @@ export function SiteFooter() {
 
         {/* Bottom bar */}
         <div className="pt-8 border-t border-zinc-800/80 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-zinc-500">
-          <p>© {new Date().getFullYear()} Elite Trading Hub. All rights reserved.</p>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <p>© {new Date().getFullYear()} Elite Trading Hub. All rights reserved.</p>
+            <span className="text-zinc-700">•</span>
+            <Link href="/build-webapp" className="hover:text-emerald-400 font-mono transition-colors flex items-center gap-1 text-[10px] text-zinc-400">
+              made by opendev-labs
+            </Link>
+          </div>
           <div className="flex items-center gap-4">
             <span className="flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" /> Live Market Feed Active

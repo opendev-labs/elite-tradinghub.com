@@ -138,6 +138,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="google-site-verification" content="HKqgjze8W-QJ5QabDBBhTHaC3JrRDi_xg5_u2Fb5WyU" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics." />
+        <meta name="developer" content="made by opendev-labs" />
+        <meta name="author" content="opendev-labs.com" />
+        <meta name="copyright" content="made by opendev-labs" />
         <meta property="og:title" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
         <meta property="og:description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics." />
         <meta property="og:url" content="https://elite-tradinghub.com" />
@@ -219,6 +222,19 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
             gtag('config', 'G-L5J86Q4T62', {
               page_path: window.location.pathname,
             });
+          `}
+        </Script>
+
+        {/* Secret Developer Console Watermark */}
+        <Script id="opendev-developer-watermark" strategy="afterInteractive">
+          {`
+            try {
+              console.log(
+                "%c⚡ website built by opendev-labs %copendev-labs.com",
+                "color: #26d98a; background: #0c1716; font-size: 11px; font-weight: bold; padding: 4px 8px; border-radius: 4px 0 0 4px; border: 1px solid #20342f;",
+                "color: #9caab3; background: #121c24; font-size: 11px; padding: 4px 8px; border-radius: 0 4px 4px 0; border: 1px solid #20342f; border-left: none;"
+              );
+            } catch(e) {}
           `}
         </Script>
       </head>
