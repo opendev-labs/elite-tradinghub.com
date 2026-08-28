@@ -342,6 +342,12 @@ export async function performFullLogout() {
       localStorage.removeItem('eth_admin_session')
       localStorage.removeItem('eth_user')
       sessionStorage.clear()
+      // Clear Google Identity Services g_state cookie to reset One Tap prompt
+      document.cookie = "g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;"
+      if (window.location.hostname) {
+        document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=${window.location.hostname};`
+        document.cookie = `g_state=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; domain=.${window.location.hostname};`
+      }
     }
     await logoutFirebase().catch(() => {})
     await fetch('/api/auth/signout', { method: 'POST' }).catch(() => {})
@@ -350,22 +356,24 @@ export async function performFullLogout() {
   }
 }
 
-
 export function subscribeFirebaseUser(onChange: (user: UserSessionData | null) => void) {
   return onAuthStateChanged(auth, (fbUser: FirebaseUser | null) => {
     if (fbUser) {
       const userData: UserSessionData = {
-        name: fbUser.displayName || 'Pro Trader',
+        name: fbUser.displayName || fbUser.email?.split('@')[0] || 'Pro Trader',
         email: fbUser.email,
         image: fbUser.photoURL,
         uid: fbUser.uid,
       }
       setStoredUser(userData)
-      syncUserToRtdb(userData)
+      syncUserToRtdb(userData).catch(() => {})
       onChange(userData)
     } else {
-      setStoredUser(null)
-      onChange(null)
+      // Do not wipe local storage if a client session is active (e.g. GIS credential fallback)
+      const existing = getStoredUser()
+      if (!existing) {
+        onChange(null)
+      }
     }
   })
 }

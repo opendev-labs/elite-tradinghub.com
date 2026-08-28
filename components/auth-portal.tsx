@@ -115,8 +115,26 @@ const NAV = [
 // Named export for page imports
 // Main Component
 export function AuthPortal() {
-  const [user, setUser]   = useState<any>(null);
-  const [loading, setLoading] = useState(true);
+  const [user, setUser]   = useState<any>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const stored = localStorage.getItem("eth_client_session");
+      if (stored) return JSON.parse(stored);
+      const fbUser = getStoredUser();
+      if (fbUser?.email) {
+        return { email: fbUser.email, name: fbUser.name || fbUser.email.split("@")[0] || "Trader", plan: "PRO" };
+      }
+    } catch {}
+    return null;
+  });
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      return !localStorage.getItem("eth_client_session") && !getStoredUser()?.email;
+    } catch {
+      return true;
+    }
+  });
   const [tab, setTab]     = useState("Dashboard");
   const [email, setEmail] = useState("");
   const [pass, setPass]   = useState("");
@@ -362,18 +380,18 @@ export function AuthPortal() {
                 <DropdownMenu>
                   <DropdownMenuTrigger className="w-full flex items-center justify-between p-2.5 rounded-xl bg-zinc-950/60 border border-zinc-800 hover:bg-zinc-800/80 transition-all text-left outline-none cursor-pointer">
                     <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-sm font-bold text-emerald-400 flex-shrink-0">
-                      {(user.name || "U").charAt(0).toUpperCase()}
+                      {(user?.name || "Trader").charAt(0).toUpperCase()}
                     </div>
                     <div className="group-data-[collapsible=icon]:hidden min-w-0 flex-1 ml-2.5">
-                      <p className="text-sm font-bold text-zinc-100 truncate capitalize">{user.name}</p>
-                      <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
+                      <p className="text-sm font-bold text-zinc-100 truncate capitalize">{user?.name || "Trader"}</p>
+                      <p className="text-[10px] text-zinc-400 font-mono truncate">{user?.email || ""}</p>
                     </div>
                     <ChevronDown className="ml-auto w-4 h-4 text-zinc-400 group-data-[collapsible=icon]:hidden" />
                   </DropdownMenuTrigger>
                   <DropdownMenuContent side="top" align="start" sideOffset={10} className="w-60 bg-zinc-900/95 border-zinc-800 backdrop-blur-2xl text-zinc-100 rounded-xl p-2 shadow-2xl z-[100] mb-2">
                     <div className="px-3 py-2.5 border-b border-zinc-800/80 mb-1.5 bg-zinc-950/50 rounded-lg">
-                      <p className="text-xs font-bold text-zinc-100 truncate capitalize">{user.name}</p>
-                      <p className="text-[10px] text-zinc-400 font-mono truncate">{user.email}</p>
+                      <p className="text-xs font-bold text-zinc-100 truncate capitalize">{user?.name || "Trader"}</p>
+                      <p className="text-[10px] text-zinc-400 font-mono truncate">{user?.email || ""}</p>
                     </div>
                     <DropdownMenuItem onClick={() => setTab("Settings")} className="hover:bg-zinc-800/80 cursor-pointer text-xs text-zinc-200 font-semibold rounded-lg p-2 flex items-center gap-2">
                       <Settings className="w-4 h-4 text-zinc-400" /> Settings
@@ -443,7 +461,7 @@ export function AuthPortal() {
                 <div className="rounded-xl bg-gradient-to-br from-emerald-500/10 to-zinc-900 border border-emerald-500/20 p-5 flex items-center justify-between">
                   <div>
                     <h2 className="text-base font-semibold text-zinc-100">
-                      Good day, <span className="capitalize">{user.name}</span> 👋
+                      Good day, <span className="capitalize">{user?.name || "Trader"}</span> 👋
                     </h2>
                     <p className="text-xs text-zinc-400 mt-0.5">Your trading dashboard is live and tracking market conditions.</p>
                     <span className="inline-flex items-center gap-1.5 mt-2.5 text-[10px] font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md uppercase tracking-wider">
@@ -668,13 +686,13 @@ export function AuthPortal() {
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
                   <div className="flex items-center gap-3.5 p-4 rounded-lg bg-zinc-950 border border-zinc-800">
                     <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-base font-bold text-emerald-400">
-                      {(user.name || "U").charAt(0).toUpperCase()}
+                      {(user?.name || "Trader").charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-zinc-100 capitalize">{user.name}</p>
-                      <p className="text-[11px] text-zinc-500 mt-0.5">{user.email}</p>
+                      <p className="text-sm font-semibold text-zinc-100 capitalize">{user?.name || "Trader"}</p>
+                      <p className="text-[11px] text-zinc-500 mt-0.5">{user?.email || ""}</p>
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mt-1.5 inline-block uppercase">
-                        {user.plan} Member
+                        {user?.plan || "PRO"} Member
                       </span>
                     </div>
                   </div>
