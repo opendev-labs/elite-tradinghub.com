@@ -51,7 +51,8 @@ html {
   scroll-behavior: smooth;
   background: #000000 !important;
   width: 100%;
-  font-size: 112%;
+  font-size: 100%;
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -2776,7 +2777,61 @@ main {
   border-color: var(--emerald);
 }
 
-/* Enhanced Mobile Responsive Design Upgrade */
+/* Enhanced Mobile & Laptop Responsive Scaling Upgrade */
+@media (max-width: 1440px) {
+  .hero {
+    padding: 48px 0 54px;
+    min-height: auto;
+    gap: 40px;
+    grid-template-columns: 1fr 380px;
+  }
+  .section {
+    padding: 50px 0;
+  }
+}
+
+@media (max-width: 1280px) {
+  .hero {
+    padding: 36px 0 44px;
+    gap: 30px;
+    grid-template-columns: 1fr 340px;
+  }
+  .hero h1 {
+    font-size: clamp(30px, 3.5vw, 50px) !important;
+  }
+  .hero-copy > p {
+    font-size: 15px;
+    margin: 16px 0 20px;
+  }
+  .section {
+    padding: 38px 0;
+  }
+}
+
+@media (max-height: 800px) {
+  .hero {
+    padding: 28px 0 34px !important;
+    min-height: auto !important;
+  }
+  .section {
+    padding: 32px 0 !important;
+  }
+  .section-head {
+    margin-bottom: 20px !important;
+  }
+}
+
+@media (min-width: 1920px) {
+  .app-shell main,
+  .hero,
+  .section,
+  .footer {
+    max-width: 1440px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .interactive-mesh-bg {
     opacity: 0.5;

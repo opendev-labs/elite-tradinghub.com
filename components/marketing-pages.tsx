@@ -139,7 +139,7 @@ export function PremiumHome() {
         </section>
 
         {/* Capability Overview Grid - $1M Shadcn Cards */}
-        <section className="py-20 w-full px-4 sm:px-6 lg:px-8">
+        <section className="py-10 sm:py-16 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <SectionHeading
             kicker="SYSTEM ARCHITECTURE"
             title="Institutional tools, built for independent traders."
@@ -147,7 +147,7 @@ export function PremiumHome() {
           />
 
           <motion.div
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-12"
+            className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8 sm:mt-12"
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-40px' }}
@@ -178,17 +178,16 @@ export function PremiumHome() {
                     <p className="text-xs text-zinc-400 leading-relaxed">
                       {c.desc}
                     </p>
-                  </div>
-
-                  <div className="pt-6 mt-4 border-t border-zinc-800/60 flex items-center justify-between">
-                    <span className="text-[10px] text-zinc-500 font-mono">Quantitative Engine</span>
-                    <Link
-                      href="/login"
-                      className="px-3 py-1.5 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
-                    >
-                      <span>Open platform</span>
-                      <ArrowRight className="w-3.5 h-3.5" />
-                    </Link>
+                    <div className="pt-6 mt-4 border-t border-zinc-800/60 flex items-center justify-between">
+                      <span className="text-[10px] text-zinc-500 font-mono">Quantitative Engine</span>
+                      <Link
+                        href="/login"
+                        className="px-3 py-1.5 bg-white hover:bg-zinc-100 text-zinc-950 font-semibold text-xs rounded-lg shadow-sm flex items-center gap-1.5 transition-all"
+                      >
+                        <span>Open platform</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
                   </div>
                 </motion.div>
               );
@@ -197,7 +196,7 @@ export function PremiumHome() {
         </section>
 
         {/* Philosophy Dark Band - $1M Shadcn Style */}
-        <section className="py-16 w-full px-4 sm:px-6 lg:px-8">
+        <section className="py-10 sm:py-14 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}

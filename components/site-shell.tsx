@@ -500,17 +500,17 @@ export function PageFrame({ children }: { children: React.ReactNode }) {
 
 export function PageHero({ kicker, title, desc }: { kicker: string; title: React.ReactNode; desc: string }) {
   return (
-    <section className="w-full py-16 md:py-24 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900/40 to-zinc-950 px-4 sm:px-6 lg:px-8">
+    <section className="w-full py-10 sm:py-14 md:py-18 border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900/40 to-zinc-950 px-4 sm:px-6 lg:px-8">
       <div className="w-full max-w-5xl mx-auto text-center space-y-4">
         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-zinc-800 text-[11px] font-mono text-emerald-400">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/only-bull-head-icon.png" alt="Bull Icon" className="w-3.5 h-3.5 object-contain" />
           {kicker}
         </div>
-        <h1 className="text-3xl sm:text-5xl font-bold tracking-tight text-zinc-100">
+        <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold tracking-tight text-zinc-100">
           {title}
         </h1>
-        <p className="text-sm sm:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-xs sm:text-sm md:text-base text-zinc-400 max-w-2xl mx-auto leading-relaxed">
           {desc}
         </p>
       </div>
@@ -520,7 +520,7 @@ export function PageHero({ kicker, title, desc }: { kicker: string; title: React
 
 export function SectionHeading({ kicker, title, desc }: { kicker: string; title: string; desc?: string }) {
   return (
-    <div className="mb-10 text-center max-w-2xl mx-auto space-y-2">
+    <div className="mb-6 sm:mb-8 text-center max-w-2xl mx-auto space-y-2">
       <span className="text-[10px] font-mono font-semibold uppercase tracking-widest text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-full inline-block">
         {kicker}
       </span>
