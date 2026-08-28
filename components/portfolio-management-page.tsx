@@ -1,5 +1,7 @@
 'use client';
 
+import { TestimonialsSection } from './testimonials-section';
+
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
@@ -138,7 +140,7 @@ export function PortfolioManagementPage() {
 
   // Risk Math Calculator
   const riskAmount = (portfolioCapital * riskPercent) / 100;
-  const recommendedLots = Math.max(1, Math.floor(riskAmount / (stopLossPips * 25))); // NIFTY lot size ~25
+  const recommendedLots = Math.max(1, Math.floor(riskAmount / (stopLossPips * 65))); // NIFTY lot size ~65
 
   return (
     <PageFrame>
@@ -426,7 +428,7 @@ export function PortfolioManagementPage() {
                   <div>
                     <div className="text-xs text-zinc-400">Recommended Position Limit:</div>
                     <div className="text-lg font-bold text-zinc-100 font-mono">
-                      ~{recommendedLots} Lots (NIFTY 25 Lot)
+                      ~{recommendedLots} Lots (NIFTY 65 Lots)
                     </div>
                   </div>
                 </div>
@@ -437,6 +439,9 @@ export function PortfolioManagementPage() {
             </div>
           </div>
         </section>
+
+        {/* Community Testimonials with Trade Screenshots */}
+        <TestimonialsSection />
 
         {/* Regulatory Disclosure Footer Note */}
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-950 p-6 text-xs text-zinc-400 space-y-2 font-mono">
