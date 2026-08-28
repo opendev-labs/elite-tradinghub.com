@@ -471,7 +471,7 @@ export function AuthPortal() {
                     <p className="text-xs text-zinc-400 mt-0.5">Your trading dashboard is live and tracking market conditions.</p>
                     <span className="inline-flex items-center gap-1.5 mt-2.5 text-[10px] font-medium bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2.5 py-1 rounded-md uppercase tracking-wider">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                      {user.plan} Subscription
+                      {user?.plan || "PRO"} Subscription
                     </span>
                   </div>
                   {/* eslint-disable-next-line @next/next/no-img-element */}

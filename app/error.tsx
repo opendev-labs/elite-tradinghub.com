@@ -29,7 +29,16 @@ export default function ErrorBoundary({
         </div>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
           <button
-            onClick={() => reset()}
+            onClick={() => {
+              if (typeof window !== 'undefined') {
+                try {
+                  localStorage.removeItem('eth_client_session');
+                  localStorage.removeItem('eth_admin_session');
+                  localStorage.removeItem('eth_user_session');
+                } catch {}
+              }
+              reset();
+            }}
             className="w-full sm:w-auto px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-zinc-950 font-semibold text-xs rounded-lg transition-all shadow-sm cursor-pointer"
           >
             Try Again

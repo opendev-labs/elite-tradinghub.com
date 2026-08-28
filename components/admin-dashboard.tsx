@@ -193,8 +193,22 @@ export interface AdminDashboardProps {
 
 // ── Main Component ────────────────────────────────────────────────────────
 export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashboardProps) {
-  const [user, setUser]               = useState<any>(null);
-  const [loading, setLoading]         = useState(true);
+  const [user, setUser]               = useState<any>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const stored = localStorage.getItem("eth_admin_session");
+      if (stored) return JSON.parse(stored);
+    } catch {}
+    return null;
+  });
+  const [loading, setLoading]         = useState<boolean>(() => {
+    if (typeof window === 'undefined') return true;
+    try {
+      return !localStorage.getItem("eth_admin_session");
+    } catch {
+      return true;
+    }
+  });
   const [tab, setTab]                 = useState(defaultTab);
   const [search, setSearch]           = useState("");
   const [toasts, setToasts]           = useState<{ id: number; msg: string; type: ToastType }[]>([]);
@@ -557,19 +571,19 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
               <DropdownMenuTrigger className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-zinc-800 transition-colors text-left outline-none cursor-pointer">
                 <div className="flex items-center gap-2.5">
                   <div className="w-7 h-7 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-xs font-bold text-zinc-200">
-                    {user.displayName?.charAt(0) || "A"}
+                    {(user?.displayName || "A").charAt(0).toUpperCase()}
                   </div>
                   <div className="text-left leading-none">
-                    <p className="text-xs font-medium text-zinc-200">{user.displayName}</p>
-                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5 truncate max-w-[110px]">{user.email}</p>
+                    <p className="text-xs font-medium text-zinc-200">{user?.displayName || "Administrator"}</p>
+                    <p className="text-[10px] text-zinc-500 font-mono mt-0.5 truncate max-w-[110px]">{user?.email || "admin@elitetradinghub.com"}</p>
                   </div>
                 </div>
                 <ChevronDown className="w-3.5 h-3.5 text-zinc-500" />
               </DropdownMenuTrigger>
               <DropdownMenuContent side="top" align="center" sideOffset={8} className="w-56 bg-zinc-900/95 border border-zinc-800 backdrop-blur-xl text-zinc-200 rounded-xl p-1.5 shadow-2xl z-[100] mb-1">
                 <div className="px-3 py-2 border-b border-zinc-800 mb-1">
-                  <p className="text-xs font-bold text-zinc-100">{user.displayName}</p>
-                  <p className="text-[10px] text-zinc-400 font-mono">{user.email}</p>
+                  <p className="text-xs font-bold text-zinc-100">{user?.displayName || "Administrator"}</p>
+                  <p className="text-[10px] text-zinc-400 font-mono">{user?.email || "admin@elitetradinghub.com"}</p>
                 </div>
                 <DropdownMenuItem onClick={() => setTab("Settings")} className="text-xs text-zinc-200 font-semibold hover:bg-zinc-800/80 cursor-pointer rounded-lg p-2 flex items-center gap-2">
                   <Settings className="w-4 h-4 text-zinc-400" /> Settings
@@ -634,7 +648,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
               <>
                 <div>
                   <h2 className="text-base sm:text-lg font-semibold text-zinc-100">Overview</h2>
-                  <p className="text-xs text-zinc-500 mt-0.5">Welcome back, {user.displayName}. Here&apos;s your studio summary.</p>
+                  <p className="text-xs text-zinc-500 mt-0.5">Welcome back, {user?.displayName || "Administrator"}. Here&apos;s your studio summary.</p>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -1744,11 +1758,11 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                 <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
                   <div className="flex items-center gap-3.5 p-4 rounded-lg bg-zinc-950 border border-zinc-800">
                     <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-base font-bold text-zinc-200">
-                      {user.displayName?.charAt(0) || "A"}
+                      {(user?.displayName || "A").charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-semibold text-zinc-100">{user.displayName}</p>
-                      <p className="text-[11px] text-zinc-500 font-mono mt-0.5">{user.email}</p>
+                      <p className="text-sm font-semibold text-zinc-100">{user?.displayName || "Administrator"}</p>
+                      <p className="text-[11px] text-zinc-500 font-mono mt-0.5">{user?.email || "admin@elitetradinghub.com"}</p>
                       <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mt-1.5 inline-block uppercase">
                         Administrator
                       </span>
