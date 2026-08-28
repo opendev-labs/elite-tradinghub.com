@@ -115,31 +115,14 @@ const NAV = [
 // Named export for page imports
 // Main Component
 export function AuthPortal() {
-  const [user, setUser]   = useState<any>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const stored = localStorage.getItem("eth_client_session");
-      if (stored) return JSON.parse(stored);
-      const fbUser = getStoredUser();
-      if (fbUser?.email) {
-        return { email: fbUser.email, name: fbUser.name || fbUser.email.split("@")[0] || "Trader", plan: "PRO" };
-      }
-    } catch {}
-    return null;
-  });
-  const [loading, setLoading] = useState<boolean>(() => {
-    if (typeof window === 'undefined') return true;
-    try {
-      return !localStorage.getItem("eth_client_session") && !getStoredUser()?.email;
-    } catch {
-      return true;
-    }
-  });
-  const [tab, setTab]     = useState("Dashboard");
-  const [email, setEmail] = useState("");
-  const [pass, setPass]   = useState("");
-  const [busy, setBusy]   = useState(false);
-  const [toasts, setToasts] = useState<{ id: number; msg: string; type: ToastType }[]>([]);
+  const [user, setUser]       = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [mounted, setMounted] = useState(false);
+  const [tab, setTab]         = useState("Dashboard");
+  const [email, setEmail]     = useState("");
+  const [pass, setPass]       = useState("");
+  const [busy, setBusy]       = useState(false);
+  const [toasts, setToasts]   = useState<{ id: number; msg: string; type: ToastType }[]>([]);
   const ctr = useRef(0);
 
   // Calculator state
@@ -156,6 +139,7 @@ export function AuthPortal() {
   }, []);
 
   useEffect(() => {
+    setMounted(true);
     // 1. Check local storage for client session
     try {
       const stored = localStorage.getItem("eth_client_session");
@@ -287,7 +271,7 @@ export function AuthPortal() {
   const lots = diff > 0 ? Math.floor(risk / (diff * ls)) : 0;
   const reqMarg = lots * ls * parseFloat(entryPx.replace(/,/g, "")) * 0.18;
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-zinc-700 border-t-emerald-400 rounded-full animate-spin" />

@@ -193,22 +193,9 @@ export interface AdminDashboardProps {
 
 // ── Main Component ────────────────────────────────────────────────────────
 export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashboardProps) {
-  const [user, setUser]               = useState<any>(() => {
-    if (typeof window === 'undefined') return null;
-    try {
-      const stored = localStorage.getItem("eth_admin_session");
-      if (stored) return JSON.parse(stored);
-    } catch {}
-    return null;
-  });
-  const [loading, setLoading]         = useState<boolean>(() => {
-    if (typeof window === 'undefined') return true;
-    try {
-      return !localStorage.getItem("eth_admin_session");
-    } catch {
-      return true;
-    }
-  });
+  const [user, setUser]               = useState<any>(null);
+  const [loading, setLoading]         = useState(true);
+  const [mounted, setMounted]         = useState(false);
   const [tab, setTab]                 = useState(defaultTab);
   const [search, setSearch]           = useState("");
   const [toasts, setToasts]           = useState<{ id: number; msg: string; type: ToastType }[]>([]);
@@ -269,6 +256,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
 
   // Auth check
   useEffect(() => {
+    setMounted(true);
     try {
       const stored = localStorage.getItem("eth_admin_session");
       if (stored) { setUser(JSON.parse(stored)); setLoading(false); return; }
@@ -490,7 +478,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
     return matchesSearch && matchesRole && matchesTeam && matchesStatus;
   });
 
-  if (loading) {
+  if (!mounted || loading) {
     return (
       <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-zinc-700 border-t-emerald-400 rounded-full animate-spin" />
