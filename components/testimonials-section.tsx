@@ -1,8 +1,9 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, Send, CheckCircle2, MessageSquare, Sparkles, Image as ImageIcon, X, ZoomIn, ZoomOut, UploadCloud, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Send, CheckCircle2, MessageSquare, Sparkles, Image as ImageIcon, X, ZoomIn, ZoomOut, UploadCloud, ShieldCheck, Download, ExternalLink, Maximize2 } from 'lucide-react';
 import { pushRtdbData, subscribeRtdbData } from '@/lib/firebase';
 
 interface Testimonial {
@@ -90,6 +91,11 @@ export function TestimonialsSection() {
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Keyboard Escape listener to close lightbox modal
   useEffect(() => {
@@ -569,47 +575,116 @@ export function TestimonialsSection() {
         </div>
       </div>
 
-      {/* Fullscreen Screenshot Lightbox Modal (Vishwa Leader Gallery Mechanism) */}
-      {selectedScreenshot && (
+      {/* Fullscreen Screenshot Lightbox Modal (Portal to document.body) */}
+      {mounted && selectedScreenshot && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[999999] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6 cursor-pointer select-none"
-          onClick={() => setSelectedScreenshot(null)}
-        >
-          {/* Close Button Top Right */}
-          <button
-            type="button"
-            onClick={(e) => {
-              e.stopPropagation();
+          className="fixed inset-0 z-[99999999] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-between p-3 sm:p-6 select-none overflow-hidden"
+          onClick={() => {
+            setSelectedScreenshot(null);
+            setIsZoomed(false);
+          }}
+          onTouchEnd={(e) => {
+            if (e.target === e.currentTarget) {
               setSelectedScreenshot(null);
-            }}
-            className="fixed top-4 right-4 sm:top-6 sm:right-6 text-white text-2xl sm:text-3xl font-bold w-12 h-12 z-[1000000] cursor-pointer hover:bg-red-600 hover:border-red-500 bg-zinc-900/90 rounded-full border border-white/20 flex items-center justify-center shadow-2xl transition-all"
-            aria-label="Close"
-            title="Close (ESC)"
+              setIsZoomed(false);
+            }
+          }}
+        >
+          {/* Header Toolbar */}
+          <div
+            className="w-full max-w-7xl flex items-center justify-between z-[10000000] py-2 px-4 bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl mb-2"
+            onClick={(e) => e.stopPropagation()}
           >
-            ✕
-          </button>
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs sm:text-sm font-semibold text-zinc-100 font-mono">
+                Verified Client Trade Proof
+              </span>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => setIsZoomed(!isZoomed)}
+                className="h-9 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 flex items-center gap-1.5 transition-all cursor-pointer"
+                title={isZoomed ? "Reset Zoom" : "Zoom 100%"}
+              >
+                {isZoomed ? <ZoomOut className="w-4 h-4 text-emerald-400" /> : <ZoomIn className="w-4 h-4 text-emerald-400" />}
+                <span className="hidden sm:inline">{isZoomed ? "Fit to Screen" : "Zoom In"}</span>
+              </button>
+
+              <a
+                href={selectedScreenshot}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="h-9 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Open original image in new tab"
+              >
+                <ExternalLink className="w-4 h-4 text-blue-400" />
+                <span className="hidden sm:inline">Open Original</span>
+              </a>
+
+              <a
+                href={selectedScreenshot}
+                download="trade-proof-screenshot.jpg"
+                onClick={(e) => e.stopPropagation()}
+                className="h-9 px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
+                title="Download Screenshot"
+              >
+                <Download className="w-4 h-4 text-emerald-400" />
+                <span className="hidden sm:inline">Download</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedScreenshot(null);
+                  setIsZoomed(false);
+                }}
+                className="w-9 h-9 bg-red-500/20 hover:bg-red-500 text-zinc-200 hover:text-white rounded-xl border border-red-500/30 flex items-center justify-center transition-all cursor-pointer"
+                aria-label="Close modal"
+                title="Close (ESC)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
 
           {/* Fullscreen Image Container */}
           <div
-            className="flex flex-col items-center justify-center max-w-7xl max-h-[92vh] w-full h-full"
+            className={`w-full h-full flex-1 flex items-center justify-center overflow-auto custom-scrollbar p-2 ${
+              isZoomed ? "cursor-zoom-out items-start" : "cursor-zoom-in"
+            }`}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIsZoomed(!isZoomed);
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={selectedScreenshot}
+              alt="Full Resolution Trade Proof"
+              className={`transition-all duration-300 rounded-xl shadow-2xl border border-zinc-800 bg-zinc-950 object-contain ${
+                isZoomed
+                  ? "max-w-none max-h-none w-auto h-auto scale-100 my-auto"
+                  : "max-w-[95vw] max-h-[82vh] w-auto h-auto"
+              }`}
+              onError={(e) => {
+                console.error('Failed to render screenshot image:', selectedScreenshot);
+              }}
+            />
+          </div>
+
+          {/* Footer Bar */}
+          <div
+            className="mt-2 text-center text-xs text-zinc-400 font-mono bg-zinc-900/80 px-4 py-1.5 rounded-full border border-zinc-800 z-[10000000]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-center w-full h-full p-2">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedScreenshot}
-                alt="Full Resolution Trade Proof"
-                className="max-w-[96vw] max-h-[86vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-zinc-800 bg-zinc-950"
-                onError={(e) => {
-                  console.error('Failed to render screenshot image:', selectedScreenshot);
-                }}
-              />
-            </div>
-            <p className="text-xs text-zinc-400 font-mono mt-2 text-center bg-zinc-900/80 px-4 py-1.5 rounded-full border border-zinc-800">
-              Verified Client Trade Proof • Click background or ✕ to close
-            </p>
+            Click image to {isZoomed ? "fit screen" : "zoom 100%"} • Click backdrop or ✕ to close
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </section>
   );
