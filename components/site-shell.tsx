@@ -4,9 +4,17 @@ import Link from 'next/link';
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, Activity, ChevronDown, User, LogOut, Loader2 } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, ChevronRight, LogOut, ChevronDown } from 'lucide-react';
 import { MarketStrip } from './trading-dashboard';
-import { getStoredUser, subscribeFirebaseUser, trackPageView, logoutFirebase, performFullLogout, signInWithGoogleFirebase, signInWithGoogleCredential, checkGoogleRedirectResult, UserSessionData } from '@/lib/firebase';
+import {
+  getStoredUser,
+  subscribeFirebaseUser,
+  trackPageView,
+  performFullLogout,
+  signInWithGoogleCredential,
+  checkGoogleRedirectResult,
+  UserSessionData,
+} from '@/lib/firebase';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,18 +38,22 @@ export function SiteHeader() {
   const { data: session } = useSession();
   const [fbUser, setFbUser] = useState<UserSessionData | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
-
-  // GIS-detected account info (populated when Google One Tap / FedCM detects account)
-  const [detectedGoogleUser, setDetectedGoogleUser] = useState<{
-    name: string;
-    email: string;
-    picture: string;
-    idToken: string;
-  } | null>(null);
-
   const [localSession, setLocalSession] = useState<{ name: string; email: string; image?: string; href: string } | null>(null);
-
+  const [scrolled, setScrolled] = useState(false);
   const gisInitializedRef = useRef(false);
+
+  // ── Scroll shadow ──
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  // ── Lock body scroll when mobile menu open ──
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
 
   // ── Firebase auth state & redirect handler ──
   useEffect(() => {
@@ -50,27 +62,27 @@ export function SiteHeader() {
     const unsubscribe = subscribeFirebaseUser((u) => setFbUser(u));
 
     try {
-      const adminStr = localStorage.getItem("eth_admin_session");
+      const adminStr = localStorage.getItem('eth_admin_session');
       if (adminStr) {
         const a = JSON.parse(adminStr);
         if (a?.email || a?.username || a?.displayName) {
           setLocalSession({
-            name: a.displayName || a.username || "Administrator",
-            email: a.email || "admin@elitetradinghub.com",
-            image: a.image || "",
-            href: "/admin"
+            name: a.displayName || a.username || 'Administrator',
+            email: a.email || 'admin@elitetradinghub.com',
+            image: a.image || '',
+            href: '/admin',
           });
         }
       } else {
-        const clientStr = localStorage.getItem("eth_client_session");
+        const clientStr = localStorage.getItem('eth_client_session');
         if (clientStr) {
           const c = JSON.parse(clientStr);
           if (c?.email) {
             setLocalSession({
-              name: c.name || c.email.split("@")[0] || "Trader",
+              name: c.name || c.email.split('@')[0] || 'Trader',
               email: c.email,
-              image: c.image || "",
-              href: "/login"
+              image: c.image || '',
+              href: '/login',
             });
           }
         }
@@ -78,36 +90,26 @@ export function SiteHeader() {
     } catch {}
 
     checkGoogleRedirectResult().then((userData) => {
-      if (userData) {
-        setFbUser(userData);
-      }
+      if (userData) setFbUser(userData);
     });
 
     return () => unsubscribe();
   }, []);
 
-  // ── Google Identity Services One Tap (auto account detection - single instance) ──
+  // ── Google FedCM — HTTPS only ──
   useEffect(() => {
     if (typeof window === 'undefined') return;
-
-    // Do not prompt if user is already logged in or if already initialized
     const stored = getStoredUser();
     const clientStored = localStorage.getItem('eth_client_session');
     const adminStored = localStorage.getItem('eth_admin_session');
-    if (fbUser || session || localSession || stored || clientStored || adminStored || gisInitializedRef.current) {
-      return;
-    }
+    if (fbUser || session || localSession || stored || clientStored || adminStored || gisInitializedRef.current) return;
 
     const GOOGLE_CLIENT_ID = '116492878256-6gd53qldcqeiagbr920jnmq7kh0uktk5.apps.googleusercontent.com';
-
-    // FedCM requires HTTPS — skip prompt entirely on localhost to avoid NetworkError
-    const isHttps = window.location.protocol === 'https:';
-    if (!isHttps) return;
+    if (window.location.protocol !== 'https:') return;
 
     const initGIS = () => {
       if (!(window as any).google?.accounts?.id || gisInitializedRef.current) return;
       gisInitializedRef.current = true;
-
       try {
         (window as any).google.accounts.id.initialize({
           client_id: GOOGLE_CLIENT_ID,
@@ -118,16 +120,13 @@ export function SiteHeader() {
               const res = await signInWithGoogleCredential(response.credential);
               if (res.user) {
                 setFbUser(res.user);
-                const u = { email: res.user.email, name: res.user.name || res.user.email?.split("@")[0] || "Trader", image: res.user.image || null, plan: "PRO" };
+                const u = { email: res.user.email, name: res.user.name || res.user.email?.split('@')[0] || 'Trader', image: res.user.image || null, plan: 'PRO' };
                 try {
-                  localStorage.setItem("eth_client_session", JSON.stringify(u));
-                  localStorage.setItem("eth_user_session", JSON.stringify(res.user));
+                  localStorage.setItem('eth_client_session', JSON.stringify(u));
+                  localStorage.setItem('eth_user_session', JSON.stringify(res.user));
                 } catch {}
-                if (window.location.pathname === '/login') {
-                  window.location.reload();
-                } else {
-                  window.location.replace('/login');
-                }
+                if (window.location.pathname === '/login') window.location.reload();
+                else window.location.replace('/login');
               }
             } catch (e) {
               console.error('GIS credential sign-in error:', e);
@@ -138,20 +137,12 @@ export function SiteHeader() {
           auto_select: false,
           itp_support: true,
           cancel_on_tap_outside: true,
-          // Use browser-native FedCM bottom sheet (HTTPS only — already guarded above)
           use_fedcm_for_prompt: true,
         });
-
-        // Show native FedCM account picker — notification callback handles cancellations silently
         (window as any).google.accounts.id.prompt((notification: any) => {
-          // User dismissed or cancelled — no action needed, no error logging
-          if (notification.isNotDisplayed() || notification.isSkippedMoment() || notification.isDismissedMoment()) {
-            return;
-          }
+          if (notification.isNotDisplayed() || notification.isSkippedMoment() || notification.isDismissedMoment()) return;
         });
-      } catch (err) {
-        // Suppress GIS init errors silently in production
-      }
+      } catch {}
     };
 
     if ((window as any).google?.accounts?.id) {
@@ -177,51 +168,64 @@ export function SiteHeader() {
   return (
     <>
       <MarketStrip />
-      <header className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2.5 group" onClick={() => setOpen(false)}>
+
+      {/* ── Sticky header bar ── */}
+      <header
+        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+          scrolled
+            ? 'bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-800/80 shadow-[0_1px_24px_rgba(0,0,0,0.5)]'
+            : 'bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/40'
+        }`}
+      >
+        <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+
+          {/* Logo */}
+          <Link href="/" className="flex items-center gap-2.5 group shrink-0" onClick={() => setOpen(false)}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img 
-              src="/only-bull-head-icon.png" 
-              alt="Elite Trading Hub" 
-              className="h-8 w-auto object-contain transition-transform group-hover:scale-105" 
+            <img
+              src="/only-bull-head-icon.png"
+              alt="Elite Trading Hub"
+              className="h-8 w-auto object-contain transition-transform group-hover:scale-105"
             />
             <div className="flex flex-col">
-              <span className="text-sm font-semibold tracking-tight text-zinc-100 group-hover:text-white transition-colors">
+              <span className="text-sm font-semibold tracking-tight text-zinc-100 group-hover:text-white transition-colors leading-tight">
                 ELITE TRADING HUB
               </span>
-              <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-500">
+              <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-500 leading-tight">
                 Market Intelligence
               </span>
             </div>
           </Link>
 
-          <nav className="hidden md:flex items-center gap-1 bg-zinc-900/60 border border-zinc-800/80 p-1 rounded-full backdrop-blur-sm">
+          {/* Desktop nav pill */}
+          <nav className="hidden md:flex items-center gap-0.5 bg-zinc-900/60 border border-zinc-800/80 p-1 rounded-full backdrop-blur-sm">
             {links.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className="px-4 py-1.5 rounded-full text-xs font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 transition-all"
+                className="px-3.5 py-1.5 rounded-full text-xs font-medium text-zinc-400 hover:text-zinc-100 hover:bg-zinc-800/80 transition-all"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
 
-          <div className="hidden md:flex items-center gap-3">
+          {/* Desktop right CTAs */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
             <a
               href="https://t.me/+la1ShIiNHJ5mYzk1"
               target="_blank"
               rel="noopener noreferrer"
               className="h-9 px-3.5 rounded-lg text-xs font-semibold bg-[#0088cc]/10 hover:bg-[#0088cc]/20 border border-[#0088cc]/30 text-[#0088cc] transition-all flex items-center gap-2 shadow-sm"
             >
-              <Send className="w-3.5 h-3.5 text-[#0088cc]" />
+              <Send className="w-3.5 h-3.5" />
               <span>Telegram</span>
             </a>
 
             {!isLoggedIn ? (
               <Link
                 href="/login"
-                className="h-9 px-4 rounded-lg text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center gap-2 shadow-md hover:shadow-lg"
+                className="h-9 px-4 rounded-lg text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-100 transition-all flex items-center gap-1.5 shadow-md hover:shadow-lg"
               >
                 <span>Login</span>
                 <ArrowUpRight className="w-3.5 h-3.5" />
@@ -237,12 +241,12 @@ export function SiteHeader() {
                       {initials}
                     </div>
                   )}
-                  <span className="font-semibold text-zinc-100">{activeName}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 group-hover:text-zinc-200 transition-transform duration-200" />
+                  <span className="font-semibold text-zinc-100 max-w-[90px] truncate">{firstName}</span>
+                  <ChevronDown className="w-3.5 h-3.5 text-zinc-400 group-data-[state=open]:rotate-180 transition-transform duration-200" />
                 </DropdownMenuTrigger>
 
-                <DropdownMenuContent align="end" className="w-56 bg-zinc-900/95 border-zinc-800 backdrop-blur-xl text-zinc-100 rounded-xl p-2 shadow-2xl z-[100]">
-                  <div className="flex items-center gap-3 p-2.5 mb-1.5 border-b border-zinc-800/80 bg-zinc-950/50 rounded-lg">
+                <DropdownMenuContent align="end" className="w-56 bg-zinc-900/98 border-zinc-800 backdrop-blur-xl text-zinc-100 rounded-xl p-2 shadow-2xl z-[200]">
+                  <div className="flex items-center gap-3 p-2.5 mb-1.5 border-b border-zinc-800/80 bg-zinc-950/60 rounded-lg">
                     {activeImage ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={activeImage} alt={activeName} className="w-9 h-9 rounded-full object-cover border border-emerald-500/50 shrink-0" />
@@ -253,15 +257,15 @@ export function SiteHeader() {
                     )}
                     <div className="overflow-hidden flex-1">
                       <p className="text-xs font-bold text-zinc-100 truncate">{activeName}</p>
-                      <p className="text-[10px] text-zinc-400 truncate font-mono">{activeEmail || session?.user?.email || fbUser?.email || "Account"}</p>
+                      <p className="text-[10px] text-zinc-400 truncate font-mono">{activeEmail || 'Account'}</p>
                     </div>
                   </div>
 
-                  <div className="space-y-1">
-                    <DropdownMenuItem className="p-0">
-                      <Link href={dashboardHref} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white hover:bg-zinc-800/80 transition-all cursor-pointer font-bold">
+                  <div className="space-y-0.5">
+                    <DropdownMenuItem className="p-0 focus:bg-transparent">
+                      <Link href={dashboardHref} className="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-white hover:bg-zinc-800/80 transition-all cursor-pointer font-semibold">
                         <LayoutDashboard className="w-4 h-4 text-emerald-400 shrink-0" />
-                        <span className="font-bold text-white">Dashboard</span>
+                        <span>Dashboard</span>
                       </Link>
                     </DropdownMenuItem>
 
@@ -272,10 +276,10 @@ export function SiteHeader() {
                         await performFullLogout();
                         window.location.href = '/';
                       }}
-                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 transition-all cursor-pointer font-bold"
+                      className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-xs text-red-400 hover:bg-red-500/10 focus:bg-red-500/10 transition-all cursor-pointer font-semibold"
                     >
                       <LogOut className="w-4 h-4 text-red-400 shrink-0" />
-                      <span className="font-bold">Sign Out</span>
+                      <span>Sign Out</span>
                     </DropdownMenuItem>
                   </div>
                 </DropdownMenuContent>
@@ -283,102 +287,179 @@ export function SiteHeader() {
             )}
           </div>
 
+          {/* Mobile hamburger */}
           <button
-            onClick={() => setOpen(!open)}
-            className="md:hidden p-2 rounded-lg bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white"
+            onClick={() => setOpen((v) => !v)}
+            className="md:hidden relative w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 text-zinc-300 hover:text-white hover:border-zinc-700 active:scale-95 transition-all flex items-center justify-center"
             aria-label="Toggle menu"
+            aria-expanded={open}
           >
-            {open ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            <AnimatePresence mode="wait" initial={false}>
+              {open ? (
+                <motion.span
+                  key="close"
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <X className="w-5 h-5" />
+                </motion.span>
+              ) : (
+                <motion.span
+                  key="menu"
+                  initial={{ rotate: 90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: -90, opacity: 0 }}
+                  transition={{ duration: 0.15 }}
+                >
+                  <Menu className="w-5 h-5" />
+                </motion.span>
+              )}
+            </AnimatePresence>
           </button>
+        </div>
+      </header>
 
-        <AnimatePresence>
-          {open && (
+      {/* ── Mobile drawer — rendered OUTSIDE header so it can expand freely ── */}
+      <AnimatePresence>
+        {open && (
+          <>
+            {/* Backdrop */}
             <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="md:hidden border-b border-zinc-800 bg-zinc-950/95 backdrop-blur-lg px-4 py-4 space-y-3"
-            >
-              <div className="flex flex-col space-y-1">
-                {links.map((link) => (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setOpen(false)}
-                    className="px-3 py-2 rounded-lg text-sm text-zinc-300 hover:text-white hover:bg-zinc-900 transition-colors"
-                  >
-                    {link.label}
-                  </Link>
-                ))}
-              </div>
+              key="backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+              onClick={() => setOpen(false)}
+            />
 
-              <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2.5">
+            {/* Drawer panel */}
+            <motion.div
+              key="drawer"
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -16 }}
+              transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }}
+              className="fixed top-0 left-0 right-0 z-50 md:hidden"
+              style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0px)' }}
+            >
+              <div className="bg-zinc-950 border-b border-zinc-800 shadow-2xl">
+
+                {/* Drawer header row */}
+                <div className="h-16 px-4 flex items-center justify-between border-b border-zinc-800/60">
+                  <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img src="/only-bull-head-icon.png" alt="ETH" className="h-8 w-auto object-contain" />
+                    <div className="flex flex-col">
+                      <span className="text-sm font-semibold tracking-tight text-zinc-100 leading-tight">ELITE TRADING HUB</span>
+                      <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-500 leading-tight">Market Intelligence</span>
+                    </div>
+                  </Link>
+                  <button
+                    onClick={() => setOpen(false)}
+                    className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all"
+                    aria-label="Close menu"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* User info pill (logged in) */}
                 {isLoggedIn && (
-                  <div className="p-3 bg-zinc-900/90 border border-zinc-800 rounded-xl flex items-center justify-between shadow-sm">
-                    <div className="flex items-center gap-3 min-w-0">
+                  <div className="px-4 pt-4 pb-2">
+                    <div className="flex items-center gap-3 p-3 bg-zinc-900/80 border border-emerald-500/20 rounded-2xl">
                       {activeImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={activeImage} alt={activeName} className="w-8 h-8 rounded-full object-cover border border-emerald-500/50 shrink-0" />
+                        <img src={activeImage} alt={activeName} className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500/50 shrink-0" />
                       ) : (
-                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/40 shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-sm flex items-center justify-center border-2 border-emerald-500/40 shrink-0">
                           {initials}
                         </div>
                       )}
-                      <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-zinc-100 truncate">{activeName}</span>
-                        <span className="text-[10px] font-mono text-zinc-400 truncate">{activeEmail || session?.user?.email || fbUser?.email || "Verified User"}</span>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-bold text-zinc-100 truncate">{activeName}</p>
+                        <p className="text-[11px] font-mono text-zinc-400 truncate">{activeEmail}</p>
                       </div>
+                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">PRO</span>
                     </div>
                   </div>
                 )}
 
-                <a
-                  href="https://t.me/+la1ShIiNHJ5mYzk1"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={() => setOpen(false)}
-                  className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
-                >
-                  <Send className="w-4 h-4 text-white" />
-                  <span className="text-white font-bold">Join Telegram Community</span>
-                </a>
+                {/* Nav links */}
+                <nav className="px-4 py-3 space-y-0.5">
+                  {links.map((link, i) => (
+                    <motion.div
+                      key={link.href}
+                      initial={{ opacity: 0, x: -12 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.04, duration: 0.25, ease: 'easeOut' }}
+                    >
+                      <Link
+                        href={link.href}
+                        onClick={() => setOpen(false)}
+                        className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 active:bg-zinc-800 transition-all group"
+                      >
+                        <span>{link.label}</span>
+                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all" />
+                      </Link>
+                    </motion.div>
+                  ))}
+                </nav>
 
-                <Link
-                  href={dashboardHref}
-                  onClick={() => setOpen(false)}
-                  className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
-                >
-                  <LayoutDashboard className="w-4 h-4 text-emerald-400" />
-                  <span className="text-white font-bold tracking-wide">Dashboard</span>
-                </Link>
-
-                {!isLoggedIn ? (
-                  <Link
-                    href="/login"
+                {/* CTA buttons */}
+                <div className="px-4 pb-6 pt-2 space-y-3 border-t border-zinc-800/60">
+                  <a
+                    href="https://t.me/+la1ShIiNHJ5mYzk1"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     onClick={() => setOpen(false)}
-                    className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
+                    className="w-full h-12 px-4 rounded-2xl text-sm font-bold bg-[#0088cc] hover:bg-[#0077b5] active:scale-[0.98] text-white flex items-center justify-center gap-2.5 shadow-lg transition-all"
                   >
-                    <span className="text-zinc-950 font-bold">Login</span>
-                    <ArrowUpRight className="w-4 h-4 text-zinc-950" />
-                  </Link>
-                ) : (
-                  <button
-                    onClick={async () => {
-                      setOpen(false);
-                      await performFullLogout();
-                      window.location.href = '/';
-                    }}
-                    className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-400 flex items-center justify-center gap-2.5 shadow-sm transition-all cursor-pointer shrink-0"
-                  >
-                    <LogOut className="w-4 h-4 text-red-400" />
-                    <span className="text-red-400 font-bold">Sign Out</span>
-                  </button>
-                )}
+                    <Send className="w-4 h-4" />
+                    <span>Join Telegram Community</span>
+                  </a>
+
+                  {isLoggedIn ? (
+                    <div className="grid grid-cols-2 gap-3">
+                      <Link
+                        href={dashboardHref}
+                        onClick={() => setOpen(false)}
+                        className="h-12 px-4 rounded-2xl text-sm font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 active:scale-[0.98] flex items-center justify-center gap-2 shadow-md transition-all"
+                      >
+                        <LayoutDashboard className="w-4 h-4 text-emerald-400" />
+                        <span>Dashboard</span>
+                      </Link>
+                      <button
+                        onClick={async () => {
+                          setOpen(false);
+                          await performFullLogout();
+                          window.location.href = '/';
+                        }}
+                        className="h-12 px-4 rounded-2xl text-sm font-bold bg-red-500/10 hover:bg-red-500/20 active:scale-[0.98] border border-red-500/30 text-red-400 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" />
+                        <span>Sign Out</span>
+                      </button>
+                    </div>
+                  ) : (
+                    <Link
+                      href="/login"
+                      onClick={() => setOpen(false)}
+                      className="w-full h-12 px-4 rounded-2xl text-sm font-bold bg-white text-zinc-950 hover:bg-zinc-100 active:scale-[0.98] flex items-center justify-center gap-2 shadow-md transition-all"
+                    >
+                      <span>Login to Dashboard</span>
+                      <ArrowUpRight className="w-4 h-4" />
+                    </Link>
+                  )}
+                </div>
               </div>
             </motion.div>
-          )}
-        </AnimatePresence>
-      </header>
+          </>
+        )}
+      </AnimatePresence>
     </>
   );
 }
@@ -410,9 +491,7 @@ export function SiteFooter() {
           {/* Links Grid */}
           <div className="md:col-span-3 grid grid-cols-3 gap-6">
             <div>
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300 mb-3.5">
-                PLATFORM
-              </h4>
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300 mb-3.5">PLATFORM</h4>
               <ul className="space-y-2.5">
                 <li><Link href="/features" className="hover:text-zinc-100 transition-colors">NIFTY Setups</Link></li>
                 <li><Link href="/portfolio-management" className="hover:text-zinc-100 transition-colors">Portfolio PMS</Link></li>
@@ -424,14 +503,16 @@ export function SiteFooter() {
             </div>
 
             <div>
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300 mb-3.5">
-                COMPANY
-              </h4>
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300 mb-3.5">COMPANY</h4>
               <ul className="space-y-2.5">
                 <li><Link href="/about" className="hover:text-zinc-100 transition-colors">About Elite Hub</Link></li>
                 <li><Link href="/portfolio-management" className="hover:text-zinc-100 transition-colors font-medium text-emerald-400">Portfolio Management</Link></li>
                 <li><Link href="/knowledge" className="hover:text-zinc-100 transition-colors font-medium text-purple-400">Free Knowledge</Link></li>
-                <li><Link href="/build-webapp" className="hover:text-emerald-400 font-semibold text-emerald-400/90 transition-colors flex items-center gap-1">Build a WebApp <ArrowUpRight className="w-3 h-3 text-emerald-400" /></Link></li>
+                <li>
+                  <Link href="/build-webapp" className="hover:text-emerald-400 font-semibold text-emerald-400/90 transition-colors flex items-center gap-1">
+                    Build a WebApp <ArrowUpRight className="w-3 h-3 text-emerald-400" />
+                  </Link>
+                </li>
                 <li><Link href="/contact" className="hover:text-zinc-100 transition-colors">Contact Support</Link></li>
                 <li>
                   <a href="https://t.me/+la1ShIiNHJ5mYzk1" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-100 transition-colors flex items-center gap-1">
@@ -442,9 +523,7 @@ export function SiteFooter() {
             </div>
 
             <div>
-              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300 mb-3.5">
-                LEGAL & COMPLIANCE
-              </h4>
+              <h4 className="text-[11px] font-semibold uppercase tracking-wider text-zinc-300 mb-3.5">LEGAL & COMPLIANCE</h4>
               <ul className="space-y-2.5">
                 <li><Link href="/privacy" className="hover:text-zinc-100 transition-colors">Privacy Policy</Link></li>
                 <li><Link href="/terms" className="hover:text-zinc-100 transition-colors">Terms of Service</Link></li>
@@ -533,7 +612,7 @@ export function SectionHeading({ kicker, title, desc }: { kicker: string; title:
   );
 }
 
-export function LegalPage({ eyebrow = "LEGAL & COMPLIANCE", title, children }: { eyebrow?: string; title: string; children: React.ReactNode }) {
+export function LegalPage({ eyebrow = 'LEGAL & COMPLIANCE', title, children }: { eyebrow?: string; title: string; children: React.ReactNode }) {
   return (
     <PageFrame>
       <main className="py-12 px-4 max-w-4xl mx-auto">
