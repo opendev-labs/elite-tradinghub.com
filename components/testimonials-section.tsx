@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronLeft, ChevronRight, Star, Send, CheckCircle2, MessageSquare, Sparkles, Image as ImageIcon, X, ZoomIn, UploadCloud, ShieldCheck } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Star, Send, CheckCircle2, MessageSquare, Sparkles, Image as ImageIcon, X, ZoomIn, ZoomOut, UploadCloud, ShieldCheck } from 'lucide-react';
 import { pushRtdbData, subscribeRtdbData } from '@/lib/firebase';
 
 interface Testimonial {
@@ -89,12 +89,14 @@ export function TestimonialsSection() {
   const [formScreenshot, setFormScreenshot] = useState<string | null>(null);
   const [status, setStatus] = useState<'idle' | 'submitting' | 'success'>('idle');
   const [selectedScreenshot, setSelectedScreenshot] = useState<string | null>(null);
+  const [isZoomed, setIsZoomed] = useState(false);
 
   // Keyboard Escape listener to close lightbox modal
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setSelectedScreenshot(null);
+        setIsZoomed(false);
       }
     };
     if (selectedScreenshot) {
@@ -287,7 +289,10 @@ export function TestimonialsSection() {
               {/* Attached Trade Screenshot Preview */}
               {currentCenter?.screenshotURL && (
                 <div
-                  onClick={() => setSelectedScreenshot(currentCenter.screenshotURL || null)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedScreenshot(currentCenter.screenshotURL || null);
+                  }}
                   className="w-full h-44 sm:h-48 rounded-xl bg-zinc-950 border border-emerald-500/30 overflow-hidden relative group cursor-pointer shadow-inner mb-2"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -296,8 +301,8 @@ export function TestimonialsSection() {
                     alt="Trade Screenshot"
                     className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
-                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between">
+                  <div className="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/30 to-transparent opacity-80 group-hover:opacity-60 transition-opacity pointer-events-none" />
+                  <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
                     <span className="text-[10px] font-mono text-emerald-300 bg-zinc-950/90 px-2.5 py-1 rounded-md border border-emerald-500/30 flex items-center gap-1.5 backdrop-blur-md">
                       <ImageIcon className="w-3 h-3 text-emerald-400" /> Attached Trade Proof
                     </span>
@@ -410,11 +415,17 @@ export function TestimonialsSection() {
                 </div>
 
                 {t.screenshotURL ? (
-                  <div className="w-full h-40 rounded-xl bg-zinc-950 border border-zinc-800 overflow-hidden relative group-hover:border-emerald-500/50 transition-colors">
+                  <div
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedScreenshot(t.screenshotURL || null);
+                    }}
+                    className="w-full h-40 rounded-xl bg-zinc-950 border border-zinc-800 overflow-hidden relative group-hover:border-emerald-500/50 transition-colors cursor-pointer"
+                  >
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img src={t.screenshotURL} alt={t.name} className="w-full h-full object-cover object-top transition-transform duration-300 group-hover:scale-105" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent" />
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between">
+                    <div className="absolute inset-0 bg-gradient-to-t from-zinc-950/90 via-transparent to-transparent pointer-events-none" />
+                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
                       <span className="text-[10px] font-mono text-emerald-400 bg-zinc-950/80 px-2 py-0.5 rounded border border-emerald-500/30">
                         {t.verificationTag || 'Trade Proof'}
                       </span>
@@ -558,50 +569,48 @@ export function TestimonialsSection() {
         </div>
       </div>
 
-      {/* High-Resolution Screenshot Fullscreen Lightbox Modal */}
-      <AnimatePresence>
-        {selectedScreenshot && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.2 }}
-            onClick={() => setSelectedScreenshot(null)}
-            className="fixed inset-0 z-[999] bg-black/95 backdrop-blur-xl flex items-center justify-center p-3 sm:p-6 cursor-zoom-out"
+      {/* Fullscreen Screenshot Lightbox Modal (Vishwa Leader Gallery Mechanism) */}
+      {selectedScreenshot && (
+        <div
+          className="fixed inset-0 z-[999999] bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center p-3 sm:p-6 cursor-pointer select-none"
+          onClick={() => setSelectedScreenshot(null)}
+        >
+          {/* Close Button Top Right */}
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedScreenshot(null);
+            }}
+            className="fixed top-4 right-4 sm:top-6 sm:right-6 text-white text-2xl sm:text-3xl font-bold w-12 h-12 z-[1000000] cursor-pointer hover:bg-red-600 hover:border-red-500 bg-zinc-900/90 rounded-full border border-white/20 flex items-center justify-center shadow-2xl transition-all"
+            aria-label="Close"
+            title="Close (ESC)"
           >
-            {/* Prominent Floating Close Cross (X) Button in Top Right */}
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedScreenshot(null);
-              }}
-              className="fixed top-4 right-4 sm:top-6 sm:right-6 z-[1000] w-11 h-11 rounded-full bg-zinc-800/90 border border-zinc-700 text-zinc-100 hover:bg-red-500 hover:text-white flex items-center justify-center transition-all shadow-2xl cursor-pointer active:scale-95"
-              aria-label="Close Screenshot Modal"
-            >
-              <X className="w-6 h-6" />
-            </button>
+            ✕
+          </button>
 
-            {/* Fullscreen Image Container */}
-            <div
-              className="relative max-w-5xl w-full max-h-[92vh] flex flex-col items-center justify-center"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="bg-zinc-950 border border-zinc-800/90 rounded-2xl overflow-hidden p-2 shadow-2xl max-h-[85vh] w-full flex items-center justify-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={selectedScreenshot}
-                  alt="Full Resolution Trade Screenshot"
-                  className="max-h-[80vh] w-auto max-w-full object-contain rounded-xl shadow-2xl"
-                />
-              </div>
-              <div className="flex items-center gap-2 mt-3 text-xs text-zinc-400 font-mono">
-                <ShieldCheck className="w-4 h-4 text-emerald-400" />
-                <span>Verified Client Trade Proof • Press ESC or click X to close</span>
-              </div>
+          {/* Fullscreen Image Container */}
+          <div
+            className="flex flex-col items-center justify-center max-w-7xl max-h-[92vh] w-full h-full"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-center w-full h-full p-2">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={selectedScreenshot}
+                alt="Full Resolution Trade Proof"
+                className="max-w-[96vw] max-h-[86vh] w-auto h-auto object-contain rounded-xl shadow-2xl border border-zinc-800 bg-zinc-950"
+                onError={(e) => {
+                  console.error('Failed to render screenshot image:', selectedScreenshot);
+                }}
+              />
             </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <p className="text-xs text-zinc-400 font-mono mt-2 text-center bg-zinc-900/80 px-4 py-1.5 rounded-full border border-zinc-800">
+              Verified Client Trade Proof • Click background or ✕ to close
+            </p>
+          </div>
+        </div>
+      )}
     </section>
   );
 }
