@@ -172,10 +172,10 @@ export function SiteHeader() {
       {/* ── Sticky header bar ── */}
       <header
         suppressHydrationWarning
-        className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+        className={`sticky top-0 z-[200] w-full transition-all duration-300 ${
           scrolled
-            ? 'bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-800/80 shadow-[0_1px_24px_rgba(0,0,0,0.5)]'
-            : 'bg-zinc-950/80 backdrop-blur-md border-b border-zinc-800/40'
+            ? 'bg-zinc-950/98 backdrop-blur-xl border-b border-zinc-800/80 shadow-[0_4px_24px_rgba(0,0,0,0.6)]'
+            : 'bg-zinc-950/90 backdrop-blur-md border-b border-zinc-800/40'
         }`}
       >
         <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
@@ -320,147 +320,101 @@ export function SiteHeader() {
             </AnimatePresence>
           </button>
         </div>
-      </header>
 
-      {/* ── Mobile drawer — rendered OUTSIDE header so it can expand freely ── */}
-      <AnimatePresence>
-        {open && (
-          <>
-            {/* Backdrop */}
+        {/* ── Accordion Mobile Dropdown attached directly under header ── */}
+        <AnimatePresence>
+          {open && (
             <motion.div
-              key="backdrop"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-[199] bg-black/60 backdrop-blur-sm md:hidden"
-              onClick={() => setOpen(false)}
-            />
-
-            {/* Drawer panel */}
-            <motion.div
-              key="drawer"
-              initial={{ opacity: 0, y: -16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }}
-              className="fixed top-0 left-0 right-0 z-[200] md:hidden"
-              style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0px)' }}
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+              className="md:hidden overflow-hidden border-t border-zinc-800/80 bg-zinc-950/98 backdrop-blur-2xl px-4 py-4 space-y-3.5 shadow-2xl"
             >
-              <div className="bg-zinc-950 border-b border-zinc-800 shadow-2xl">
-
-                {/* Drawer header row */}
-                <div className="h-16 px-4 flex items-center justify-between border-b border-zinc-800/60">
-                  <Link href="/" className="flex items-center gap-2.5" onClick={() => setOpen(false)}>
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img src="/only-bull-head-icon.png" alt="ETH" className="h-8 w-auto object-contain" />
-                    <div className="flex flex-col">
-                      <span className="text-sm font-semibold tracking-tight text-zinc-100 leading-tight">ELITE TRADING HUB</span>
-                      <span className="text-[9px] font-mono uppercase tracking-widest text-zinc-500 leading-tight">Market Intelligence</span>
-                    </div>
-                  </Link>
-                  <button
+              <div className="flex flex-col space-y-1">
+                {links.map((link) => (
+                  <Link
+                    key={link.href}
+                    href={link.href}
                     onClick={() => setOpen(false)}
-                    className="w-10 h-10 rounded-xl bg-zinc-900 border border-zinc-800 flex items-center justify-center text-zinc-400 hover:text-white active:scale-95 transition-all"
-                    aria-label="Close menu"
+                    className="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 active:bg-zinc-800 transition-colors"
                   >
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
+                    <span>{link.label}</span>
+                    <ChevronRight className="w-4 h-4 text-zinc-600" />
+                  </Link>
+                ))}
+              </div>
 
-                {/* User info pill (logged in) */}
+              <div className="pt-3 border-t border-zinc-800/80 flex flex-col gap-2.5">
                 {isLoggedIn && (
-                  <div className="px-4 pt-4 pb-2">
-                    <div className="flex items-center gap-3 p-3 bg-zinc-900/80 border border-emerald-500/20 rounded-2xl">
+                  <div className="p-3 bg-zinc-900/90 border border-emerald-500/20 rounded-xl flex items-center justify-between shadow-sm">
+                    <div className="flex items-center gap-3 min-w-0">
                       {activeImage ? (
                         // eslint-disable-next-line @next/next/no-img-element
-                        <img src={activeImage} alt={activeName} className="w-10 h-10 rounded-full object-cover border-2 border-emerald-500/50 shrink-0" />
+                        <img src={activeImage} alt={activeName} className="w-8 h-8 rounded-full object-cover border border-emerald-500/50 shrink-0" />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-sm flex items-center justify-center border-2 border-emerald-500/40 shrink-0">
+                        <div className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-300 font-bold text-xs flex items-center justify-center border border-emerald-500/40 shrink-0">
                           {initials}
                         </div>
                       )}
-                      <div className="flex-1 min-w-0">
-                        <p className="text-sm font-bold text-zinc-100 truncate">{activeName}</p>
-                        <p className="text-[11px] font-mono text-zinc-400 truncate">{activeEmail}</p>
+                      <div className="flex flex-col min-w-0">
+                        <span className="text-xs font-bold text-zinc-100 truncate">{activeName}</span>
+                        <span className="text-[10px] font-mono text-zinc-400 truncate">{activeEmail || 'Verified User'}</span>
                       </div>
-                      <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">PRO</span>
                     </div>
+                    <span className="text-[9px] font-bold text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full shrink-0">PRO</span>
                   </div>
                 )}
 
-                {/* Nav links */}
-                <nav className="px-4 py-3 space-y-0.5">
-                  {links.map((link, i) => (
-                    <motion.div
-                      key={link.href}
-                      initial={{ opacity: 0, x: -12 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.04, duration: 0.25, ease: 'easeOut' }}
-                    >
-                      <Link
-                        href={link.href}
-                        onClick={() => setOpen(false)}
-                        className="flex items-center justify-between px-4 py-3.5 rounded-xl text-sm font-medium text-zinc-300 hover:text-white hover:bg-zinc-900 active:bg-zinc-800 transition-all group"
-                      >
-                        <span>{link.label}</span>
-                        <ChevronRight className="w-4 h-4 text-zinc-600 group-hover:text-zinc-400 group-hover:translate-x-0.5 transition-all" />
-                      </Link>
-                    </motion.div>
-                  ))}
-                </nav>
+                <a
+                  href="https://t.me/+la1ShIiNHJ5mYzk1"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setOpen(false)}
+                  className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-[#0088cc] hover:bg-[#0077b5] text-white flex items-center justify-center gap-2.5 shadow-md transition-all shrink-0"
+                >
+                  <Send className="w-4 h-4 text-white" />
+                  <span className="text-white font-bold">Join Telegram Community</span>
+                </a>
 
-                {/* CTA buttons */}
-                <div className="px-4 pb-6 pt-2 space-y-3 border-t border-zinc-800/60">
-                  <a
-                    href="https://t.me/+la1ShIiNHJ5mYzk1"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                <div className="grid grid-cols-2 gap-2.5">
+                  <Link
+                    href={dashboardHref}
                     onClick={() => setOpen(false)}
-                    className="w-full h-12 px-4 rounded-2xl text-sm font-bold bg-[#0088cc] hover:bg-[#0077b5] active:scale-[0.98] text-white flex items-center justify-center gap-2.5 shadow-lg transition-all"
+                    className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
                   >
-                    <Send className="w-4 h-4" />
-                    <span>Join Telegram Community</span>
-                  </a>
+                    <LayoutDashboard className="w-4 h-4 text-emerald-400" />
+                    <span className="text-white font-bold tracking-wide">Dashboard</span>
+                  </Link>
 
-                  {isLoggedIn ? (
-                    <div className="grid grid-cols-2 gap-3">
-                      <Link
-                        href={dashboardHref}
-                        onClick={() => setOpen(false)}
-                        className="h-12 px-4 rounded-2xl text-sm font-bold bg-zinc-900 border border-zinc-700/80 text-white hover:bg-zinc-800 active:scale-[0.98] flex items-center justify-center gap-2 shadow-md transition-all"
-                      >
-                        <LayoutDashboard className="w-4 h-4 text-emerald-400" />
-                        <span>Dashboard</span>
-                      </Link>
-                      <button
-                        onClick={async () => {
-                          setOpen(false);
-                          await performFullLogout();
-                          window.location.href = '/';
-                        }}
-                        className="h-12 px-4 rounded-2xl text-sm font-bold bg-red-500/10 hover:bg-red-500/20 active:scale-[0.98] border border-red-500/30 text-red-400 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer"
-                      >
-                        <LogOut className="w-4 h-4" />
-                        <span>Sign Out</span>
-                      </button>
-                    </div>
-                  ) : (
+                  {!isLoggedIn ? (
                     <Link
                       href="/login"
                       onClick={() => setOpen(false)}
-                      className="w-full h-12 px-4 rounded-2xl text-sm font-bold bg-white text-zinc-950 hover:bg-zinc-100 active:scale-[0.98] flex items-center justify-center gap-2 shadow-md transition-all"
+                      className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-white text-zinc-950 hover:bg-zinc-100 flex items-center justify-center gap-2 shadow-md transition-all shrink-0"
                     >
-                      <span>Login to Dashboard</span>
-                      <ArrowUpRight className="w-4 h-4" />
+                      <span className="text-zinc-950 font-bold">Login</span>
+                      <ArrowUpRight className="w-4 h-4 text-zinc-950" />
                     </Link>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        setOpen(false);
+                        await performFullLogout();
+                        window.location.href = '/';
+                      }}
+                      className="w-full h-11 px-4 rounded-xl text-xs font-bold bg-red-500/15 hover:bg-red-500/25 border border-red-500/40 text-red-400 flex items-center justify-center gap-2 shadow-sm transition-all cursor-pointer shrink-0"
+                    >
+                      <LogOut className="w-4 h-4 text-red-400" />
+                      <span className="text-red-400 font-bold">Sign Out</span>
+                    </button>
                   )}
                 </div>
               </div>
             </motion.div>
-          </>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </header>
     </>
   );
 }
