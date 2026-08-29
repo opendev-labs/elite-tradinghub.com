@@ -583,11 +583,6 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-            <div className="pt-2 text-center group-data-[collapsible=icon]:hidden">
-              <Link href="/build-webapp" className="text-[10px] font-mono text-zinc-600 hover:text-emerald-400 transition-colors">
-                made by opendev-labs
-              </Link>
-            </div>
           </SidebarFooter>
         </Sidebar>
 

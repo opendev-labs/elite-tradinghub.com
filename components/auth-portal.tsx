@@ -329,9 +329,6 @@ export function AuthPortal() {
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
                       Client Gateway
                     </p>
-                    <Link href="/build-webapp" className="text-[9px] font-mono text-zinc-600 hover:text-emerald-400 transition-colors block mt-0.5">
-                      made by opendev-labs
-                    </Link>
                   </div>
                 </SidebarMenuButton>
               </SidebarMenuItem>
