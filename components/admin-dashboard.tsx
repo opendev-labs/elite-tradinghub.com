@@ -245,6 +245,43 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
   // CRM Tasks State (Live RTDB)
   const [crmTasks, setCrmTasks] = useState<any[]>([]);
 
+  // Client Management Modal State
+  const [managingClient, setManagingClient] = useState<any>(null);
+  const [managePlan, setManagePlan] = useState("PRO");
+  const [manageStatus, setManageStatus] = useState("ACTIVE");
+  const [managePmsAccess, setManagePmsAccess] = useState(true);
+  const [manageAlgoAccess, setManageAlgoAccess] = useState(true);
+
+  const handleOpenManageModal = (c: any) => {
+    setManagingClient(c);
+    setManagePlan(c.plan || "PRO");
+    setManageStatus(c.status || "ACTIVE");
+    setManagePmsAccess(c.pmsAccess ?? true);
+    setManageAlgoAccess(c.algoAccess ?? true);
+  };
+
+  const handleSaveClientManagement = async () => {
+    if (!managingClient) return;
+    const updatedData = {
+      plan: managePlan,
+      status: manageStatus,
+      pmsAccess: managePmsAccess,
+      algoAccess: manageAlgoAccess,
+      updatedAt: new Date().toISOString(),
+    };
+    if (managingClient.rtdbKey) {
+      await updateRtdbData(`clients/${managingClient.rtdbKey}`, updatedData).catch(() => {});
+    }
+    await pushRtdbData("activity", {
+      user: user?.displayName || "Administrator",
+      action: `Updated client ${managingClient.name} (${managePlan} / ${manageStatus})`,
+      time: "Just now",
+    }).catch(() => {});
+
+    toast(`Client ${managingClient.name} updated to ${managePlan} plan (${manageStatus})!`, "success");
+    setManagingClient(null);
+  };
+
   // Signal broadcaster state
   const [symbol, setSymbol]   = useState("NIFTY 50");
   const [bias, setBias]       = useState("BULLISH");
@@ -1909,56 +1946,141 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
 
             {/* ── 5. CLIENTS ── */}
             {tab === "Clients" && (
-              <div className="bg-zinc-900 border border-zinc-800 rounded-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-5 py-4 border-b border-zinc-800">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm space-y-0">
+                {/* Header Bar */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 sm:px-5 py-4 border-b border-zinc-800">
                   <div>
-                    <h3 className="text-sm font-semibold text-zinc-100">Client Directory</h3>
-                    <p className="text-xs text-zinc-500 mt-0.5">{online} online · {active} active · {CLIENTS.length} total</p>
+                    <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                      <UsersIcon className="w-4 h-4 text-emerald-400" /> Client Directory
+                    </h3>
+                    <p className="text-xs text-zinc-400 mt-1 font-mono">
+                      <span className="text-emerald-400 font-bold">{online} online</span> • <span className="text-blue-400 font-bold">{active} active</span> • <span className="text-zinc-300 font-bold">{filteredClients.length} total</span>
+                    </p>
                   </div>
-                  <div className="relative">
-                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-zinc-600" />
+                  <div className="relative w-full sm:w-64">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-zinc-500" />
                     <input
-                      value={search} onChange={e => setSearch(e.target.value)}
-                      placeholder="Search clients…"
-                      className="h-8 w-56 pl-8 pr-3 text-xs bg-zinc-950 border border-zinc-800 rounded-md text-zinc-300 placeholder-zinc-600 focus:border-zinc-700 focus:outline-none"
+                      value={search}
+                      onChange={e => setSearch(e.target.value)}
+                      placeholder="Search clients by name, email or ID…"
+                      className="h-9 w-full pl-8 pr-3 text-xs bg-zinc-950 border border-zinc-800 rounded-lg text-zinc-200 placeholder-zinc-500 focus:border-zinc-700 focus:outline-none"
                     />
                   </div>
                 </div>
 
-                <div className="hidden sm:grid grid-cols-[1fr_1fr_auto_auto_auto] gap-4 px-5 py-2.5 border-b border-zinc-800/50">
-                  {["Client", "Contact", "Plan", "Status", "Action"].map(h => (
-                    <span key={h} className="text-[10px] font-semibold text-zinc-600 uppercase tracking-wider">{h}</span>
-                  ))}
+                {/* Mobile View (Small Screens <640px) */}
+                <div className="block sm:hidden divide-y divide-zinc-800/60">
+                  {filteredClients.length > 0 ? (
+                    filteredClients.map(c => (
+                      <div key={c.rtdbKey || c.id} className="p-4 space-y-3 bg-zinc-950/40 hover:bg-zinc-900/60 transition-colors">
+                        {/* Top info row */}
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3 min-w-0">
+                            <div className="relative shrink-0">
+                              <div className="w-9 h-9 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-xs">
+                                {c.name.charAt(0).toUpperCase()}
+                              </div>
+                              {c.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-zinc-950" />}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-xs font-bold text-zinc-100 truncate">{c.name}</p>
+                              <p className="text-[10px] text-zinc-500 font-mono truncate">{c.id}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <span className="text-[9px] font-mono font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                              {c.plan}
+                            </span>
+                            <span className={`text-[9px] font-mono font-bold px-2 py-0.5 rounded border ${
+                              c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                            }`}>
+                              {c.status}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Email & Joined info */}
+                        <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                          <span className="truncate max-w-[200px]">{c.email}</span>
+                          <span>Joined {c.joined}</span>
+                        </div>
+
+                        {/* Working Manage Account Button */}
+                        <button
+                          onClick={() => handleOpenManageModal(c)}
+                          className="w-full py-2 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-xs rounded-lg flex items-center justify-center gap-1.5 transition-all shadow-sm"
+                        >
+                          <Settings className="w-3.5 h-3.5" />
+                          <span>Manage Account & Plan</span>
+                        </button>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-8 text-center text-zinc-500 text-xs">
+                      No clients found matching search query.
+                    </div>
+                  )}
                 </div>
 
-                <div className="divide-y divide-zinc-800/40">
-                  {filteredClients.map(c => (
-                    <div key={c.id} className="flex flex-col sm:grid sm:grid-cols-[1fr_1fr_auto_auto_auto] gap-3 sm:gap-4 sm:items-center px-5 py-3.5 hover:bg-zinc-800/20 transition-colors">
-                      <div className="flex items-center gap-3">
-                        <div className="relative flex-shrink-0">
-                          <div className="w-8 h-8 rounded-lg bg-zinc-800 border border-zinc-700 flex items-center justify-center text-sm font-bold text-zinc-300">
-                            {c.name.charAt(0)}
-                          </div>
-                          {c.online && <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-zinc-900" />}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-zinc-200">{c.name}</p>
-                          <p className="text-[10px] text-zinc-600 font-mono">{c.id}</p>
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-xs text-zinc-400">{c.email}</p>
-                        <p className="text-[10px] text-zinc-600 mt-0.5">Joined {c.joined}</p>
-                      </div>
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-zinc-800 border border-zinc-700 text-zinc-400 uppercase tracking-wider w-fit">{c.plan}</span>
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-md border uppercase tracking-wider w-fit ${c.status === "ACTIVE" ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" : "bg-zinc-800 border-zinc-700 text-zinc-500"}`}>
-                        {c.status}
-                      </span>
-                      <button className="text-xs font-medium text-zinc-400 hover:text-zinc-200 border border-zinc-800 hover:border-zinc-700 bg-zinc-950 rounded-lg px-3 py-1.5 transition-colors w-fit">
-                        Manage
-                      </button>
-                    </div>
-                  ))}
+                {/* Desktop & Tablet Table View (>=640px) */}
+                <div className="hidden sm:block overflow-x-auto min-w-0">
+                  <table className="w-full text-left text-xs text-zinc-300 min-w-[700px]">
+                    <thead className="bg-zinc-950/80 border-b border-zinc-800 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                      <tr>
+                        <th className="py-3 px-4 whitespace-nowrap">Client Name</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Contact & Email</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Subscription Plan</th>
+                        <th className="py-3 px-4 whitespace-nowrap">Account Status</th>
+                        <th className="py-3 px-4 text-right whitespace-nowrap">Manage Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-zinc-800/60">
+                      {filteredClients.map(c => (
+                        <tr key={c.rtdbKey || c.id} className="hover:bg-zinc-800/30 transition-colors">
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <div className="flex items-center gap-3">
+                              <div className="relative shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center text-xs font-bold">
+                                  {c.name.charAt(0).toUpperCase()}
+                                </div>
+                                {c.online && <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-emerald-400 border-2 border-zinc-900" />}
+                              </div>
+                              <div>
+                                <p className="text-xs font-bold text-zinc-100">{c.name}</p>
+                                <p className="text-[10px] text-zinc-500 font-mono">{c.id}</p>
+                              </div>
+                            </div>
+                          </td>
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <p className="text-xs text-zinc-300 font-mono">{c.email}</p>
+                            <p className="text-[10px] text-zinc-500 font-mono">Joined {c.joined}</p>
+                          </td>
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className="text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20">
+                              {c.plan}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 whitespace-nowrap">
+                            <span className={`text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md border ${
+                              c.status === "ACTIVE" ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/20" : "bg-zinc-800 text-zinc-500 border-zinc-700"
+                            }`}>
+                              {c.status}
+                            </span>
+                          </td>
+                          <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                            <button
+                              onClick={() => handleOpenManageModal(c)}
+                              className="text-xs font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 bg-emerald-500/10 hover:bg-emerald-500/20 rounded-lg px-3 py-1.5 transition-all shadow-sm inline-flex items-center gap-1.5"
+                            >
+                              <Settings className="w-3.5 h-3.5" />
+                              <span>Manage</span>
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             )}
@@ -2199,6 +2321,131 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* Client Management Modal */}
+          {managingClient && (
+            <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-lg w-full shadow-2xl space-y-5">
+                {/* Header */}
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-4">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-full bg-purple-500/20 text-purple-300 border border-purple-500/30 flex items-center justify-center font-bold text-sm shrink-0">
+                      {managingClient.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <h3 className="text-base font-bold text-zinc-100 truncate">{managingClient.name}</h3>
+                      <p className="text-xs text-zinc-400 font-mono truncate">{managingClient.email} • ID: {managingClient.id}</p>
+                    </div>
+                  </div>
+                  <button onClick={() => setManagingClient(null)} className="text-zinc-500 hover:text-zinc-300 p-1">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Plan & Status Controls */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">Subscription Tier Plan</label>
+                    <select
+                      value={managePlan}
+                      onChange={e => setManagePlan(e.target.value)}
+                      className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-bold text-purple-400 focus:outline-none focus:border-zinc-700"
+                    >
+                      <option value="ENTERPRISE">ENTERPRISE Tier ($1,499)</option>
+                      <option value="PRO">PRO Trader Tier ($499)</option>
+                      <option value="STANDARD">STANDARD Plan ($199)</option>
+                      <option value="FREE">FREE Account</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider">Account Status</label>
+                    <select
+                      value={manageStatus}
+                      onChange={e => setManageStatus(e.target.value)}
+                      className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-bold text-emerald-400 focus:outline-none focus:border-zinc-700"
+                    >
+                      <option value="ACTIVE">ACTIVE Member</option>
+                      <option value="SUSPENDED">SUSPENDED</option>
+                      <option value="INACTIVE">INACTIVE</option>
+                    </select>
+                  </div>
+                </div>
+
+                {/* Access Feature Toggles */}
+                <div className="space-y-3 pt-2 border-t border-zinc-800/80">
+                  <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Platform Module Permissions</span>
+                  <div className="grid grid-cols-2 gap-3">
+                    <button
+                      type="button"
+                      onClick={() => setManagePmsAccess(!managePmsAccess)}
+                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
+                        managePmsAccess ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300' : 'bg-zinc-950 border-zinc-800 text-zinc-500'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold">SEBI PMS Access</p>
+                        <p className="text-[10px] text-zinc-400">Portfolio Engine</p>
+                      </div>
+                      <CheckCircle2 className={`w-4 h-4 shrink-0 ${managePmsAccess ? 'text-emerald-400' : 'text-zinc-600'}`} />
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setManageAlgoAccess(!manageAlgoAccess)}
+                      className={`p-3 rounded-xl border text-left flex items-center justify-between transition-all ${
+                        manageAlgoAccess ? 'bg-purple-500/10 border-purple-500/30 text-purple-300' : 'bg-zinc-950 border-zinc-800 text-zinc-500'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <p className="text-xs font-bold">Algo Signal Feed</p>
+                        <p className="text-[10px] text-zinc-400">Live Terminal Signals</p>
+                      </div>
+                      <CheckCircle2 className={`w-4 h-4 shrink-0 ${manageAlgoAccess ? 'text-purple-400' : 'text-zinc-600'}`} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Direct Action Footer */}
+                <div className="pt-4 border-t border-zinc-800 flex items-center justify-between gap-3">
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (confirm(`Are you sure you want to delete client account ${managingClient.name}?`)) {
+                        if (managingClient.rtdbKey) {
+                          await writeRtdbData(`clients/${managingClient.rtdbKey}`, null);
+                        }
+                        toast(`Client ${managingClient.name} removed`, "success");
+                        setManagingClient(null);
+                      }
+                    }}
+                    className="h-9 px-3 bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-semibold rounded-lg flex items-center gap-1.5 transition-colors"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Delete Account</span>
+                  </button>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setManagingClient(null)}
+                      className="h-9 px-4 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 text-xs font-medium rounded-lg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveClientManagement}
+                      className="h-9 px-5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs rounded-lg transition-colors shadow-md shadow-emerald-500/20 flex items-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>Save & Sync Changes</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}
