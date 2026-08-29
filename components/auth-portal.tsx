@@ -118,6 +118,7 @@ const NAV = [
 export function AuthPortal() {
   const [user, setUser]       = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [redirectChecking, setRedirectChecking] = useState(true);
   const [mounted, setMounted] = useState(false);
   const [tab, setTab]         = useState("Dashboard");
   const [email, setEmail]     = useState("");
@@ -172,12 +173,14 @@ export function AuthPortal() {
     });
 
     // 4. Handle Mobile Google OAuth Redirect result & NextAuth session
+    // This MUST complete before showing login screen to prevent redirect loop
     checkGoogleRedirectResult().then(userData => {
       if (userData) {
         const u = { email: userData.email, name: userData.name, image: userData.image || null, plan: "PRO" };
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
+        setRedirectChecking(false);
         toast("Welcome!", "success");
         return;
       }
@@ -191,8 +194,8 @@ export function AuthPortal() {
           }
         })
         .catch(() => {})
-        .finally(() => setLoading(false));
-    }).catch(() => setLoading(false));
+        .finally(() => { setLoading(false); setRedirectChecking(false); });
+    }).catch(() => { setLoading(false); setRedirectChecking(false); });
 
     return () => unsubFb();
   }, [toast]);
@@ -272,10 +275,13 @@ export function AuthPortal() {
   const lots = diff > 0 ? Math.floor(risk / (diff * ls)) : 0;
   const reqMarg = lots * ls * parseFloat(entryPx.replace(/,/g, "")) * 0.18;
 
-  if (!mounted || loading) {
+  if (!mounted || loading || redirectChecking) {
     return (
-      <div className="min-h-screen bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-3">
         <div className="w-8 h-8 border-2 border-zinc-700 border-t-emerald-400 rounded-full animate-spin" />
+        {redirectChecking && (
+          <p className="text-xs text-zinc-500 font-mono animate-pulse">Completing sign-in…</p>
+        )}
       </div>
     );
   }

@@ -125,8 +125,8 @@ export function SiteHeader() {
                   localStorage.setItem('eth_client_session', JSON.stringify(u));
                   localStorage.setItem('eth_user_session', JSON.stringify(res.user));
                 } catch {}
-                if (window.location.pathname === '/login') window.location.reload();
-                else window.location.replace('/login');
+                // Always redirect to login page with auth flag so AuthPortal picks up the new session
+                window.location.replace('/login');
               }
             } catch (e) {
               console.error('GIS credential sign-in error:', e);
@@ -332,7 +332,7 @@ export function SiteHeader() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
+              className="fixed inset-0 z-[199] bg-black/60 backdrop-blur-sm md:hidden"
               onClick={() => setOpen(false)}
             />
 
@@ -343,7 +343,7 @@ export function SiteHeader() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ type: 'spring', stiffness: 400, damping: 38, mass: 0.8 }}
-              className="fixed top-0 left-0 right-0 z-50 md:hidden"
+              className="fixed top-0 left-0 right-0 z-[200] md:hidden"
               style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0px)' }}
             >
               <div className="bg-zinc-950 border-b border-zinc-800 shadow-2xl">
