@@ -132,7 +132,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <title>Elite Trading Hub — Decision-Grade Market Intelligence</title>
         <meta name="google-site-verification" content="HKqgjze8W-QJ5QabDBBhTHaC3JrRDi_xg5_u2Fb5WyU" />
@@ -238,7 +238,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
           `}
         </Script>
       </head>
-      <body className={`${interFont.variable} ${interFont.className}`}>
+      <body className={`${interFont.variable} ${interFont.className}`} suppressHydrationWarning>
         <AuthProvider>
           {children}
         </AuthProvider>
