@@ -171,6 +171,7 @@ export function SiteHeader() {
 
       {/* ── Sticky header bar ── */}
       <header
+        suppressHydrationWarning
         className={`sticky top-0 z-50 w-full transition-all duration-300 ${
           scrolled
             ? 'bg-zinc-950/95 backdrop-blur-xl border-b border-zinc-800/80 shadow-[0_1px_24px_rgba(0,0,0,0.5)]'

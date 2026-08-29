@@ -55,7 +55,7 @@ export function Header() {
 export function MarketStrip() {
   const items = [...market, ...market, ...market, ...market]
   return (
-    <div className="market-bulletin-strip" aria-label="Live Index Ticker Bulletin">
+    <div className="market-bulletin-strip" aria-label="Live Index Ticker Bulletin" suppressHydrationWarning>
       <div className="bulletin-badge">
         <span className="live-dot" /> LIVE
       </div>

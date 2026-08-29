@@ -135,6 +135,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
     <html lang="en" className="dark" suppressHydrationWarning>
       <head>
         <title>Elite Trading Hub — Decision-Grade Market Intelligence</title>
+        <meta name="darkreader-lock" content="the design is already dark" />
         <meta name="google-site-verification" content="HKqgjze8W-QJ5QabDBBhTHaC3JrRDi_xg5_u2Fb5WyU" />
         <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
         <meta name="description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics." />
