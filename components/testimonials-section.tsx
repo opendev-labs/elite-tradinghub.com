@@ -578,7 +578,8 @@ export function TestimonialsSection() {
       {/* Fullscreen Screenshot Lightbox Modal (Portal to document.body) */}
       {mounted && selectedScreenshot && typeof document !== 'undefined' && createPortal(
         <div
-          className="fixed inset-0 z-[99999999] bg-black/95 backdrop-blur-2xl flex flex-col items-center justify-between p-3 sm:p-6 select-none overflow-hidden"
+          className="fixed inset-0 z-[99999999] bg-black/97 backdrop-blur-2xl flex flex-col items-center justify-between select-none overflow-hidden"
+          style={{ height: '100dvh' }}
           onClick={() => {
             setSelectedScreenshot(null);
             setIsZoomed(false);
@@ -592,7 +593,7 @@ export function TestimonialsSection() {
         >
           {/* Header Toolbar */}
           <div
-            className="w-full max-w-7xl flex items-center justify-between z-[10000000] py-2 px-4 bg-zinc-900/80 backdrop-blur-xl border border-zinc-800 rounded-2xl shadow-2xl mb-2"
+            className="w-full flex items-center justify-between z-[10000000] py-2 px-3 sm:px-4 bg-zinc-900/90 backdrop-blur-xl border-b border-zinc-800 shadow-2xl shrink-0"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2">
@@ -602,11 +603,11 @@ export function TestimonialsSection() {
               </span>
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 sm:gap-2">
               <button
                 type="button"
                 onClick={() => setIsZoomed(!isZoomed)}
-                className="h-9 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 flex items-center gap-1.5 transition-all cursor-pointer"
+                className="h-8 sm:h-9 px-2.5 sm:px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 flex items-center gap-1.5 transition-all cursor-pointer"
                 title={isZoomed ? "Reset Zoom" : "Zoom 100%"}
               >
                 {isZoomed ? <ZoomOut className="w-4 h-4 text-emerald-400" /> : <ZoomIn className="w-4 h-4 text-emerald-400" />}
@@ -618,7 +619,7 @@ export function TestimonialsSection() {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="h-9 px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 flex items-center gap-1.5 transition-all cursor-pointer"
+                className="h-8 sm:h-9 px-2.5 sm:px-3 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl border border-zinc-700 flex items-center gap-1.5 transition-all cursor-pointer"
                 title="Open original image in new tab"
               >
                 <ExternalLink className="w-4 h-4 text-blue-400" />
@@ -629,7 +630,7 @@ export function TestimonialsSection() {
                 href={selectedScreenshot}
                 download="trade-proof-screenshot.jpg"
                 onClick={(e) => e.stopPropagation()}
-                className="h-9 px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
+                className="h-8 sm:h-9 px-2.5 sm:px-3 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 text-xs font-semibold rounded-xl border border-emerald-500/40 flex items-center gap-1.5 transition-all cursor-pointer"
                 title="Download Screenshot"
               >
                 <Download className="w-4 h-4 text-emerald-400" />
@@ -642,18 +643,18 @@ export function TestimonialsSection() {
                   setSelectedScreenshot(null);
                   setIsZoomed(false);
                 }}
-                className="w-9 h-9 bg-red-500/20 hover:bg-red-500 text-zinc-200 hover:text-white rounded-xl border border-red-500/30 flex items-center justify-center transition-all cursor-pointer"
+                className="w-8 h-8 sm:w-9 sm:h-9 bg-red-500/20 hover:bg-red-500 text-zinc-200 hover:text-white rounded-xl border border-red-500/30 flex items-center justify-center transition-all cursor-pointer"
                 aria-label="Close modal"
                 title="Close (ESC)"
               >
-                <X className="w-5 h-5" />
+                <X className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
             </div>
           </div>
 
-          {/* Fullscreen Image Container */}
+          {/* Fullscreen Image Container — fills all remaining space */}
           <div
-            className={`w-full h-full flex-1 flex items-center justify-center overflow-auto custom-scrollbar p-2 ${
+            className={`w-full flex-1 flex items-center justify-center overflow-auto p-2 sm:p-4 ${
               isZoomed ? "cursor-zoom-out items-start" : "cursor-zoom-in"
             }`}
             onClick={(e) => {
@@ -665,12 +666,13 @@ export function TestimonialsSection() {
             <img
               src={selectedScreenshot}
               alt="Full Resolution Trade Proof"
-              className={`transition-all duration-300 rounded-xl shadow-2xl border border-zinc-800 bg-zinc-950 object-contain ${
+              className={`transition-all duration-300 rounded-xl shadow-2xl border border-zinc-800 bg-zinc-950 ${
                 isZoomed
-                  ? "max-w-none max-h-none w-auto h-auto scale-100 my-auto"
-                  : "max-w-[95vw] max-h-[82vh] w-auto h-auto"
+                  ? "max-w-none max-h-none w-auto h-auto object-contain"
+                  : "max-w-full w-auto object-contain"
               }`}
-              onError={(e) => {
+              style={isZoomed ? {} : { maxHeight: 'calc(100dvh - 110px)' }}
+              onError={() => {
                 console.error('Failed to render screenshot image:', selectedScreenshot);
               }}
             />
@@ -678,10 +680,10 @@ export function TestimonialsSection() {
 
           {/* Footer Bar */}
           <div
-            className="mt-2 text-center text-xs text-zinc-400 font-mono bg-zinc-900/80 px-4 py-1.5 rounded-full border border-zinc-800 z-[10000000]"
+            className="shrink-0 text-center text-[11px] text-zinc-400 font-mono bg-zinc-900/80 px-4 py-1.5 w-full border-t border-zinc-800 z-[10000000]"
             onClick={(e) => e.stopPropagation()}
           >
-            Click image to {isZoomed ? "fit screen" : "zoom 100%"} • Click backdrop or ✕ to close
+            Tap image to {isZoomed ? "fit screen" : "zoom"} • Tap backdrop or ✕ to close
           </div>
         </div>,
         document.body
