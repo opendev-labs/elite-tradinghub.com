@@ -1045,44 +1045,88 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                   </div>
                 </div>
 
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-sm">
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs text-zinc-300">
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-3 sm:p-5 shadow-sm space-y-4">
+                  {/* Mobile Card View (Small Screens <640px) */}
+                  <div className="block sm:hidden space-y-3">
+                    {googleLogins.length > 0 ? (
+                      googleLogins.map((g, idx) => {
+                        const initial = (g.name || g.displayName || g.email || "G").charAt(0).toUpperCase();
+                        return (
+                          <div key={g.rtdbKey || g.uid || idx} className="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800 space-y-3 min-w-0">
+                            <div className="flex items-start justify-between gap-3">
+                              <div className="flex items-center gap-3 min-w-0">
+                                {g.photoURL || g.image ? (
+                                  /* eslint-disable-next-line @next/next/no-img-element */
+                                  <img src={g.photoURL || g.image} alt={g.name || "User"} className="w-10 h-10 rounded-full border border-emerald-500/40 object-cover shrink-0" />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center justify-center font-bold text-sm shrink-0">
+                                    {initial}
+                                  </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                  <h4 className="text-xs font-bold text-zinc-100 truncate">{g.name || g.displayName || "Google User"}</h4>
+                                  <p className="text-[11px] text-zinc-400 font-mono truncate">{g.email}</p>
+                                </div>
+                              </div>
+                              <span className="px-2 py-0.5 text-[10px] font-mono font-semibold rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 shrink-0 whitespace-nowrap">
+                                Google OAuth 2.0
+                              </span>
+                            </div>
+                            <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+                              <span>Logged in {formatTimeAgo(g.lastLogin || g.createdAt || g.lastLoginFormatted)}</span>
+                              <span className="truncate max-w-[130px]">UID: {g.uid ? `${g.uid.slice(0, 8)}...` : 'Active'}</span>
+                            </div>
+                          </div>
+                        );
+                      })
+                    ) : (
+                      <div className="py-8 text-center text-zinc-500 text-xs">
+                        No Google accounts logged in yet.
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Tablet & Desktop Table View (>=640px) */}
+                  <div className="hidden sm:block overflow-x-auto min-w-0">
+                    <table className="w-full text-left text-xs text-zinc-300 min-w-[700px]">
                       <thead className="bg-zinc-950/60 border-b border-zinc-800 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
                         <tr>
-                          <th className="py-3 px-4">User Avatar</th>
-                          <th className="py-3 px-4">Google Account Name</th>
-                          <th className="py-3 px-4">Email Address</th>
-                          <th className="py-3 px-4">Auth Provider</th>
-                          <th className="py-3 px-4">Last Login Time</th>
-                          <th className="py-3 px-4">Google UID</th>
+                          <th className="py-3 px-4 whitespace-nowrap">User Avatar</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Google Account Name</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Email Address</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Auth Provider</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Last Login Time</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Google UID</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-800/60">
                         {googleLogins.length > 0 ? (
-                          googleLogins.map(g => (
-                            <tr key={g.rtdbKey || g.uid} className="hover:bg-zinc-800/30 transition-colors">
-                              <td className="py-3.5 px-4">
-                                {g.photoURL ? (
-                                  /* eslint-disable-next-line @next/next/no-img-element */
-                                  <img src={g.photoURL} alt={g.name} className="w-8 h-8 rounded-full border border-zinc-700 object-cover" />
-                                ) : (
-                                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 flex items-center justify-center font-bold text-xs">
-                                    {(g.name || "G").charAt(0)}
-                                  </div>
-                                )}
-                              </td>
-                              <td className="py-3.5 px-4 font-semibold text-zinc-100">{g.name || "Google User"}</td>
-                              <td className="py-3.5 px-4 font-mono text-zinc-300">{g.email}</td>
-                              <td className="py-3.5 px-4">
-                                <span className="px-2 py-0.5 text-[10px] font-semibold rounded bg-blue-500/10 text-blue-400 border border-blue-500/20">
-                                  {g.provider || "Google OAuth"}
-                                </span>
-                              </td>
-                              <td className="py-3.5 px-4 font-mono text-zinc-400 text-[11px]">{formatTimeAgo(g.lastLogin || g.createdAt || g.lastLoginFormatted)}</td>
-                              <td className="py-3.5 px-4 font-mono text-[10px] text-zinc-500 max-w-[140px] truncate">{g.uid}</td>
-                            </tr>
-                          ))
+                          googleLogins.map((g, idx) => {
+                            const initial = (g.name || g.displayName || g.email || "G").charAt(0).toUpperCase();
+                            return (
+                              <tr key={g.rtdbKey || g.uid || idx} className="hover:bg-zinc-800/30 transition-colors">
+                                <td className="py-3.5 px-4 whitespace-nowrap">
+                                  {g.photoURL || g.image ? (
+                                    /* eslint-disable-next-line @next/next/no-img-element */
+                                    <img src={g.photoURL || g.image} alt={g.name || "User"} className="w-8 h-8 rounded-full border border-zinc-700 object-cover" />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 flex items-center justify-center font-bold text-xs">
+                                      {initial}
+                                    </div>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-4 font-semibold text-zinc-100 whitespace-nowrap">{g.name || g.displayName || "Google User"}</td>
+                                <td className="py-3.5 px-4 font-mono text-zinc-300 whitespace-nowrap">{g.email}</td>
+                                <td className="py-3.5 px-4 whitespace-nowrap">
+                                  <span className="px-2.5 py-1 text-[10px] font-mono font-semibold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap inline-block">
+                                    Google OAuth 2.0
+                                  </span>
+                                </td>
+                                <td className="py-3.5 px-4 font-mono text-zinc-400 text-[11px] whitespace-nowrap">{formatTimeAgo(g.lastLogin || g.createdAt || g.lastLoginFormatted)}</td>
+                                <td className="py-3.5 px-4 font-mono text-[10px] text-zinc-500 max-w-[140px] truncate">{g.uid}</td>
+                              </tr>
+                            );
+                          })
                         ) : (
                           <tr>
                             <td colSpan={6} className="py-12 text-center text-zinc-500">
