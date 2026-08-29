@@ -243,11 +243,7 @@ export async function checkGoogleRedirectResult(): Promise<UserSessionData | nul
 
 export async function signInWithGoogleFirebase() {
   try {
-    const isMobile = typeof window !== 'undefined' && /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent)
-    if (isMobile) {
-      await signInWithRedirect(auth, googleProvider)
-      return { user: null, redirecting: true, error: null }
-    }
+    // 1. Try popup sign-in first on all devices (prevents mobile cross-site cookie redirect loss)
     const result = await signInWithPopup(auth, googleProvider)
     const userData: UserSessionData = {
       name: result.user.displayName || 'Pro Trader',
@@ -256,15 +252,32 @@ export async function signInWithGoogleFirebase() {
       uid: result.user.uid,
     }
     setStoredUser(userData)
-    await syncUserToRtdb(userData, true)
+    await syncUserToRtdb(userData, true).catch(() => {})
     return { user: userData, redirecting: false, error: null }
   } catch (err: any) {
-    console.error('Firebase Google Sign-In Error:', err)
+    console.warn('Firebase Google Popup Sign-In warning/error:', err)
+    
+    // If popup was blocked, fallback to redirect
+    if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/popup-closed-by-user') {
+      try {
+        await signInWithRedirect(auth, googleProvider)
+        return { user: null, redirecting: true, error: null }
+      } catch (redirectErr: any) {
+        return { user: null, redirecting: false, error: redirectErr?.message || 'Google Sign-In failed' }
+      }
+    }
+    
+    // User cancelled
+    if (err?.code === 'auth/cancelled-popup-request') {
+      return { user: null, redirecting: false, error: null }
+    }
+
+    // Try redirect as secondary fallback if popup failed for unknown reason
     try {
       await signInWithRedirect(auth, googleProvider)
       return { user: null, redirecting: true, error: null }
-    } catch (redirectErr: any) {
-      return { user: null, redirecting: false, error: redirectErr.message || 'Google Sign-In failed' }
+    } catch (fallbackErr: any) {
+      return { user: null, redirecting: false, error: err?.message || 'Google Sign-In failed' }
     }
   }
 }
