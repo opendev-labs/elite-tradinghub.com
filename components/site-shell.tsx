@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, ChevronRight, LogOut, ChevronDown } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, ChevronRight, LogOut, ChevronDown, AlertTriangle } from 'lucide-react';
 import { MarketStrip } from './trading-dashboard';
 import {
   getStoredUser,
@@ -511,13 +511,55 @@ export function SiteFooter() {
 
 import { PageEntrance } from './page-motion';
 
+export function DevelopmentCautionBadge() {
+  const [isHoveredOrTapped, setIsHoveredOrTapped] = useState(false);
+
+  return (
+    <div
+      className="fixed bottom-5 right-5 z-[9999] flex items-center select-none"
+      onMouseEnter={() => setIsHoveredOrTapped(true)}
+      onMouseLeave={() => setIsHoveredOrTapped(false)}
+      onClick={() => setIsHoveredOrTapped((prev) => !prev)}
+    >
+      <motion.div
+        layout
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        whileHover={{ scale: 1.05 }}
+        whileTap={{ scale: 0.98 }}
+        className="flex items-center gap-2.5 px-3 py-2.5 rounded-full bg-amber-950/90 border border-amber-500/40 text-amber-300 shadow-xl shadow-amber-950/50 backdrop-blur-md cursor-pointer transition-all duration-300 group"
+      >
+        <div className="relative flex items-center justify-center">
+          <AlertTriangle className="w-5 h-5 text-amber-400 animate-pulse shrink-0" />
+          <span className="absolute inset-0 rounded-full bg-amber-400/20 animate-ping pointer-events-none" />
+        </div>
+
+        <AnimatePresence mode="wait">
+          {isHoveredOrTapped && (
+            <motion.span
+              initial={{ opacity: 0, width: 0, x: -5 }}
+              animate={{ opacity: 1, width: 'auto', x: 0 }}
+              exit={{ opacity: 0, width: 0, x: -5 }}
+              transition={{ duration: 0.22, ease: 'easeOut' }}
+              className="text-xs font-mono font-bold text-amber-200 whitespace-nowrap overflow-hidden pr-1"
+            >
+              Website Under Development
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.div>
+    </div>
+  );
+}
+
 export function SiteShell({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans relative">
       <SiteHeader />
       <main className="flex-1">
         <PageEntrance>{children}</PageEntrance>
       </main>
+      <DevelopmentCautionBadge />
       <SiteFooter />
     </div>
   );
@@ -525,9 +567,10 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
 
 export function PageFrame({ children }: { children: React.ReactNode }) {
   return (
-    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans relative">
       <SiteHeader />
       <PageEntrance className="flex-1">{children}</PageEntrance>
+      <DevelopmentCautionBadge />
       <SiteFooter />
     </div>
   );
