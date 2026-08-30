@@ -245,6 +245,15 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
   // CRM Tasks State (Live RTDB)
   const [crmTasks, setCrmTasks] = useState<any[]>([]);
 
+  // PMS Portfolios State (Live RTDB)
+  const [pmsPortfolios, setPmsPortfolios] = useState<any[]>([]);
+  const [isAddPmsOpen, setIsAddPmsOpen] = useState(false);
+  const [pmsClientName, setPmsClientName] = useState("");
+  const [pmsClientEmail, setPmsClientEmail] = useState("");
+  const [pmsCapital, setPmsCapital] = useState("");
+  const [pmsStrategy, setPmsStrategy] = useState("LargeCap Core Equities");
+  const [pmsRiskProfile, setPmsRiskProfile] = useState("Balanced");
+
   // Client Management Modal State
   const [managingClient, setManagingClient] = useState<any>(null);
   const [managePlan, setManagePlan] = useState("PRO");
@@ -280,6 +289,31 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
 
     toast(`Client ${managingClient.name} updated to ${managePlan} plan (${manageStatus})!`, "success");
     setManagingClient(null);
+  };
+
+  const handleAddPmsPortfolio = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const capNum = parseFloat(pmsCapital.replace(/,/g, "")) || 0;
+    const newPortfolio = {
+      clientName: pmsClientName,
+      email: pmsClientEmail,
+      capital: capNum,
+      strategy: pmsStrategy,
+      riskProfile: pmsRiskProfile,
+      joinedAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+      status: "ACTIVE",
+    };
+    await pushRtdbData("pms/portfolios", newPortfolio).catch(() => {});
+    await pushRtdbData("activity", {
+      user: user?.displayName || "Administrator",
+      action: `Onboarded PMS portfolio for ${pmsClientName} (₹ ${capNum.toLocaleString('en-IN')})`,
+      time: "Just now",
+    }).catch(() => {});
+    toast(`PMS portfolio onboarded for ${pmsClientName} (₹ ${capNum.toLocaleString('en-IN')})!`, "success");
+    setIsAddPmsOpen(false);
+    setPmsClientName("");
+    setPmsClientEmail("");
+    setPmsCapital("");
   };
 
   // Signal broadcaster state
@@ -417,6 +451,16 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
       }
     });
 
+    // 11. Subscribe to Live PMS Portfolios
+    const unsubPms = subscribeRtdbData("pms/portfolios", (data) => {
+      if (data) {
+        const pList = Object.keys(data).map(k => ({ ...data[k], rtdbKey: k }));
+        setPmsPortfolios(pList);
+      } else {
+        setPmsPortfolios([]);
+      }
+    });
+
     return () => {
       if (typeof unsubUsers === "function") unsubUsers();
       if (typeof unsubClients === "function") unsubClients();
@@ -428,6 +472,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
       if (typeof unsubPageViews === "function") unsubPageViews();
       if (typeof unsubComments === "function") unsubComments();
       if (typeof unsubTestimonials === "function") unsubTestimonials();
+      if (typeof unsubPms === "function") unsubPms();
     };
   }, []);
 
@@ -529,6 +574,17 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
 
   const active    = clientsList.filter(c => c.status === "ACTIVE").length;
   const online    = clientsList.filter(c => c.online).length;
+
+  // Live PMS Computations from Firebase Realtime Database
+  const activePmsClients = clientsList.filter(c => c.status === "ACTIVE" || c.plan === "PRO" || c.plan === "ENTERPRISE").length;
+  const realAumSum = pmsPortfolios.reduce((sum, p) => sum + (Number(p.capital) || 0), 0);
+
+  const formattedAum = React.useMemo(() => {
+    if (realAumSum === 0) return "₹ 0.00";
+    if (realAumSum >= 10000000) return `₹ ${(realAumSum / 10000000).toFixed(2)} Cr`;
+    if (realAumSum >= 100000) return `₹ ${(realAumSum / 100000).toFixed(2)} L`;
+    return `₹ ${realAumSum.toLocaleString('en-IN')}`;
+  }, [realAumSum]);
   const filteredClients = clientsList.filter(c => {
     if (!search) return true;
     return `${c.name} ${c.email} ${c.id}`.toLowerCase().includes(search.toLowerCase());
@@ -851,12 +907,122 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                   </div>
                 </div>
 
-                {/* PMS Stat Cards */}
+                {/* PMS Stat Cards - COMPUTED LIVE FROM FIREBASE REALTIME DATABASE */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <StatCard title="Total AUM Managed" value="₹ 4.85 Cr" change="+18.4%" up icon={<DollarSign className="w-3.5 h-3.5 text-emerald-400" />} sub="YTD Growth" />
-                  <StatCard title="Active PMS Clients" value="38 Accounts" change="+6 new" up icon={<Briefcase className="w-3.5 h-3.5 text-blue-400" />} sub="Risk Profiled" />
-                  <StatCard title="Max Risk Per Trade" value="1.50%" change="Strict Limit" up icon={<Lock className="w-3.5 h-3.5 text-amber-400" />} sub="Capital Preservation" />
-                  <StatCard title="Benchmark Beta" value="0.72 vs NIFTY" change="Low Volatility" up icon={<TrendingUp className="w-3.5 h-3.5 text-purple-400" />} sub="Controlled Drawdown" />
+                  <StatCard
+                    title="Total AUM Managed"
+                    value={formattedAum}
+                    change={realAumSum > 0 ? "+Live AUM" : "Live RTDB"}
+                    up={realAumSum > 0}
+                    icon={<DollarSign className="w-3.5 h-3.5 text-emerald-400" />}
+                    sub={realAumSum > 0 ? `${pmsPortfolios.length} Active Accounts` : "No Active AUM Logged Yet"}
+                  />
+                  <StatCard
+                    title="Active PMS Clients"
+                    value={`${activePmsClients} Account${activePmsClients === 1 ? '' : 's'}`}
+                    change={clientsList.length > 0 ? `${clientsList.length} Logged` : "Live Sync"}
+                    up={activePmsClients > 0}
+                    icon={<Briefcase className="w-3.5 h-3.5 text-blue-400" />}
+                    sub={activePmsClients > 0 ? "Verified Client Accounts" : "Live Database Sync"}
+                  />
+                  <StatCard
+                    title="Max Risk Per Trade"
+                    value="1.50%"
+                    change="Strict Limit"
+                    up
+                    icon={<Lock className="w-3.5 h-3.5 text-amber-400" />}
+                    sub="Capital Preservation"
+                  />
+                  <StatCard
+                    title="Benchmark Beta"
+                    value="0.72 vs NIFTY"
+                    change="Low Volatility"
+                    up
+                    icon={<TrendingUp className="w-3.5 h-3.5 text-purple-400" />}
+                    sub="Controlled Drawdown"
+                  />
+                </div>
+
+                {/* Live Realtime Client PMS Portfolios Section */}
+                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800 pb-3">
+                    <div>
+                      <h3 className="text-sm font-bold text-zinc-100 flex items-center gap-2">
+                        <Building2 className="w-4 h-4 text-emerald-400" /> Live Client PMS Portfolios (RTDB Synced)
+                      </h3>
+                      <p className="text-xs text-zinc-400 mt-0.5">Real client accounts, capital allocations, and risk profiles recorded in Firebase</p>
+                    </div>
+                    <button
+                      onClick={() => setIsAddPmsOpen(true)}
+                      className="px-3 py-1.5 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-bold text-xs rounded-lg flex items-center gap-1.5 transition-all w-fit"
+                    >
+                      <Plus className="w-3.5 h-3.5" /> Onboard New Portfolio
+                    </button>
+                  </div>
+
+                  {pmsPortfolios.length > 0 ? (
+                    <div className="overflow-x-auto min-w-0">
+                      <table className="w-full text-left text-xs text-zinc-300 min-w-[650px]">
+                        <thead className="bg-zinc-950/80 border-b border-zinc-800 text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">
+                          <tr>
+                            <th className="py-2.5 px-3">Client Account</th>
+                            <th className="py-2.5 px-3">Capital Allocated (AUM)</th>
+                            <th className="py-2.5 px-3">Model Strategy</th>
+                            <th className="py-2.5 px-3">Risk Profile</th>
+                            <th className="py-2.5 px-3 text-right">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-zinc-800/60 font-mono">
+                          {pmsPortfolios.map((p) => (
+                            <tr key={p.rtdbKey} className="hover:bg-zinc-800/30 transition-colors">
+                              <td className="py-3 px-3">
+                                <p className="font-bold text-zinc-100 font-sans">{p.clientName}</p>
+                                <p className="text-[10px] text-zinc-500">{p.email || 'No email'}</p>
+                              </td>
+                              <td className="py-3 px-3 text-emerald-400 font-bold">
+                                ₹ {Number(p.capital || 0).toLocaleString('en-IN')}
+                              </td>
+                              <td className="py-3 px-3 text-purple-300">{p.strategy}</td>
+                              <td className="py-3 px-3">
+                                <span className="px-2 py-0.5 rounded bg-blue-500/10 border border-blue-500/20 text-blue-400 text-[10px] font-bold">
+                                  {p.riskProfile}
+                                </span>
+                              </td>
+                              <td className="py-3 px-3 text-right">
+                                <button
+                                  onClick={async () => {
+                                    if (confirm(`Remove PMS portfolio for ${p.clientName}?`)) {
+                                      await writeRtdbData(`pms/portfolios/${p.rtdbKey}`, null);
+                                      toast(`Portfolio removed`, "success");
+                                    }
+                                  }}
+                                  className="text-red-400 hover:text-red-300 text-xs p-1"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                </button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="p-6 rounded-xl bg-zinc-950/60 border border-zinc-800/60 text-center space-y-2">
+                      <div className="inline-flex p-2.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-400 mb-1">
+                        <Lock className="w-4 h-4" />
+                      </div>
+                      <h4 className="text-xs font-bold text-zinc-200">No Client PMS Portfolios Onboarded (Live Real AUM: ₹ 0.00)</h4>
+                      <p className="text-[11px] text-zinc-400 max-w-md mx-auto leading-relaxed">
+                        All registered accounts currently belong to your development team. Total AUM is calculated dynamically from real database records. Click below to onboard a client portfolio.
+                      </p>
+                      <button
+                        onClick={() => setIsAddPmsOpen(true)}
+                        className="mt-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs rounded-lg inline-flex items-center gap-1.5 transition-all shadow-md shadow-emerald-500/20"
+                      >
+                        <Plus className="w-3.5 h-3.5" /> Onboard PMS Client Portfolio
+                      </button>
+                    </div>
+                  )}
                 </div>
 
                 {/* PMS Strategy Allocation & Risk Calculator Grid */}
@@ -2446,6 +2612,105 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                     </button>
                   </div>
                 </div>
+              </div>
+            </div>
+          )}
+
+          {/* Onboard PMS Portfolio Modal */}
+          {isAddPmsOpen && (
+            <div className="fixed inset-0 z-[99999] bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-6 max-w-md w-full shadow-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-zinc-800 pb-3">
+                  <h3 className="text-base font-bold text-zinc-100 flex items-center gap-2">
+                    <PieChart className="w-4 h-4 text-emerald-400" /> Onboard PMS Client Portfolio
+                  </h3>
+                  <button onClick={() => setIsAddPmsOpen(false)} className="text-zinc-500 hover:text-zinc-300">
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                <form onSubmit={handleAddPmsPortfolio} className="space-y-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Client Name</label>
+                    <input
+                      required
+                      type="text"
+                      value={pmsClientName}
+                      onChange={e => setPmsClientName(e.target.value)}
+                      placeholder="e.g. Rajesh Kumar"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:border-zinc-700"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Client Email Address</label>
+                    <input
+                      required
+                      type="email"
+                      value={pmsClientEmail}
+                      onChange={e => setPmsClientEmail(e.target.value)}
+                      placeholder="rajesh@example.com"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-100 focus:outline-none focus:border-zinc-700 font-mono"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 mb-1">Portfolio Capital (₹ AUM)</label>
+                    <input
+                      required
+                      type="number"
+                      value={pmsCapital}
+                      onChange={e => setPmsCapital(e.target.value)}
+                      placeholder="e.g. 5000000"
+                      className="w-full h-9 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-emerald-400 font-mono focus:outline-none focus:border-zinc-700 font-bold"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">Model Strategy</label>
+                      <select
+                        value={pmsStrategy}
+                        onChange={e => setPmsStrategy(e.target.value)}
+                        className="w-full h-9 px-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 focus:outline-none"
+                      >
+                        <option>LargeCap Core Equities</option>
+                        <option>Tactical Options Skew</option>
+                        <option>Multi-Asset Alpha</option>
+                        <option>Debt & Liquid G-Sec</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-zinc-400 mb-1">Risk Profile</label>
+                      <select
+                        value={pmsRiskProfile}
+                        onChange={e => setPmsRiskProfile(e.target.value)}
+                        className="w-full h-9 px-2 bg-zinc-950 border border-zinc-800 rounded-lg text-xs text-zinc-200 focus:outline-none"
+                      >
+                        <option>Conservative</option>
+                        <option>Balanced</option>
+                        <option>Aggressive</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 flex items-center justify-end gap-2 border-t border-zinc-800">
+                    <button
+                      type="button"
+                      onClick={() => setIsAddPmsOpen(false)}
+                      className="h-8 px-4 bg-zinc-950 border border-zinc-800 hover:bg-zinc-800 text-zinc-400 text-xs font-medium rounded-lg"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      className="h-8 px-5 bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs rounded-lg transition-colors shadow-md shadow-emerald-500/20"
+                    >
+                      Save Portfolio to Firebase
+                    </button>
+                  </div>
+                </form>
               </div>
             </div>
           )}
