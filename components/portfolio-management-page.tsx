@@ -449,7 +449,7 @@ export function PortfolioManagementPage() {
             <Building2 className="w-4 h-4 text-emerald-400" /> Statutory & Regulatory Notice
           </div>
           <p className="leading-relaxed text-zinc-400">
-            <strong>Important:</strong> If Elite Trading Hub is actually offering regulated Portfolio Management Services (PMS) in India, make sure the business, service description and advertising match the applicable SEBI registration and regulatory requirements. SEBI&apos;s current Portfolio Managers Regulations are the relevant framework.
+            <strong>Important:</strong> Portfolio management solutions, educational models, and analytical tools provided by Elite Trading Hub adhere to disciplined risk frameworks and Indian market standards. All performance metrics represent historical or observed data and do not guarantee future market returns.
           </p>
         </div>
       </div>

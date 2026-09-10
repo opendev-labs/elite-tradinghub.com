@@ -41,14 +41,14 @@ const interFont = localFont({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://elite-tradinghub.com'),
+  metadataBase: new URL('https://www.elite-tradinghub.com'),
   title: {
     default: 'Elite Trading Hub — Decision-Grade Market Intelligence',
     template: '%s | Elite Trading Hub',
   },
   description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow, algorithmic risk analytics, and real-time execution signals.',
   applicationName: 'Elite Trading Hub',
-  authors: [{ name: 'Elite Trading Hub', url: 'https://elite-tradinghub.com' }],
+  authors: [{ name: 'Elite Trading Hub', url: 'https://www.elite-tradinghub.com' }],
   generator: 'Elite Trading Hub System',
   keywords: [
     'NIFTY 50',
@@ -74,20 +74,20 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Elite Trading Hub — Decision-Grade Market Intelligence',
     description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics.',
-    url: 'https://elite-tradinghub.com',
+    url: 'https://www.elite-tradinghub.com',
     siteName: 'Elite Trading Hub',
     images: [
       {
-        url: 'https://elite-tradinghub.com/og-image.png?v=26',
-        secureUrl: 'https://elite-tradinghub.com/og-image.png?v=26',
+        url: 'https://www.elite-tradinghub.com/og-image.png?v=26',
+        secureUrl: 'https://www.elite-tradinghub.com/og-image.png?v=26',
         width: 1200,
         height: 630,
         alt: 'Elite Trading Hub — Decision-Grade Market Intelligence',
         type: 'image/png',
       },
       {
-        url: 'https://elite-tradinghub.com/square-og-logo.png?v=25',
-        secureUrl: 'https://elite-tradinghub.com/square-og-logo.png?v=25',
+        url: 'https://www.elite-tradinghub.com/square-og-logo.png?v=25',
+        secureUrl: 'https://www.elite-tradinghub.com/square-og-logo.png?v=25',
         width: 600,
         height: 600,
         alt: 'Elite Trading Hub',
@@ -103,7 +103,7 @@ export const metadata: Metadata = {
     description: 'Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders.',
     site: '@EliteTradingHub',
     creator: '@EliteTradingHub',
-    images: ['https://elite-tradinghub.com/og-image.png?v=26'],
+    images: ['https://www.elite-tradinghub.com/og-image.png?v=26'],
   },
   robots: {
     index: true,
@@ -144,11 +144,11 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="copyright" content="made by opendev-labs" />
         <meta property="og:title" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
         <meta property="og:description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders. Institutional options flow & real-time risk analytics." />
-        <meta property="og:url" content="https://elite-tradinghub.com" />
+        <meta property="og:url" content="https://www.elite-tradinghub.com" />
         <meta property="og:site_name" content="Elite Trading Hub" />
         <meta property="og:type" content="website" />
-        <meta property="og:image" content="https://elite-tradinghub.com/og-image.png?v=26" />
-        <meta property="og:image:secure_url" content="https://elite-tradinghub.com/og-image.png?v=26" />
+        <meta property="og:image" content="https://www.elite-tradinghub.com/og-image.png?v=26" />
+        <meta property="og:image:secure_url" content="https://www.elite-tradinghub.com/og-image.png?v=26" />
         <meta property="og:image:type" content="image/png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
@@ -156,9 +156,9 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:title" content="Elite Trading Hub — Decision-Grade Market Intelligence" />
         <meta name="twitter:description" content="Next-generation quantitative market intelligence for NIFTY 50, BANK NIFTY & SENSEX traders." />
-        <meta name="twitter:image" content="https://elite-tradinghub.com/og-image.png?v=26" />
-        <meta itemProp="image" content="https://elite-tradinghub.com/og-image.png?v=26" />
-        <link rel="image_src" href="https://elite-tradinghub.com/og-image.png?v=26" />
+        <meta name="twitter:image" content="https://www.elite-tradinghub.com/og-image.png?v=26" />
+        <meta itemProp="image" content="https://www.elite-tradinghub.com/og-image.png?v=26" />
+        <link rel="image_src" href="https://www.elite-tradinghub.com/og-image.png?v=26" />
         <link rel="icon" href="/apple-touch-icon.png?v=25" />
 
         {/* JSON-LD Structured Data Schema.org */}
@@ -170,8 +170,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 '@context': 'https://schema.org',
                 '@type': 'Organization',
                 'name': 'Elite Trading Hub',
-                'url': 'https://elite-tradinghub.com',
-                'logo': 'https://elite-tradinghub.com/only-bull-head-icon.png',
+                'url': 'https://www.elite-tradinghub.com',
+                'logo': 'https://www.elite-tradinghub.com/only-bull-head-icon.png',
                 'sameAs': [
                   'https://t.me/+la1ShIiNHJ5mYzk1',
                   'https://twitter.com/EliteTradingHub'
@@ -182,10 +182,10 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 '@context': 'https://schema.org',
                 '@type': 'WebSite',
                 'name': 'Elite Trading Hub',
-                'url': 'https://elite-tradinghub.com',
+                'url': 'https://www.elite-tradinghub.com',
                 'potentialAction': {
                   '@type': 'SearchAction',
-                  'target': 'https://elite-tradinghub.com/admin?q={search_term_string}',
+                  'target': 'https://www.elite-tradinghub.com/admin?q={search_term_string}',
                   'query-input': 'required name=search_term_string'
                 }
               },
@@ -193,7 +193,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 '@context': 'https://schema.org',
                 '@type': 'FinancialService',
                 'name': 'Elite Trading Hub Portfolio Management Service',
-                'url': 'https://elite-tradinghub.com/portfolio-management',
+                'url': 'https://www.elite-tradinghub.com/portfolio-management',
                 'areaServed': 'IN',
                 'serviceType': 'Personalized Portfolio Management & Quantitative Risk Analytics',
                 'description': 'Customized investment approach based on client objectives and risk profile, market research & analysis, risk management, and transparent performance reporting aligned with SEBI framework.'
@@ -202,7 +202,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
                 '@context': 'https://schema.org',
                 '@type': 'EducationalOrganization',
                 'name': 'Elite Trading Hub Free Knowledge',
-                'url': 'https://elite-tradinghub.com/knowledge',
+                'url': 'https://www.elite-tradinghub.com/knowledge',
                 'description': 'Free trading and investment education covering Technical Analysis, Fundamental Analysis, Chart Patterns, Market Trends, Risk/Reward Concepts, Position Sizing, Trading Psychology, and Portfolio Management.'
               }
             ])

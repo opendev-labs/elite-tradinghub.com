@@ -438,7 +438,7 @@ export function SiteFooter() {
             </p>
             <div className="space-y-1.5 pt-1">
               <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-mono text-emerald-400">
-                <ShieldCheck className="w-3 h-3" /> SEBI Registered Standards Compliant
+                <ShieldCheck className="w-3 h-3" /> SEBI Regulatory Standards Aligned
               </div>
             </div>
           </div>
@@ -512,44 +512,7 @@ export function SiteFooter() {
 import { PageEntrance } from './page-motion';
 
 export function DevelopmentCautionBadge() {
-  const [isHoveredOrTapped, setIsHoveredOrTapped] = useState(false);
-
-  return (
-    <div
-      className="fixed bottom-5 right-5 z-[9999] flex items-center select-none"
-      onMouseEnter={() => setIsHoveredOrTapped(true)}
-      onMouseLeave={() => setIsHoveredOrTapped(false)}
-      onClick={() => setIsHoveredOrTapped((prev) => !prev)}
-    >
-      <motion.div
-        layout
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.98 }}
-        className="flex items-center gap-2.5 px-3 py-2.5 rounded-full bg-amber-950/90 border border-amber-500/40 text-amber-300 shadow-xl shadow-amber-950/50 backdrop-blur-md cursor-pointer transition-all duration-300 group"
-      >
-        <div className="relative flex items-center justify-center">
-          <AlertTriangle className="w-5 h-5 text-amber-400 animate-pulse shrink-0" />
-          <span className="absolute inset-0 rounded-full bg-amber-400/20 animate-ping pointer-events-none" />
-        </div>
-
-        <AnimatePresence mode="wait">
-          {isHoveredOrTapped && (
-            <motion.span
-              initial={{ opacity: 0, width: 0, x: -5 }}
-              animate={{ opacity: 1, width: 'auto', x: 0 }}
-              exit={{ opacity: 0, width: 0, x: -5 }}
-              transition={{ duration: 0.22, ease: 'easeOut' }}
-              className="text-xs font-mono font-bold text-amber-200 whitespace-nowrap overflow-hidden pr-1"
-            >
-              Website Under Development
-            </motion.span>
-          )}
-        </AnimatePresence>
-      </motion.div>
-    </div>
-  );
+  return null;
 }
 
 export function SiteShell({ children }: { children: React.ReactNode }) {

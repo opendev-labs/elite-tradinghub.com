@@ -1,7 +1,89 @@
 import { LegalPage } from '@/components/site-shell'
 
-export function TermsPage() { return <LegalPage eyebrow="LEGAL / TERMS" title="Terms & Conditions"><h2>1. General information</h2><p>Elite Trading Hub provides market analysis, educational material and software tools intended to support independent research. By using this website or platform, you agree to use it lawfully and responsibly.</p><h2>2. No investment advice</h2><p>Nothing on this website constitutes investment advice, a recommendation, solicitation or an offer to buy or sell securities or derivatives. You are solely responsible for your decisions and should consult a qualified adviser where appropriate.</p><h2>3. Access and use</h2><p>You may not reproduce, redistribute, reverse engineer or commercially exploit platform content without written permission. We may update, suspend or discontinue features without notice.</p><h2>4. Intellectual property</h2><p>All platform content, marks, designs and software are owned by or licensed to Elite Trading Hub. No rights are granted except the limited right to access the service for its intended purpose.</p><h2>5. Limitation of liability</h2><p>To the maximum extent permitted by law, Elite Trading Hub is not liable for losses arising from reliance on market information, technical interruptions, data inaccuracies or trading decisions.</p><h2>6. Contact</h2><p>Replace this section with the official legal entity, registered address and support details before publication.</p></LegalPage> }
+export function TermsPage() {
+  return (
+    <LegalPage eyebrow="LEGAL / TERMS" title="Terms & Conditions">
+      <h2>1. General Information</h2>
+      <p>
+        Elite Trading Hub provides quantitative market analysis, algorithmic models, educational material, and software tools intended to support independent market research. By accessing or using this website, you agree to comply with and be bound by these Terms & Conditions.
+      </p>
+      <h2>2. No Investment Advice or SEBI Registration</h2>
+      <p>
+        Nothing on this platform constitutes financial, investment, legal, or tax advice, nor does it constitute an offer, solicitation, or recommendation to buy or sell any securities, derivatives, or financial instruments. Elite Trading Hub is not registered with SEBI (Securities and Exchange Board of India) as an Investment Adviser or Research Analyst. Users are solely responsible for their independent trading and financial decisions.
+      </p>
+      <h2>3. Access and Platform Use</h2>
+      <p>
+        You agree to use this platform only for lawful purposes. You may not reproduce, redistribute, reverse engineer, scrape, or commercially exploit any content, charts, or algorithms without prior written authorization from Elite Trading Hub.
+      </p>
+      <h2>4. Intellectual Property</h2>
+      <p>
+        All proprietary analysis frameworks, algorithms, UI components, branding, logos, and research documentation are the intellectual property of Elite Trading Hub.
+      </p>
+      <h2>5. Limitation of Liability</h2>
+      <p>
+        To the maximum extent permitted by applicable law, Elite Trading Hub and its operators shall not be liable for any direct, indirect, incidental, or consequential loss or damages resulting from trading losses, market volatility, execution delays, system outages, or data inaccuracies.
+      </p>
+      <h2>6. Contact & Support</h2>
+      <p>
+        For inquiries regarding these Terms & Conditions or platform operations, please contact support@elite-tradinghub.com or reach out via our official communication channels.
+      </p>
+    </LegalPage>
+  )
+}
 
-export function PrivacyPage() { return <LegalPage eyebrow="LEGAL / PRIVACY" title="Privacy Policy"><h2>1. Information we collect</h2><p>We may collect information you provide directly, such as your name, email address and support messages, together with technical information needed to keep the platform secure and reliable.</p><h2>2. How we use information</h2><p>Information may be used to provide and improve the service, respond to enquiries, maintain security, understand product usage and meet legal obligations. We do not sell personal information.</p><h2>3. Data retention and security</h2><p>We retain information only for as long as reasonably necessary for the purposes described above. Appropriate technical and organisational safeguards are used, but no online service can guarantee absolute security.</p><h2>4. Your choices</h2><p>You may contact us to request access, correction or deletion of personal information, subject to applicable law and legitimate record-keeping requirements.</p><h2>5. Client details required</h2><p>Before launch, add the official legal entity name, privacy contact email, jurisdiction, cookie practices, vendors and effective date approved by legal counsel.</p></LegalPage> }
+export function PrivacyPage() {
+  return (
+    <LegalPage eyebrow="LEGAL / PRIVACY" title="Privacy Policy">
+      <h2>1. Information We Collect</h2>
+      <p>
+        We collect information necessary to deliver and protect our platform services, including your name, email address, profile picture (via authenticated Google Sign-In), and interaction data. We may also collect technical device logs and aggregated usage analytics.
+      </p>
+      <h2>2. How We Use Your Information</h2>
+      <p>
+        Your information is utilized solely to personalize your portal experience, provide customer support, ensure account security, and improve analytical features. We do not sell, rent, or trade your personal data to third-party advertisers.
+      </p>
+      <h2>3. Data Retention and Security</h2>
+      <p>
+        We employ industry-standard encryption protocols and secure database architectures to safeguard your personal information. Session data is stored securely and retained only as long as necessary to fulfill account service objectives.
+      </p>
+      <h2>4. User Rights and Controls</h2>
+      <p>
+        You have the right to request access to, correction of, or permanent deletion of your stored user profile data at any time by contacting our support team.
+      </p>
+      <h2>5. Inquiries & Data Governance</h2>
+      <p>
+        For privacy-related questions or data deletion requests, please contact our governance desk at support@elite-tradinghub.com. Platform operations are governed in accordance with applicable laws of India.
+      </p>
+    </LegalPage>
+  )
+}
 
-export function DisclaimerPage() { return <LegalPage eyebrow="LEGAL / RISK" title="Risk Disclosure"><h2>Market risk</h2><p>Trading in securities, futures and options involves substantial risk and may not be suitable for every person. You may lose some or all of your invested capital. Leverage can magnify both gains and losses.</p><h2>Educational purpose</h2><p>Elite Trading Hub content is educational and informational. It is not a substitute for professional financial, tax or legal advice. Always make your own assessment and consider your objectives, experience and risk tolerance.</p><h2>Performance references</h2><p>Past performance, backtests, model outputs and historical accuracy do not guarantee future results. Illustrative figures may exclude brokerage, taxes, slippage, liquidity constraints and execution differences.</p><h2>Data and accuracy</h2><p>Market data may be delayed, incomplete or inaccurate. No representation is made that any information is complete, current or error-free. Verify information independently before acting.</p><h2>Independent decisions</h2><p>You are solely responsible for your trading decisions. By using this platform, you acknowledge these risks and agree not to treat any content as a promise of returns.</p></LegalPage> }
+export function DisclaimerPage() {
+  return (
+    <LegalPage eyebrow="LEGAL / RISK" title="Risk Disclosure & Statutory Disclaimer">
+      <h2>Important Regulatory Disclosure</h2>
+      <p>
+        <strong>Elite Trading Hub is NOT registered with SEBI (Securities and Exchange Board of India) as an Investment Adviser or Research Analyst.</strong> All information, charts, setups, models, and educational content provided through this website are intended strictly for educational, informational, and research purposes.
+      </p>
+      <h2>Market Risk & Leverage</h2>
+      <p>
+        Trading in equities, futures, and especially options carries substantial risk of capital loss and may not be suitable for all investors. Derivatives trading involves high leverage, which can magnify both profits and catastrophic losses. Never risk capital that you cannot afford to lose completely.
+      </p>
+      <h2>85–95% Historical Accuracy Disclaimer</h2>
+      <p>
+        Where historical accuracy figures (such as 85–95%) are cited, they reflect observed historical or backtested performance under specific market conditions and predefined rule parameters. <strong>Past performance or backtested results are not a guarantee of future accuracy, profits, or returns.</strong>
+      </p>
+      <p>
+        Actual market outcomes vary significantly due to factors including, but not limited to: market volatility, execution timing, slippage, liquidity constraints, brokerages and statutory taxes, sudden geopolitical or macroeconomic news events, and individual emotional trading decisions.
+      </p>
+      <h2>No Guaranteed Returns</h2>
+      <p>
+        There is no guaranteed-profit system or strategy in financial markets. Nothing on this website should ever be construed as a promise of fixed returns or assured gains.
+      </p>
+      <h2>Independent Decision Making</h2>
+      <p>
+        You are solely responsible for conducting your own research and evaluation before taking any market position. Users are encouraged to practice strict risk management (predefined stop-loss levels and disciplined position sizing) and, where appropriate, consult a SEBI-registered professional before making investment decisions.
+      </p>
+    </LegalPage>
+  )
+}
