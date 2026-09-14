@@ -4,7 +4,7 @@ import Link from 'next/link';
 import React, { useState, useEffect, useRef } from 'react';
 import { useSession } from 'next-auth/react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, ChevronRight, LogOut, ChevronDown, AlertTriangle } from 'lucide-react';
+import { ArrowUpRight, Menu, X, Send, LayoutDashboard, ShieldCheck, ChevronRight, LogOut, ChevronDown } from 'lucide-react';
 import { MarketStrip } from './trading-dashboard';
 import {
   getStoredUser,
@@ -522,7 +522,6 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1">
         <PageEntrance>{children}</PageEntrance>
       </main>
-      <DevelopmentCautionBadge />
       <SiteFooter />
     </div>
   );
@@ -533,7 +532,6 @@ export function PageFrame({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-zinc-950 text-zinc-100 flex flex-col font-sans relative">
       <SiteHeader />
       <PageEntrance className="flex-1">{children}</PageEntrance>
-      <DevelopmentCautionBadge />
       <SiteFooter />
     </div>
   );

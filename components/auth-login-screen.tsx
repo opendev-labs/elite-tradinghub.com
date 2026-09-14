@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Command, Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 
 interface AuthLoginScreenProps {
-  onLogin?: (email: string, pass: string) => Promise<void> | void;
-  onGoogleLogin?: () => Promise<void> | void;
+  onLogin?: (email: string, pass: string, phone?: string) => Promise<void> | void;
+  onGoogleLogin?: (phone?: string) => Promise<void> | void;
   title?: string;
   subtitle?: string;
   redirectUrl?: string;
@@ -20,24 +20,59 @@ export function AuthLoginScreen({
   subtitle = "Login to continue",
   portalType = "client",
 }: AuthLoginScreenProps) {
+  const [phone, setPhone] = useState("+91 ");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(true);
   const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const cleanPhone = phone.replace(/^\+91/, "").replace(/\D/g, "").slice(0, 10);
+  const isPhoneEntered = cleanPhone.length === 10;
+
+  const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    let val = e.target.value;
+    if (!val.startsWith("+91")) {
+      const remainingDigits = val.replace(/\D/g, "");
+      val = "+91 " + (remainingDigits.startsWith("91") ? remainingDigits.slice(2) : remainingDigits);
+    }
+    const digitsOnly = val.slice(3).replace(/\D/g, "").slice(0, 10);
+    setPhone(digitsOnly ? `+91 ${digitsOnly}` : "+91 ");
+    setError(null);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setError(null);
+
+    const cleanPhone = phone.replace(/^\+91/, "").replace(/\D/g, "").slice(0, 10);
+    if (portalType === "client") {
+      if (!cleanPhone) {
+        setError("Please enter your phone number.");
+        return;
+      }
+      if (cleanPhone.length < 10) {
+        setError("Please enter a valid 10-digit phone number.");
+        return;
+      }
+    }
+
     if (!email.trim() || !password.trim()) {
       setError("Please fill in both email and password.");
       return;
     }
-    setError(null);
+
     setLoading(true);
     try {
+      if (portalType === "client" && cleanPhone) {
+        try {
+          localStorage.setItem("eth_pending_phone", cleanPhone);
+          sessionStorage.setItem("eth_pending_phone", cleanPhone);
+        } catch {}
+      }
       if (onLogin) {
-        await onLogin(email, password);
+        await onLogin(email, password, cleanPhone || undefined);
       }
     } catch (err: any) {
       setError(err?.message || "Invalid credentials.");
@@ -48,15 +83,30 @@ export function AuthLoginScreen({
 
   const handleGoogleClick = async () => {
     setError(null);
-    setLoading(true);
+
+    const cleanPhone = phone.replace(/^\+91/, "").replace(/\D/g, "").slice(0, 10);
+    if (!cleanPhone) {
+      setError("Please enter your phone number before continuing with Google.");
+      return;
+    }
+    if (cleanPhone.length < 10) {
+      setError("Please enter a valid 10-digit phone number.");
+      return;
+    }
+
+    setGoogleLoading(true);
     try {
+      try {
+        localStorage.setItem("eth_pending_phone", cleanPhone);
+        sessionStorage.setItem("eth_pending_phone", cleanPhone);
+      } catch {}
       if (onGoogleLogin) {
-        await onGoogleLogin();
+        await onGoogleLogin(cleanPhone);
       }
     } catch (err: any) {
       setError(err?.message || "Google authentication failed.");
     } finally {
-      setLoading(false);
+      setGoogleLoading(false);
     }
   };
 
@@ -68,7 +118,7 @@ export function AuthLoginScreen({
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-gradient-to-tr from-emerald-500/10 to-blue-500/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 flex flex-col items-center text-center max-w-md">
-          {/* Bull Logo Image directly - no square box */}
+          {/* Bull Logo Image directly */}
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img 
             src="/only-bull-head-icon.png" 
@@ -119,6 +169,22 @@ export function AuthLoginScreen({
 
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
+            {/* Phone Number Input (Looks same as other two inputs, with +91 pre-filled) */}
+            {portalType === "client" && (
+              <div>
+                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
+                  Phone Number
+                </label>
+                <input
+                  type="tel"
+                  value={phone}
+                  onChange={handlePhoneChange}
+                  className="w-full h-10 px-3.5 text-xs bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
+                />
+              </div>
+            )}
+
+            {/* Email Address */}
             <div>
               <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                 {portalType === "admin" ? "Username" : "Email Address"}
@@ -128,11 +194,11 @@ export function AuthLoginScreen({
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder={portalType === "admin" ? "Enter username" : "you@example.com"}
-                required
                 className="w-full h-10 px-3.5 text-xs bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
               />
             </div>
 
+            {/* Password */}
             <div>
               <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                 Password
@@ -143,13 +209,12 @@ export function AuthLoginScreen({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  required
                   className="w-full h-10 pl-3.5 pr-10 text-xs bg-white border border-zinc-200 rounded-lg text-zinc-900 placeholder-zinc-400 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 focus:border-zinc-900 transition-all"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 hover:text-zinc-600 transition-colors cursor-pointer"
                 >
                   {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
@@ -172,11 +237,11 @@ export function AuthLoginScreen({
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={loading || googleLoading}
               className="w-full h-10 bg-zinc-900 hover:bg-zinc-800 text-white font-semibold text-xs rounded-lg transition-all shadow-md flex items-center justify-center gap-2 disabled:opacity-50 cursor-pointer"
             >
               {loading && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              Login
+              {portalType === "admin" ? "Login as Administrator" : "Login"}
             </button>
           </form>
 
@@ -193,10 +258,11 @@ export function AuthLoginScreen({
               <button
                 type="button"
                 onClick={handleGoogleClick}
-                disabled={loading}
-                className="w-full h-11 min-h-[44px] bg-white hover:bg-zinc-50 active:bg-zinc-100 border border-zinc-200 text-zinc-800 font-semibold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2.5 touch-manipulation cursor-pointer disabled:opacity-50"
+                disabled={!isPhoneEntered || googleLoading || loading}
+                title={!isPhoneEntered ? "Please enter your 10-digit phone number above to enable Google sign-in" : undefined}
+                className="w-full h-11 min-h-[44px] bg-white hover:bg-zinc-50 active:bg-zinc-100 border border-zinc-200 text-zinc-800 font-semibold text-xs rounded-xl transition-all shadow-sm flex items-center justify-center gap-2.5 touch-manipulation cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-white"
               >
-                {loading ? (
+                {googleLoading ? (
                   <Loader2 className="w-4 h-4 animate-spin text-zinc-600" />
                 ) : (
                   <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
@@ -218,7 +284,7 @@ export function AuthLoginScreen({
                     />
                   </svg>
                 )}
-                <span>{loading ? "Connecting to Google..." : "Continue with Google"}</span>
+                <span>{googleLoading ? "Connecting to Google..." : "Continue with Google"}</span>
               </button>
             </>
           )}

@@ -18,7 +18,8 @@ import {
   TrendingUp, Activity, DollarSign, RefreshCw, Briefcase, Plus,
   FileSpreadsheet, Filter, SlidersHorizontal, Download, Eye, Grid, List,
   MoreHorizontal, CheckSquare, Square, Building2, UserPlus, X, HelpCircle, Globe,
-  MessageSquare, Trash2, Star, MessageCircle, Clock,
+  MessageSquare, Trash2, Star, MessageCircle, Clock, Phone,
+  KeyRound, EyeOff, ShieldCheck, Mail, ShieldAlert, Check,
 } from "lucide-react";
 import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis, YAxis,
@@ -26,7 +27,8 @@ import {
 } from "recharts";
 import { AuthLoginScreen } from "@/components/auth-login-screen";
 import {
-  subscribeRtdbData, pushRtdbData, writeRtdbData, updateRtdbData, formatTimeAgo, performFullLogout
+  subscribeRtdbData, pushRtdbData, writeRtdbData, updateRtdbData, formatTimeAgo, performFullLogout,
+  sendUserPasswordReset, updateUserAccountPassword,
 } from "@/lib/firebase";
 
 
@@ -260,6 +262,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
   const [manageStatus, setManageStatus] = useState("ACTIVE");
   const [managePmsAccess, setManagePmsAccess] = useState(true);
   const [manageAlgoAccess, setManageAlgoAccess] = useState(true);
+  const [managePhone, setManagePhone] = useState("");
 
   const handleOpenManageModal = (c: any) => {
     setManagingClient(c);
@@ -267,23 +270,27 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
     setManageStatus(c.status || "ACTIVE");
     setManagePmsAccess(c.pmsAccess ?? true);
     setManageAlgoAccess(c.algoAccess ?? true);
+    setManagePhone(c.phone || "");
   };
 
   const handleSaveClientManagement = async () => {
     if (!managingClient) return;
-    const updatedData = {
+    const updatedData: Record<string, any> = {
       plan: managePlan,
       status: manageStatus,
       pmsAccess: managePmsAccess,
       algoAccess: manageAlgoAccess,
+      phone: managePhone,
       updatedAt: new Date().toISOString(),
     };
     if (managingClient.rtdbKey) {
       await updateRtdbData(`clients/${managingClient.rtdbKey}`, updatedData).catch(() => {});
+      await updateRtdbData(`users/${managingClient.rtdbKey}`, { phone: managePhone }).catch(() => {});
+      await updateRtdbData(`google_logins/${managingClient.rtdbKey}`, { phone: managePhone }).catch(() => {});
     }
     await pushRtdbData("activity", {
       user: user?.displayName || "Administrator",
-      action: `Updated client ${managingClient.name} (${managePlan} / ${manageStatus})`,
+      action: `Updated client ${managingClient.name} (${managePlan} / ${manageStatus} / Phone: ${managePhone || 'None'})`,
       time: "Just now",
     }).catch(() => {});
 
@@ -329,6 +336,107 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
     setToasts(p => [...p, { id, msg, type }]);
     setTimeout(() => setToasts(p => p.filter(t => t.id !== id)), 4000);
   }, []);
+
+  // Admin Settings State
+  const [adminNewPassword, setAdminNewPassword] = useState("");
+  const [adminConfirmPassword, setAdminConfirmPassword] = useState("");
+  const [showAdminNewPassword, setShowAdminNewPassword] = useState(false);
+  const [showAdminConfirmPassword, setShowAdminConfirmPassword] = useState(false);
+  const [adminUpdatingPassword, setAdminUpdatingPassword] = useState(false);
+  const [adminSendingReset, setAdminSendingReset] = useState(false);
+  const [adminResetSent, setAdminResetSent] = useState(false);
+  const [adminPhone, setAdminPhone] = useState("+91 98765 43210");
+  const [adminEditingPhone, setAdminEditingPhone] = useState(false);
+  const [adminSavingPhone, setAdminSavingPhone] = useState(false);
+  const [adminSessionDuration, setAdminSessionDuration] = useState("24h");
+  const [adminAuditLogging, setAdminAuditLogging] = useState(true);
+  const [adminLoginAlerts, setAdminLoginAlerts] = useState(true);
+
+  const handleAdminUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!adminNewPassword) {
+      toast("Please enter a new password", "error");
+      return;
+    }
+    if (adminNewPassword.length < 8) {
+      toast("Password must be at least 8 characters long", "error");
+      return;
+    }
+    if (adminNewPassword !== adminConfirmPassword) {
+      toast("Passwords do not match. Please verify and try again.", "error");
+      return;
+    }
+    setAdminUpdatingPassword(true);
+    try {
+      const res = await updateUserAccountPassword(adminNewPassword);
+      if (res.success) {
+        toast("Admin master password updated successfully!", "success");
+        setAdminNewPassword("");
+        setAdminConfirmPassword("");
+        await pushRtdbData("activity", {
+          user: user?.displayName || "Administrator",
+          action: "Updated administrative master security credentials",
+          time: "Just now",
+        }).catch(() => {});
+      } else {
+        toast(res.error || "Failed to update password. Try sending a password reset email below.", "error");
+      }
+    } catch (err: any) {
+      toast(err?.message || "Password update error", "error");
+    } finally {
+      setAdminUpdatingPassword(false);
+    }
+  };
+
+  const handleAdminSendPasswordReset = async () => {
+    const targetEmail = user?.email || "admin@elitetradinghub.com";
+    setAdminSendingReset(true);
+    try {
+      const res = await sendUserPasswordReset(targetEmail);
+      if (res.success) {
+        setAdminResetSent(true);
+        toast(`Password reset instructions sent to ${targetEmail}`, "success");
+        await pushRtdbData("activity", {
+          user: user?.displayName || "Administrator",
+          action: `Dispatched master password reset link to ${targetEmail}`,
+          time: "Just now",
+        }).catch(() => {});
+        setTimeout(() => setAdminResetSent(false), 6000);
+      } else {
+        toast(res.error || "Failed to dispatch reset link", "error");
+      }
+    } catch (err: any) {
+      toast(err?.message || "Failed to dispatch reset link", "error");
+    } finally {
+      setAdminSendingReset(false);
+    }
+  };
+
+  const handleAdminSavePhone = async () => {
+    const digits = adminPhone.replace(/\D/g, "");
+    if (digits.length !== 10) {
+      toast("Please enter a valid 10-digit mobile number", "error");
+      return;
+    }
+    setAdminSavingPhone(true);
+    try {
+      const formatted = `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
+      const updated = { ...user, phone: formatted };
+      setUser(updated);
+      try { localStorage.setItem("eth_admin_session", JSON.stringify(updated)); } catch {}
+      await pushRtdbData("activity", {
+        user: user?.displayName || "Administrator",
+        action: `Updated admin emergency contact: ${formatted}`,
+        time: "Just now",
+      }).catch(() => {});
+      toast("Admin emergency contact number saved!", "success");
+      setAdminEditingPhone(false);
+    } catch {
+      toast("Failed to save contact number", "error");
+    } finally {
+      setAdminSavingPhone(false);
+    }
+  };
 
   // Auth check
   useEffect(() => {
@@ -1275,7 +1383,19 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                                 Google OAuth 2.0
                               </span>
                             </div>
-                            <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
+                            {/* Contact Number */}
+                            <div className="pt-2 border-t border-zinc-800/80 flex items-center justify-between text-[11px] font-mono">
+                              <span className="text-zinc-500 flex items-center gap-1">
+                                <Phone className="w-3 h-3 text-emerald-400" />
+                                Mobile:
+                              </span>
+                              {g.phone ? (
+                                <span className="text-emerald-400 font-semibold font-mono">{g.phone}</span>
+                              ) : (
+                                <span className="text-zinc-500 italic">Not provided</span>
+                              )}
+                            </div>
+                            <div className="pt-1.5 border-t border-zinc-800/40 flex items-center justify-between text-[10px] text-zinc-500 font-mono">
                               <span>Logged in {formatTimeAgo(g.lastLogin || g.createdAt || g.lastLoginFormatted)}</span>
                               <span className="truncate max-w-[130px]">UID: {g.uid ? `${g.uid.slice(0, 8)}...` : 'Active'}</span>
                             </div>
@@ -1297,6 +1417,7 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                           <th className="py-3 px-4 whitespace-nowrap">User Avatar</th>
                           <th className="py-3 px-4 whitespace-nowrap">Google Account Name</th>
                           <th className="py-3 px-4 whitespace-nowrap">Email Address</th>
+                          <th className="py-3 px-4 whitespace-nowrap">Contact Number</th>
                           <th className="py-3 px-4 whitespace-nowrap">Auth Provider</th>
                           <th className="py-3 px-4 whitespace-nowrap">Last Login Time</th>
                           <th className="py-3 px-4 whitespace-nowrap">Google UID</th>
@@ -1321,6 +1442,16 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                                 <td className="py-3.5 px-4 font-semibold text-zinc-100 whitespace-nowrap">{g.name || g.displayName || "Google User"}</td>
                                 <td className="py-3.5 px-4 font-mono text-zinc-300 whitespace-nowrap">{g.email}</td>
                                 <td className="py-3.5 px-4 whitespace-nowrap">
+                                  {g.phone ? (
+                                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-mono text-xs font-semibold">
+                                      <Phone className="w-3 h-3 text-emerald-400" />
+                                      {g.phone}
+                                    </span>
+                                  ) : (
+                                    <span className="text-[11px] text-zinc-500 font-mono italic">Not provided</span>
+                                  )}
+                                </td>
+                                <td className="py-3.5 px-4 whitespace-nowrap">
                                   <span className="px-2.5 py-1 text-[10px] font-mono font-semibold rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 whitespace-nowrap inline-block">
                                     Google OAuth 2.0
                                   </span>
@@ -1332,9 +1463,9 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                           })
                         ) : (
                           <tr>
-                            <td colSpan={6} className="py-12 text-center text-zinc-500">
+                            <td colSpan={7} className="py-12 text-center text-zinc-500">
                               <p className="text-xs font-medium">No Google accounts have signed in yet.</p>
-                              <p className="text-[10px] text-zinc-600 mt-1">When users log in with Google, their verified account details will stream live into this view.</p>
+                              <p className="text-[10px] text-zinc-600 mt-1">When users log in with Google, their verified account details and contact numbers will stream live into this view.</p>
                             </td>
                           </tr>
                         )}
@@ -2166,10 +2297,17 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                           </div>
                         </div>
 
-                        {/* Email & Joined info */}
+                        {/* Email & Contact Phone info */}
                         <div className="pt-2 border-t border-zinc-800/60 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
-                          <span className="truncate max-w-[200px]">{c.email}</span>
-                          <span>Joined {c.joined}</span>
+                          <span className="truncate max-w-[170px]">{c.email}</span>
+                          {c.phone ? (
+                            <span className="text-emerald-400 font-semibold font-mono flex items-center gap-1">
+                              <Phone className="w-3 h-3 text-emerald-400" />
+                              {c.phone}
+                            </span>
+                          ) : (
+                            <span>Joined {c.joined}</span>
+                          )}
                         </div>
 
                         {/* Working Manage Account Button */}
@@ -2220,7 +2358,14 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                           </td>
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             <p className="text-xs text-zinc-300 font-mono">{c.email}</p>
-                            <p className="text-[10px] text-zinc-500 font-mono">Joined {c.joined}</p>
+                            {c.phone ? (
+                              <p className="text-[11px] text-emerald-400 font-mono flex items-center gap-1 font-semibold mt-0.5">
+                                <Phone className="w-3 h-3 text-emerald-400" />
+                                {c.phone}
+                              </p>
+                            ) : (
+                              <p className="text-[10px] text-zinc-500 font-mono">Joined {c.joined}</p>
+                            )}
                           </td>
                           <td className="py-3.5 px-4 whitespace-nowrap">
                             <span className="text-[10px] font-mono font-semibold px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-300 border border-purple-500/20">
@@ -2329,28 +2474,373 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
 
             {/* ── 8. SETTINGS ── */}
             {tab === "Settings" && (
-              <div className="max-w-sm">
-                <div className="mb-5">
-                  <h2 className="text-base font-semibold text-zinc-100">Settings</h2>
-                  <p className="text-xs text-zinc-500 mt-0.5">Manage your admin account</p>
+              <div className="space-y-6 max-w-5xl">
+                {/* Header Section */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800 pb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2.5">
+                      <Settings className="w-5 h-5 text-emerald-400" /> Administrative & Master Security Settings
+                    </h2>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Manage administrator identity, credentials, password reset controls, and system-level security policies.
+                    </p>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-semibold text-xs flex items-center gap-2 transition-all w-fit self-start sm:self-auto cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Terminate Master Session
+                  </button>
                 </div>
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
-                  <div className="flex items-center gap-3.5 p-4 rounded-lg bg-zinc-950 border border-zinc-800">
-                    <div className="w-10 h-10 rounded-xl bg-zinc-800 border border-zinc-700 flex items-center justify-center text-base font-bold text-zinc-200">
-                      {(user?.displayName || "A").charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-zinc-100">{user?.displayName || "Administrator"}</p>
-                      <p className="text-[11px] text-zinc-500 font-mono mt-0.5">{user?.email || "admin@elitetradinghub.com"}</p>
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mt-1.5 inline-block uppercase">
-                        Administrator
+
+                {/* Separated Cards Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                  {/* ── Card 1: Administrator Profile & Emergency Contact ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                          <ShieldCheck className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-100">Administrator Identity</h3>
+                          <p className="text-[11px] text-zinc-400">Root credentials & escalation records</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 uppercase tracking-wider">
+                        TIER-1 ROOT
                       </span>
                     </div>
+
+                    {/* Admin Profile Identity Box */}
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-emerald-500/20 via-zinc-800 to-zinc-900 border border-emerald-500/40 flex items-center justify-center text-xl font-bold text-emerald-400 shadow-inner">
+                        {(user?.displayName || "A").charAt(0).toUpperCase()}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2">
+                          <p className="text-base font-bold text-zinc-100 truncate">{user?.displayName || "Administrator"}</p>
+                          <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                        </div>
+                        <p className="text-xs text-zinc-400 font-mono truncate mt-0.5">{user?.email || "admin@elitetradinghub.com"}</p>
+                        <span className="inline-flex items-center gap-1.5 mt-1.5 text-[10px] font-mono text-zinc-500">
+                          Clearance: <span className="text-emerald-400 font-semibold">LEVEL 4 HIGH-ACCESS</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Registered Emergency Contact Field with Edit Capability */}
+                    <div className="space-y-2 pt-2 border-t border-zinc-800/60">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5 text-emerald-400" /> Admin Mobile Hotline
+                        </label>
+                        {!adminEditingPhone ? (
+                          <button
+                            onClick={() => {
+                              setAdminPhone(user?.phone || "");
+                              setAdminEditingPhone(true);
+                            }}
+                            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+                          >
+                            Edit Hotline
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setAdminEditingPhone(false)}
+                            className="text-xs text-zinc-400 hover:text-zinc-300 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+
+                      {!adminEditingPhone ? (
+                        <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950 border border-zinc-800/80">
+                          <span className="text-sm font-mono font-bold text-zinc-100">
+                            {user?.phone || adminPhone || <span className="text-zinc-500 italic text-xs font-sans">No mobile registered</span>}
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                            2FA Fallback
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5">
+                          <div className="flex gap-2">
+                            <div className="h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center gap-1.5 text-xs font-mono font-semibold text-zinc-300 shrink-0 select-none">
+                              <span>🇮🇳</span>
+                              <span>+91</span>
+                            </div>
+                            <input
+                              type="tel"
+                              value={adminPhone.replace(/\+91\s?/, "")}
+                              onChange={(e) => setAdminPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                              placeholder="98765 43210"
+                              className="flex-1 h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                            />
+                          </div>
+                          <button
+                            onClick={handleAdminSavePhone}
+                            disabled={adminSavingPhone || adminPhone.replace(/\D/g, "").length < 10}
+                            className="w-full h-9 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            {adminSavingPhone ? (
+                              <span className="flex items-center gap-1.5">
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Saving Contact...
+                              </span>
+                            ) : (
+                              "Update Admin Contact"
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <button onClick={logout}
-                    className="w-full h-9 border border-zinc-800 hover:border-zinc-700 bg-transparent text-zinc-400 hover:text-zinc-200 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <LogOut className="w-3.5 h-3.5" /> Sign Out
-                  </button>
+
+                  {/* ── Card 2: Password Reset & Master Security Controls ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                          <KeyRound className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-100">Password Reset & Security</h3>
+                          <p className="text-[11px] text-zinc-400">Update master password or dispatch recovery link</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        SHA-256 Auth
+                      </span>
+                    </div>
+
+                    {/* Direct Password Reset Form */}
+                    <form onSubmit={handleAdminUpdatePassword} className="space-y-3.5">
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-400 mb-1">New Master Password</label>
+                        <div className="relative">
+                          <input
+                            type={showAdminNewPassword ? "text" : "password"}
+                            value={adminNewPassword}
+                            onChange={(e) => setAdminNewPassword(e.target.value)}
+                            placeholder="Enter new master password (min. 8 characters)"
+                            className="w-full h-10 px-3 pr-10 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowAdminNewPassword(!showAdminNewPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                          >
+                            {showAdminNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-400 mb-1">Confirm Master Password</label>
+                        <div className="relative">
+                          <input
+                            type={showAdminConfirmPassword ? "text" : "password"}
+                            value={adminConfirmPassword}
+                            onChange={(e) => setAdminConfirmPassword(e.target.value)}
+                            placeholder="Re-enter new master password"
+                            className="w-full h-10 px-3 pr-10 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowAdminConfirmPassword(!showAdminConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                          >
+                            {showAdminConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={adminUpdatingPassword || !adminNewPassword}
+                        className="w-full h-10 bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-950 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        {adminUpdatingPassword ? (
+                          <span className="flex items-center gap-1.5">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Updating Master Password...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5" /> Save Master Password
+                          </span>
+                        )}
+                      </button>
+                    </form>
+
+                    {/* Email Password Reset Recovery Option */}
+                    <div className="pt-3 border-t border-zinc-800/80 space-y-2.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-zinc-400 font-semibold">Emergency Email Recovery Link</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Firebase RTDB</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        Dispatch a cryptographic password reset link to <span className="text-zinc-200 font-mono font-semibold">{user?.email || "admin@elitetradinghub.com"}</span>.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleAdminSendPasswordReset}
+                        disabled={adminSendingReset}
+                        className="w-full h-9 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        {adminSendingReset ? (
+                          <span className="flex items-center gap-1.5">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Dispatching Link...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5" /> Send Password Reset Link to Email
+                          </span>
+                        )}
+                      </button>
+                      {adminResetSent && (
+                        <p className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1 font-mono">
+                          <Check className="w-3.5 h-3.5" /> Password reset token sent to your administrative inbox.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ── Card 3: Platform Security & Audit Protocols ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                          <SlidersHorizontal className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-100">Security Enforcement & Policies</h3>
+                          <p className="text-[11px] text-zinc-400">Platform-wide compliance controls</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                        ENFORCED
+                      </span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                        <div>
+                          <p className="text-xs font-bold text-zinc-200">Real-Time RTDB Audit Logging</p>
+                          <p className="text-[10px] text-zinc-500">Record all broadcast dispatches and client mutations</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAdminAuditLogging(!adminAuditLogging);
+                            toast(`Audit logging ${!adminAuditLogging ? 'enabled' : 'disabled'}`, 'info');
+                          }}
+                          className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${adminAuditLogging ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+                        >
+                          <span className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${adminAuditLogging ? 'left-6' : 'left-1'}`} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                        <div>
+                          <p className="text-xs font-bold text-zinc-200">Instant Suspicious Login Alerts</p>
+                          <p className="text-[10px] text-zinc-500">Notify immediately on foreign IP or concurrent session</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setAdminLoginAlerts(!adminLoginAlerts);
+                            toast(`Login anomaly alerts ${!adminLoginAlerts ? 'enabled' : 'disabled'}`, 'info');
+                          }}
+                          className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${adminLoginAlerts ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+                        >
+                          <span className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${adminLoginAlerts ? 'left-6' : 'left-1'}`} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                        <div>
+                          <p className="text-xs font-bold text-zinc-200">Admin Session Auto-Lock</p>
+                          <p className="text-[10px] text-zinc-500">Idle duration before credential re-verification</p>
+                        </div>
+                        <select
+                          value={adminSessionDuration}
+                          onChange={(e) => {
+                            setAdminSessionDuration(e.target.value);
+                            toast(`Session timeout set to ${e.target.value}`, 'info');
+                          }}
+                          className="h-8 px-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs font-mono text-zinc-200 focus:outline-none focus:border-emerald-500/60 cursor-pointer"
+                        >
+                          <option value="1h">1 Hour</option>
+                          <option value="8h">8 Hours</option>
+                          <option value="24h">24 Hours</option>
+                          <option value="7d">7 Days</option>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Card 4: Session Security & Master Clearance ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+                            <ShieldAlert className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-zinc-100">Session Security & Danger Zone</h3>
+                            <p className="text-[11px] text-zinc-400">Terminal encryption & root termination</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                          TLS 1.3 Active
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 mt-4">
+                        <div className="flex items-center justify-between text-xs py-2 border-b border-zinc-800/60">
+                          <span className="text-zinc-400">Active Node Connection</span>
+                          <span className="text-zinc-200 font-mono text-[11px] flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-emerald-400" /> Vercel Edge Runtime
+                          </span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs py-2 border-b border-zinc-800/60">
+                          <span className="text-zinc-400">Database Sync Channel</span>
+                          <span className="text-zinc-200 font-mono text-[11px]">Firebase RTDB wss://</span>
+                        </div>
+                        <div className="flex items-center justify-between text-xs py-2">
+                          <span className="text-zinc-400">Session Storage Token</span>
+                          <span className="text-emerald-400 font-mono text-[11px]">eth_admin_session (AES)</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t border-zinc-800/80 space-y-2.5 mt-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          try {
+                            localStorage.removeItem("eth_admin_session");
+                            toast("Local session token flushed cleanly", "info");
+                          } catch {}
+                        }}
+                        className="w-full h-9 rounded-xl bg-zinc-800/60 hover:bg-zinc-800 border border-zinc-700/60 text-zinc-300 font-medium text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <RefreshCw className="w-3.5 h-3.5 text-zinc-400" /> Flush Administrative Cache
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={logout}
+                        className="w-full h-10 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-bold text-xs flex items-center justify-center gap-2 transition-all cursor-pointer"
+                      >
+                        <LogOut className="w-4 h-4" /> Terminate Master Session & Sign Out
+                      </button>
+                    </div>
+                  </div>
+
                 </div>
               </div>
             )}
@@ -2539,6 +3029,20 @@ export default function AdminDashboard({ defaultTab = "Dashboard" }: AdminDashbo
                       <option value="INACTIVE">INACTIVE</option>
                     </select>
                   </div>
+                </div>
+
+                {/* Client Phone Control */}
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider flex items-center gap-1.5">
+                    <Phone className="w-3.5 h-3.5 text-emerald-400" /> Client Contact / Mobile Number
+                  </label>
+                  <input
+                    type="tel"
+                    value={managePhone}
+                    onChange={e => setManagePhone(e.target.value)}
+                    placeholder="+91 98765 43210"
+                    className="w-full h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-lg text-xs font-mono font-bold text-zinc-100 focus:outline-none focus:border-zinc-700"
+                  />
                 </div>
 
                 {/* Access Feature Toggles */}

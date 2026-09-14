@@ -2,7 +2,7 @@ import { initializeApp, getApps, getApp } from 'firebase/app'
 import {
   getAuth, setPersistence, browserLocalPersistence,
   GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult,
-  signInWithCredential,
+  signInWithCredential, sendPasswordResetEmail, updatePassword,
   signOut as firebaseSignOut, onAuthStateChanged, User as FirebaseUser
 } from 'firebase/auth'
 import {
@@ -96,6 +96,7 @@ export interface UserSessionData {
   email: string | null
   image: string | null
   uid: string
+  phone?: string | null
 }
 
 export function getStoredUser(): UserSessionData | null {
@@ -157,7 +158,7 @@ export function formatTimeAgo(timestamp: number | string | undefined | null): st
 export async function syncUserToRtdb(user: UserSessionData, isExplicitLogin = false) {
   try {
     const now = Date.now()
-    const userRecord = {
+    const userRecord: Record<string, any> = {
       id: user.uid,
       name: user.name,
       email: user.email,
@@ -169,8 +170,11 @@ export async function syncUserToRtdb(user: UserSessionData, isExplicitLogin = fa
       lastActive: now,
       color: 'bg-emerald-500/20 text-emerald-300',
     }
+    if (user.phone) {
+      userRecord.phone = user.phone
+    }
 
-    const googleRecord = {
+    const googleRecord: Record<string, any> = {
       uid: user.uid,
       name: user.name,
       email: user.email,
@@ -180,9 +184,12 @@ export async function syncUserToRtdb(user: UserSessionData, isExplicitLogin = fa
       lastLoginFormatted: new Date(now).toLocaleString(),
       status: 'Active',
     }
+    if (user.phone) {
+      googleRecord.phone = user.phone
+    }
 
     await updateRtdbData(`users/${user.uid}`, userRecord)
-    await updateRtdbData(`clients/${user.uid}`, {
+    const clientRecord: Record<string, any> = {
       id: `ETH-${user.uid.slice(0, 5).toUpperCase()}`,
       name: user.name,
       email: user.email,
@@ -191,7 +198,11 @@ export async function syncUserToRtdb(user: UserSessionData, isExplicitLogin = fa
       joined: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
       online: true,
       lastActive: now,
-    })
+    }
+    if (user.phone) {
+      clientRecord.phone = user.phone
+    }
+    await updateRtdbData(`clients/${user.uid}`, clientRecord)
     await updateRtdbData(`google_logins/${user.uid}`, googleRecord)
 
     if (isExplicitLogin) {
@@ -204,6 +215,25 @@ export async function syncUserToRtdb(user: UserSessionData, isExplicitLogin = fa
     }
   } catch (e) {
     console.error('Failed to sync user to RTDB:', e)
+  }
+}
+
+export async function saveUserPhoneNumber(uid: string, phone: string, userName?: string) {
+  try {
+    await Promise.all([
+      updateRtdbData(`users/${uid}`, { phone }),
+      updateRtdbData(`clients/${uid}`, { phone }),
+      updateRtdbData(`google_logins/${uid}`, { phone }),
+    ])
+    await pushRtdbData(`activity`, {
+      user: userName || 'Trader',
+      action: `Saved contact phone (${phone})`,
+      time: Date.now(),
+      timestamp: Date.now(),
+    }).catch(() => {})
+  } catch (err) {
+    console.error('Failed to save phone number to RTDB:', err)
+    throw err
   }
 }
 
@@ -389,4 +419,25 @@ export function subscribeFirebaseUser(onChange: (user: UserSessionData | null) =
       }
     }
   })
+}
+
+export async function sendUserPasswordReset(email: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    await sendPasswordResetEmail(auth, email)
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to send password reset email' }
+  }
+}
+
+export async function updateUserAccountPassword(newPassword: string): Promise<{ success: boolean; error?: string }> {
+  try {
+    if (!auth.currentUser) {
+      return { success: false, error: 'No active authenticated user session found' }
+    }
+    await updatePassword(auth.currentUser, newPassword)
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to update account password' }
+  }
 }

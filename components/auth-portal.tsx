@@ -15,13 +15,19 @@ import {
   LayoutDashboard, TrendingUp, Calculator, Settings, LogOut,
   ChevronDown, ChevronRight, Bell, Search, Lock,
   ArrowUpRight, ArrowDownRight, Radio, BookOpen, Activity,
-  Target, ShieldCheck, Wifi, Send, Globe, Loader2
+  Target, ShieldCheck, Wifi, Send, Globe, Loader2, Phone,
+  Eye, EyeOff, KeyRound, Mail, Check, AlertCircle, Sparkles, RefreshCw
 } from "lucide-react";
 import {
   Area, AreaChart, CartesianGrid, XAxis, YAxis,
   ResponsiveContainer, Tooltip,
 } from "recharts";
-import { signInWithGoogleFirebase, checkGoogleRedirectResult, getStoredUser, subscribeFirebaseUser, logoutFirebase, performFullLogout } from '@/lib/firebase';
+import {
+  signInWithGoogleFirebase, checkGoogleRedirectResult, getStoredUser,
+  subscribeFirebaseUser, logoutFirebase, performFullLogout,
+  saveUserPhoneNumber, subscribeRtdbData,
+  sendUserPasswordReset, updateUserAccountPassword, pushRtdbData
+} from '@/lib/firebase';
 import { signIn } from 'next-auth/react';
 import { AuthLoginScreen } from "@/components/auth-login-screen";
 
@@ -134,6 +140,23 @@ export function AuthPortal() {
   const [stopPx, setStopPx]     = useState("24560");
   const [lotSize, setLotSize]   = useState("50");
 
+  // Settings State
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showCurrentPassword, setShowCurrentPassword] = useState(false);
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [updatingPassword, setUpdatingPassword] = useState(false);
+  const [sendingResetEmail, setSendingResetEmail] = useState(false);
+  const [resetEmailSent, setResetEmailSent] = useState(false);
+  const [editPhone, setEditPhone] = useState("");
+  const [isEditingPhone, setIsEditingPhone] = useState(false);
+  const [savingPhoneSetting, setSavingPhoneSetting] = useState(false);
+  const [prefTradeSignals, setPrefTradeSignals] = useState(true);
+  const [prefRiskAlerts, setPrefRiskAlerts] = useState(true);
+  const [prefMarketSummary, setPrefMarketSummary] = useState(false);
+
   const toast = useCallback((msg: string, type: ToastType = "info") => {
     const id = ++ctr.current;
     setToasts(p => [...p, { id, msg, type }]);
@@ -146,7 +169,8 @@ export function AuthPortal() {
     try {
       const stored = localStorage.getItem("eth_client_session");
       if (stored) {
-        setUser(JSON.parse(stored));
+        const parsed = JSON.parse(stored);
+        setUser(parsed);
         setLoading(false);
       }
     } catch {}
@@ -155,7 +179,14 @@ export function AuthPortal() {
     try {
       const fbUser = getStoredUser();
       if (fbUser?.email) {
-        const u = { email: fbUser.email, name: fbUser.name || fbUser.email.split("@")[0] || "Trader", image: fbUser.image || null, plan: "PRO" };
+        const u = {
+          uid: fbUser.uid,
+          email: fbUser.email,
+          name: fbUser.name || fbUser.email.split("@")[0] || "Trader",
+          image: fbUser.image || null,
+          plan: "PRO",
+          phone: fbUser.phone || null,
+        };
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
@@ -165,7 +196,14 @@ export function AuthPortal() {
     // 3. Subscribe to live Firebase Auth state change
     const unsubFb = subscribeFirebaseUser((fbU) => {
       if (fbU?.email) {
-        const u = { email: fbU.email, name: fbU.name || fbU.email.split("@")[0] || "Trader", image: fbU.image || null, plan: "PRO" };
+        const u = {
+          uid: fbU.uid,
+          email: fbU.email,
+          name: fbU.name || fbU.email.split("@")[0] || "Trader",
+          image: fbU.image || null,
+          plan: "PRO",
+          phone: fbU.phone || null,
+        };
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
@@ -173,10 +211,26 @@ export function AuthPortal() {
     });
 
     // 4. Handle Mobile Google OAuth Redirect result & NextAuth session
-    // This MUST complete before showing login screen to prevent redirect loop
     checkGoogleRedirectResult().then(userData => {
+      const pendingPhone = typeof window !== 'undefined' ? (localStorage.getItem("eth_pending_phone") || sessionStorage.getItem("eth_pending_phone")) : null;
       if (userData) {
-        const u = { email: userData.email, name: userData.name, image: userData.image || null, plan: "PRO" };
+        const phoneToUse = userData.phone || pendingPhone || null;
+        const u = {
+          uid: userData.uid,
+          email: userData.email,
+          name: userData.name,
+          image: userData.image || null,
+          plan: "PRO",
+          phone: phoneToUse,
+        };
+        if (phoneToUse && userData.uid) {
+          saveUserPhoneNumber(userData.uid, phoneToUse, u.name).catch(() => {});
+          try {
+            localStorage.setItem(`eth_phone_${userData.uid}`, phoneToUse);
+            localStorage.removeItem("eth_pending_phone");
+            sessionStorage.removeItem("eth_pending_phone");
+          } catch {}
+        }
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
         setLoading(false);
@@ -188,7 +242,24 @@ export function AuthPortal() {
         .then(r => r.ok ? r.json() : null)
         .then(s => {
           if (s?.user?.email) {
-            const u = { email: s.user.email, name: s.user.name || s.user.email.split("@")[0], image: s.user.image || null, plan: "PRO" };
+            const userId = `user_${s.user.email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+            const cachedPhone = typeof window !== 'undefined' ? (localStorage.getItem(`eth_phone_${userId}`) || pendingPhone) : null;
+            const u = {
+              uid: userId,
+              email: s.user.email,
+              name: s.user.name || s.user.email.split("@")[0],
+              image: s.user.image || null,
+              plan: "PRO",
+              phone: cachedPhone || null,
+            };
+            if (cachedPhone) {
+              saveUserPhoneNumber(userId, cachedPhone, u.name).catch(() => {});
+              try {
+                localStorage.setItem(`eth_phone_${userId}`, cachedPhone);
+                localStorage.removeItem("eth_pending_phone");
+                sessionStorage.removeItem("eth_pending_phone");
+              } catch {}
+            }
             setUser(u);
             try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
           }
@@ -199,6 +270,40 @@ export function AuthPortal() {
 
     return () => unsubFb();
   }, [toast]);
+
+  // 5. Background sync for user mobile number from RTDB
+  useEffect(() => {
+    if (!user) return;
+    const userId = user.uid || (user.email ? `user_${user.email.replace(/[^a-zA-Z0-9]/g, '_')}` : null);
+    if (!userId || user.phone) return;
+
+    try {
+      const cached = localStorage.getItem(`eth_phone_${userId}`);
+      if (cached) {
+        setUser((prev: any) => prev ? { ...prev, phone: cached } : prev);
+        return;
+      }
+    } catch {}
+
+    const unsubPhone = subscribeRtdbData(`users/${userId}/phone`, (phoneVal) => {
+      if (phoneVal) {
+        setUser((prev: any) => prev ? { ...prev, phone: phoneVal } : prev);
+        try {
+          localStorage.setItem(`eth_phone_${userId}`, phoneVal);
+          const stored = localStorage.getItem("eth_client_session");
+          if (stored) {
+            const parsed = JSON.parse(stored);
+            parsed.phone = phoneVal;
+            localStorage.setItem("eth_client_session", JSON.stringify(parsed));
+          }
+        } catch {}
+      }
+    });
+
+    return () => {
+      if (unsubPhone) unsubPhone();
+    };
+  }, [user?.uid, user?.email, user?.phone]);
 
   const login = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -237,19 +342,42 @@ export function AuthPortal() {
     setBusy(false);
   };
 
-  const handleGoogleLogin = async () => {
+  const handleGoogleLogin = async (phoneParam?: string) => {
     setBusy(true);
     try {
+      const phoneToSave = phoneParam || (typeof window !== 'undefined' ? (localStorage.getItem('eth_pending_phone') || sessionStorage.getItem('eth_pending_phone')) : null);
+      if (phoneToSave) {
+        try {
+          localStorage.setItem('eth_pending_phone', phoneToSave);
+          sessionStorage.setItem('eth_pending_phone', phoneToSave);
+        } catch {}
+      }
       const fbResult = await signInWithGoogleFirebase();
-      if (fbResult.user) {
-        const u = { email: fbResult.user.email, name: fbResult.user.name || fbResult.user.email?.split("@")[0] || "User", plan: "PRO" };
+      if (fbResult?.user) {
+        const finalPhone = phoneToSave || fbResult.user.phone || null;
+        const u = {
+          uid: fbResult.user.uid,
+          email: fbResult.user.email,
+          name: fbResult.user.name || fbResult.user.email?.split("@")[0] || "User",
+          image: fbResult.user.image || null,
+          plan: "PRO",
+          phone: finalPhone,
+        };
+        if (finalPhone) {
+          await saveUserPhoneNumber(fbResult.user.uid, finalPhone, u.name).catch(() => {});
+          try {
+            localStorage.setItem(`eth_phone_${fbResult.user.uid}`, finalPhone);
+            localStorage.removeItem('eth_pending_phone');
+            sessionStorage.removeItem('eth_pending_phone');
+          } catch {}
+        }
         setUser(u);
         try { localStorage.setItem("eth_client_session", JSON.stringify(u)); } catch {}
-        toast("Welcome!", "success");
+        toast("Welcome to Elite Trading Hub!", "success");
         setBusy(false);
         return;
       }
-      if (fbResult.redirecting) {
+      if (fbResult?.redirecting) {
         // Redirecting on mobile browser...
         return;
       }
@@ -267,6 +395,86 @@ export function AuthPortal() {
     window.location.href = '/';
   };
 
+  const handleUpdatePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword) {
+      toast("Please enter a new password", "error");
+      return;
+    }
+    if (newPassword.length < 8) {
+      toast("Password must be at least 8 characters long", "error");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast("New passwords do not match", "error");
+      return;
+    }
+
+    setUpdatingPassword(true);
+    try {
+      await updateUserAccountPassword(newPassword);
+      if (user?.uid) {
+        await pushRtdbData('activity', {
+          user: user.name || 'Trader',
+          action: 'Updated account password',
+          time: Date.now(),
+          timestamp: Date.now(),
+        }).catch(() => {});
+      }
+      toast("Password updated successfully!", "success");
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      toast(err?.message || "Please use the 'Send Password Reset Email Link' option below for this account.", "error");
+    } finally {
+      setUpdatingPassword(false);
+    }
+  };
+
+  const handleSendResetEmail = async () => {
+    if (!user?.email) {
+      toast("No email associated with this account", "error");
+      return;
+    }
+    setSendingResetEmail(true);
+    try {
+      await sendUserPasswordReset(user.email);
+      setResetEmailSent(true);
+      toast(`Password reset instructions sent to ${user.email}`, "success");
+    } catch (err: any) {
+      toast(err?.message || "Failed to dispatch reset email. Please try again later.", "error");
+    } finally {
+      setSendingResetEmail(false);
+    }
+  };
+
+  const handleSavePhoneSetting = async () => {
+    const clean = editPhone.replace(/\D/g, "");
+    if (clean.length < 10) {
+      toast("Please enter a valid 10-digit mobile number", "error");
+      return;
+    }
+    const formatted = `+91 ${clean.slice(-10, -5)} ${clean.slice(-5)}`;
+    setSavingPhoneSetting(true);
+    try {
+      const userId = user.uid || `user_${user.email.replace(/[^a-zA-Z0-9]/g, '_')}`;
+      await saveUserPhoneNumber(userId, formatted, user.name);
+      const updated = { ...user, phone: formatted };
+      setUser(updated);
+      try {
+        localStorage.setItem(`eth_phone_${userId}`, formatted);
+        localStorage.setItem("eth_client_session", JSON.stringify(updated));
+      } catch {}
+      setIsEditingPhone(false);
+      toast("Mobile contact number updated successfully!", "success");
+    } catch (err: any) {
+      toast("Failed to update mobile number", "error");
+    } finally {
+      setSavingPhoneSetting(false);
+    }
+  };
+
   // Calculator
   const cap  = parseFloat(capital.replace(/,/g, "")) || 0;
   const risk = (parseFloat(riskPct) / 100) * cap;
@@ -279,9 +487,9 @@ export function AuthPortal() {
     return (
       <div className="min-h-screen bg-zinc-950 flex flex-col items-center justify-center gap-3">
         <div className="w-8 h-8 border-2 border-zinc-700 border-t-emerald-400 rounded-full animate-spin" />
-        {redirectChecking && (
-          <p className="text-xs text-zinc-500 font-mono animate-pulse">Completing sign-in…</p>
-        )}
+        <p className="text-xs text-zinc-500 font-mono animate-pulse">
+          {redirectChecking ? "Completing sign-in…" : "Verifying trader profile…"}
+        </p>
       </div>
     );
   }
@@ -293,13 +501,19 @@ export function AuthPortal() {
         <Toast toasts={toasts} />
         <AuthLoginScreen
           portalType="client"
-          onLogin={async (em, pw) => {
+          onLogin={async (em, pw, phone) => {
             setEmail(em);
             setPass(pw);
+            if (phone) {
+              try {
+                localStorage.setItem('eth_pending_phone', phone);
+                sessionStorage.setItem('eth_pending_phone', phone);
+              } catch {}
+            }
             const fakeEvent = { preventDefault: () => {} } as any;
             await login(fakeEvent);
           }}
-          onGoogleLogin={handleGoogleLogin}
+          onGoogleLogin={(phone) => handleGoogleLogin(phone)}
         />
       </>
     );
@@ -669,28 +883,350 @@ export function AuthPortal() {
 
             {/* ── SETTINGS ── */}
             {tab === "Settings" && (
-              <div className="max-w-sm">
-                <div className="mb-5">
-                  <h2 className="text-base font-semibold text-zinc-100">Settings</h2>
-                  <p className="text-xs text-zinc-500 mt-0.5">Manage your account</p>
+              <div className="space-y-6 max-w-5xl">
+                {/* Header */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-zinc-800 pb-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-zinc-100 flex items-center gap-2.5">
+                      <Settings className="w-5 h-5 text-emerald-400" /> Account & Security Settings
+                    </h2>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Manage your profile credentials, password security, mobile alerts, and trading terminal access.
+                    </p>
+                  </div>
+                  <button
+                    onClick={logout}
+                    className="h-9 px-4 rounded-xl bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-400 font-semibold text-xs flex items-center gap-2 transition-all w-fit self-start sm:self-auto cursor-pointer"
+                  >
+                    <LogOut className="w-3.5 h-3.5" /> Sign Out of Account
+                  </button>
                 </div>
-                <div className="bg-zinc-900 border border-zinc-800 rounded-xl p-5 space-y-4">
-                  <div className="flex items-center gap-3.5 p-4 rounded-lg bg-zinc-950 border border-zinc-800">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-base font-bold text-emerald-400">
-                      {(user?.name || "Trader").charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-zinc-100 capitalize">{user?.name || "Trader"}</p>
-                      <p className="text-[11px] text-zinc-500 mt-0.5">{user?.email || ""}</p>
-                      <span className="text-[10px] font-medium px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 mt-1.5 inline-block uppercase">
-                        {user?.plan || "PRO"} Member
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                  {/* ── Card 1: User Profile & Contact Information ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                          <Check className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-100">Trader Profile</h3>
+                          <p className="text-[11px] text-zinc-400">Personal identification & contact records</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono font-bold px-2.5 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 uppercase tracking-wider">
+                        {user?.plan || "PRO"} ACTIVE
                       </span>
                     </div>
+
+                    {/* User Identity Display */}
+                    <div className="flex items-center gap-4 p-4 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                      {user?.image ? (
+                        /* eslint-disable-next-line @next/next/no-img-element */
+                        <img src={user.image} alt={user.name || "Trader"} className="w-14 h-14 rounded-2xl object-cover border border-emerald-500/40" />
+                      ) : (
+                        <div className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-xl font-bold text-emerald-400">
+                          {(user?.name || "Trader").charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-base font-bold text-zinc-100 capitalize truncate">{user?.name || "Trader"}</p>
+                        <p className="text-xs text-zinc-400 font-mono truncate">{user?.email || "No email on record"}</p>
+                        <span className="inline-flex items-center gap-1.5 mt-1.5 text-[10px] font-mono text-zinc-500">
+                          UID: <span className="text-zinc-400">{user?.uid ? `${user.uid.slice(0, 10)}...` : 'Active'}</span>
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Contact Mobile Number Field with Direct Editing */}
+                    <div className="space-y-2 pt-2 border-t border-zinc-800/60">
+                      <div className="flex items-center justify-between">
+                        <label className="text-xs font-semibold text-zinc-300 uppercase tracking-wider flex items-center gap-1.5">
+                          <Phone className="w-3.5 h-3.5 text-emerald-400" /> Registered Mobile Number
+                        </label>
+                        {!isEditingPhone ? (
+                          <button
+                            onClick={() => {
+                              setEditPhone(user?.phone || "");
+                              setIsEditingPhone(true);
+                            }}
+                            className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold cursor-pointer"
+                          >
+                            Edit Number
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => setIsEditingPhone(false)}
+                            className="text-xs text-zinc-400 hover:text-zinc-300 cursor-pointer"
+                          >
+                            Cancel
+                          </button>
+                        )}
+                      </div>
+
+                      {!isEditingPhone ? (
+                        <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950 border border-zinc-800/80">
+                          <span className="text-sm font-mono font-bold text-zinc-100">
+                            {user?.phone || <span className="text-zinc-500 italic text-xs font-sans">No mobile number registered</span>}
+                          </span>
+                          <span className="text-[10px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded">
+                            Verified RTDB
+                          </span>
+                        </div>
+                      ) : (
+                        <div className="space-y-2.5">
+                          <div className="flex gap-2">
+                            <div className="h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-xl flex items-center gap-1.5 text-xs font-mono font-semibold text-zinc-300 shrink-0 select-none">
+                              <span>🇮🇳</span>
+                              <span>+91</span>
+                            </div>
+                            <input
+                              type="tel"
+                              value={editPhone}
+                              onChange={(e) => setEditPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                              placeholder="98765 43210"
+                              className="flex-1 h-10 px-3 bg-zinc-950 border border-zinc-800 rounded-xl text-sm font-mono text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                            />
+                          </div>
+                          <button
+                            onClick={handleSavePhoneSetting}
+                            disabled={savingPhoneSetting || editPhone.replace(/\D/g, "").length < 10}
+                            className="w-full h-9 bg-emerald-500 hover:bg-emerald-400 disabled:bg-zinc-800 disabled:text-zinc-600 text-black font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          >
+                            {savingPhoneSetting ? (
+                              <span className="flex items-center gap-1.5">
+                                <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Saving...
+                              </span>
+                            ) : (
+                              "Update Contact Number"
+                            )}
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                  <button onClick={logout}
-                    className="w-full h-9 border border-zinc-800 hover:border-zinc-700 bg-transparent text-zinc-400 hover:text-zinc-200 text-sm font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
-                    <LogOut className="w-3.5 h-3.5" /> Sign Out
-                  </button>
+
+                  {/* ── Card 2: Password Reset & Security Settings ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-5 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                          <KeyRound className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-100">Password Reset & Security</h3>
+                          <p className="text-[11px] text-zinc-400">Update password credentials or request email reset</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-zinc-800 text-zinc-400">
+                        SHA-256 Auth
+                      </span>
+                    </div>
+
+                    {/* Direct Password Change Form */}
+                    <form onSubmit={handleUpdatePassword} className="space-y-3.5">
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-400 mb-1">New Password</label>
+                        <div className="relative">
+                          <input
+                            type={showNewPassword ? "text" : "password"}
+                            value={newPassword}
+                            onChange={(e) => setNewPassword(e.target.value)}
+                            placeholder="Enter new password (min. 8 characters)"
+                            className="w-full h-10 px-3 pr-10 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowNewPassword(!showNewPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                          >
+                            {showNewPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-semibold text-zinc-400 mb-1">Confirm New Password</label>
+                        <div className="relative">
+                          <input
+                            type={showConfirmPassword ? "text" : "password"}
+                            value={confirmPassword}
+                            onChange={(e) => setConfirmPassword(e.target.value)}
+                            placeholder="Re-enter new password to confirm"
+                            className="w-full h-10 px-3 pr-10 bg-zinc-950 border border-zinc-800 rounded-xl text-xs text-zinc-100 focus:outline-none focus:border-emerald-500/60"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300 cursor-pointer"
+                          >
+                            {showConfirmPassword ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={updatingPassword || !newPassword}
+                        className="w-full h-10 bg-zinc-100 hover:bg-white disabled:bg-zinc-800 disabled:text-zinc-600 text-zinc-950 font-bold text-xs rounded-xl transition-all flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+                      >
+                        {updatingPassword ? (
+                          <span className="flex items-center gap-1.5">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Updating Credentials...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <Lock className="w-3.5 h-3.5" /> Save New Password
+                          </span>
+                        )}
+                      </button>
+                    </form>
+
+                    {/* Email Password Reset Option */}
+                    <div className="pt-3 border-t border-zinc-800/80 space-y-2.5">
+                      <div className="flex items-center justify-between text-xs">
+                        <span className="text-zinc-400 font-semibold">Forgot current password?</span>
+                        <span className="text-[10px] text-zinc-500 font-mono">Firebase Auth</span>
+                      </div>
+                      <p className="text-[11px] text-zinc-400 leading-relaxed">
+                        Dispatch a secure password reset link directly to your verified email (<span className="text-zinc-200 font-mono">{user?.email || "registered address"}</span>).
+                      </p>
+                      <button
+                        type="button"
+                        onClick={handleSendResetEmail}
+                        disabled={sendingResetEmail || !user?.email}
+                        className="w-full h-9 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 font-semibold text-xs rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer"
+                      >
+                        {sendingResetEmail ? (
+                          <span className="flex items-center gap-1.5">
+                            <RefreshCw className="w-3.5 h-3.5 animate-spin" /> Dispatching Reset Link...
+                          </span>
+                        ) : (
+                          <span className="flex items-center gap-1.5">
+                            <Mail className="w-3.5 h-3.5" /> Send Password Reset Link to Email
+                          </span>
+                        )}
+                      </button>
+                      {resetEmailSent && (
+                        <p className="text-[11px] text-emerald-400 flex items-center gap-1 mt-1 font-mono">
+                          <Check className="w-3.5 h-3.5" /> Reset instructions dispatched to your inbox.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* ── Card 3: Signal Notification & Advisory Preferences ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm">
+                    <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center text-emerald-400">
+                          <Bell className="w-4 h-4" />
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-zinc-100">Trade Signal Notifications</h3>
+                          <p className="text-[11px] text-zinc-400">Customize real-time dispatch alerts</p>
+                        </div>
+                      </div>
+                      <span className="text-[10px] font-mono text-zinc-400">Push & In-App</span>
+                    </div>
+
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                        <div>
+                          <p className="text-xs font-bold text-zinc-200">High-Conviction Signals</p>
+                          <p className="text-[10px] text-zinc-500">Instant alerts for NIFTY, BANKNIFTY & SENSEX setups</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setPrefTradeSignals(!prefTradeSignals)}
+                          className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${prefTradeSignals ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+                        >
+                          <span className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${prefTradeSignals ? 'left-6' : 'left-1'}`} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                        <div>
+                          <p className="text-xs font-bold text-zinc-200">Risk & Stop-Loss Breaker Alerts</p>
+                          <p className="text-[10px] text-zinc-500">Immediate warnings if stop-loss thresholds trigger</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setPrefRiskAlerts(!prefRiskAlerts)}
+                          className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${prefRiskAlerts ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+                        >
+                          <span className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${prefRiskAlerts ? 'left-6' : 'left-1'}`} />
+                        </button>
+                      </div>
+
+                      <div className="flex items-center justify-between p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80">
+                        <div>
+                          <p className="text-xs font-bold text-zinc-200">Pre-Market Opening Bell Digest</p>
+                          <p className="text-[10px] text-zinc-500">Daily 9:00 AM IST market regime briefing</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setPrefMarketSummary(!prefMarketSummary)}
+                          className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${prefMarketSummary ? 'bg-emerald-500' : 'bg-zinc-800'}`}
+                        >
+                          <span className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${prefMarketSummary ? 'left-6' : 'left-1'}`} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* ── Card 4: Session Security & Danger Zone ── */}
+                  <div className="bg-zinc-900 border border-zinc-800 rounded-2xl p-5 sm:p-6 space-y-4 shadow-sm flex flex-col justify-between">
+                    <div>
+                      <div className="flex items-center justify-between border-b border-zinc-800/80 pb-3.5">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-red-500/10 border border-red-500/20 flex items-center justify-center text-red-400">
+                            <ShieldCheck className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h3 className="text-sm font-bold text-zinc-100">Session Security</h3>
+                            <p className="text-[11px] text-zinc-400">Active terminal authorization status</p>
+                          </div>
+                        </div>
+                        <span className="text-[10px] font-mono text-emerald-400 flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                          Online
+                        </span>
+                      </div>
+
+                      <div className="space-y-3 pt-3">
+                        <div className="p-3 rounded-xl bg-zinc-950/80 border border-zinc-800/80 text-xs space-y-1">
+                          <div className="flex justify-between text-zinc-400">
+                            <span>Connection Protocol:</span>
+                            <span className="font-mono text-zinc-200">HTTPS / TLS 1.3</span>
+                          </div>
+                          <div className="flex justify-between text-zinc-400">
+                            <span>Session Storage:</span>
+                            <span className="font-mono text-emerald-400">Active Local Persistence</span>
+                          </div>
+                          <div className="flex justify-between text-zinc-400">
+                            <span>Auth Mechanism:</span>
+                            <span className="font-mono text-zinc-200">Firebase Auth / OAuth 2.0</span>
+                          </div>
+                        </div>
+
+                        <p className="text-[11px] text-zinc-500 leading-relaxed">
+                          Signing out will securely clear your session tokens, cached portfolio data, and Google Identity tokens from this device.
+                        </p>
+                      </div>
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={logout}
+                      className="w-full h-10 border border-red-500/30 hover:border-red-500/50 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-xs font-bold rounded-xl transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm mt-4"
+                    >
+                      <LogOut className="w-4 h-4" /> Terminate Session & Sign Out
+                    </button>
+                  </div>
+
                 </div>
               </div>
             )}
